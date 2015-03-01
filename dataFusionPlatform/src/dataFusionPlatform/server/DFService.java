@@ -40,25 +40,34 @@ public class DFService
 	
     @SuppressWarnings("unchecked")
     public Map<String, Object> graph(int limit) {
-        Iterator<Map<String,Object>> result = cypher.query(
+    /*    Iterator<Map<String,Object>> result = cypher.query(
                 "MATCH (m:Movie)<-[:ACTED_IN]-(a:Person) " +
                 " RETURN m.title as movie, collect(a.name) as cast " +
-                " LIMIT {1}", map("1",limit));
+                " LIMIT {1}", map("1",limit));   */
+    	Iterator<Map<String,Object>> result = cypher.query(
+                "MATCH (t:Table)<-[:BELONGS_TO]-(c:Column) " +
+                " RETURN t.title as table, collect(c.title) as columns", map("1",limit));
+        
+        
         List nodes = new ArrayList();
         List rels= new ArrayList();
         int i=0;
         while (result.hasNext()) {
             Map<String, Object> row = result.next();
-            nodes.add(map("title",row.get("movie"),"label","movie"));
+            nodes.add(map("title",row.get("table"),"label","table"));
             int target=i;
             i++;
-            for (Object name : (Collection) row.get("cast")) {
-                Map<String, Object> actor = map("title", name,"label","actor");
-                int source = nodes.indexOf(actor);
+            for (Object name : (Collection) row.get("columns")) {
+                Map<String, Object> column = map("title", name,"label","column");
+                /*
+                int source = nodes.indexOf(column);
                 if (source == -1) {
-                    nodes.add(actor);
+                    nodes.add(column);
                     source = i++;
                 }
+                */
+                nodes.add(column);
+                int source = i++;
                 rels.add(map("source",source,"target",target));
             }
         }

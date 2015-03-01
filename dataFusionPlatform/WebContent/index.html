@@ -14,10 +14,8 @@ $(document).ready(function(){
 <h1>Data Fusion Platform Capstone</h1>
 <h3>Hello World!</h3>
 
-<p>click on this ish</p>
+<p>click here</p>
 
-<div id="hello">
-</div>
 
 <div id="graph">
 </div>
@@ -26,8 +24,8 @@ $(document).ready(function(){
 
 <style type="text/css">
     .node { stroke: #222; stroke-width: 1.5px; }
-    .node.actor { fill: #888; }
-    .node.movie { fill: #BBB; }
+    .node.column { fill: #888; }
+    .node.table { fill: #BBB; }
     .link { stroke: #999; stroke-opacity: .6; stroke-width: 1px; }
     div {height: 100%;}
     html {height: 100%;}
@@ -45,16 +43,7 @@ $(document).ready(function(){
     var svg = d3.select("#graph").append("svg")
             .attr("width", "100%").attr("height", "100%")
             .attr("pointer-events", "all");
-
-    d3.text("/dataFusionPlatform-0.0.1-SNAPSHOT/hello", function(error, stringData)
-    		{
-    			if (error) return;
-    			
-    			d3.select("#hello").append("p").text(stringData);
-    		});
-    
-    
-    
+ 
     d3.json("/dataFusionPlatform-0.0.1-SNAPSHOT/graph", function(error, graph) {
 		if (error) return;
 		
