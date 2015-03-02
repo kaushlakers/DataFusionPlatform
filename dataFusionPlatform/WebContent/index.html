@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html>
-<head><script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+<head>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+<link rel="stylesheet" type="text/css" href="style.css">
 <script>
 $(document).ready(function(){
     $("p").click(function(){
@@ -11,11 +13,13 @@ $(document).ready(function(){
 </head>
 <body>
 
-<h1>Data Fusion Platform Capstone</h1>
-<h3>Hello World!</h3>
-
-<p>click here</p>
-
+<div id="console">
+<button type="button">Find available data</button>
+<button type="button">Find all matches</button>
+<button type="button">Suggest match</button>
+<button type="button">Suggest intermediate</button>
+<div id="metainfo"></div>
+</div>
 
 <div id="graph">
 </div>
