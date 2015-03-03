@@ -23,7 +23,16 @@ public class DFRoutes implements SparkApplication{
 	{
 		// TODO Auto-generated method stub
 		// TODO Auto-generated method stub
-		get("/hello", (req, res) -> "Hello World"); // Hello World Route
+		get("/hello", new Route() {
+            public Object handle(Request request, Response response) {
+            	int limit = request.queryParams("limit") != null ? Integer.valueOf(request.queryParams("limit")) : 100;
+                
+            	return gson.toJson(service.graph(limit));
+               
+            }
+        });
+               
+            
 		
 		get("/graph", new Route() {
             public Object handle(Request request, Response response) {
