@@ -73,7 +73,7 @@ $(document).ready(function(){
 					//d3.json("/node_info", function(error, nodeInfo){if(error) return;})
 					var metainf = "";
 					
-					metainf = metainf.concat("Label: ", n.label, "\nTitle: ", n.title);
+					metainf = metainf.concat("Title: ", n.title, "<br/>Label: ", n.label);
 					console.log(metainf);
 					d3.select("#metainfo")
 						.html(metainf);
