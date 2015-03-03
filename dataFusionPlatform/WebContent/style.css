@@ -1,0 +1,43 @@
+html, body {
+	height: 100%;
+	margin: 0;
+	padding: 0;
+	overflow-y:hidden;
+	overflow-x:hidden;
+}
+
+div {
+	height: 100%;
+    box-sizing:border-box;
+    -moz-box-sizing:border-box;
+    -webkit-box-sizing:border-box;
+}
+
+#metainfo {
+	position: absolute;
+	bottom: 0;
+	background-color: #ffffff;
+	height: 150px;
+	margin-bottom: 20px;
+	width: 80%;
+}
+
+#graph {
+	width: 70%;
+	float: right;
+}
+
+#console {
+	position: relative;
+	background-color: #333333;
+	width: 29%;
+	float: left;
+}
+
+button {
+	padding: 10px;
+	margin: 0 auto;
+	display: block;
+	margin-top: 30px;
+	margin-bottom: 30px;
+}

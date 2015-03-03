@@ -61,7 +61,7 @@ $(document).ready(function(){
                 .data(graph.nodes).enter()
                 .append("circle")
                 .attr("class", function (d) { return "node "+d.label })
-                .attr("r", 35)
+                .attr("r", 20)
                 .call(force.drag);
 
         // html title attribute
