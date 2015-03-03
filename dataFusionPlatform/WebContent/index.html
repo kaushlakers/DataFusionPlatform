@@ -67,6 +67,17 @@ $(document).ready(function(){
         // html title attribute
         node.append("title")
                 .text(function (d) { return d.title; })
+                
+        node.on("click", function(n)
+        		{
+        			console.log(node.id);
+        			//d3.json("/node_info", function(error, nodeInfo){if(error) return;})
+        			var metainf = "";
+        			metainf.concat("Label: ", n.label, "\nTitle: ", n.title);
+					d3.select("#metainfo")
+						.html(metainf);
+        		});
+
 
         // force feed algo ticks
         force.on("tick", function() {
