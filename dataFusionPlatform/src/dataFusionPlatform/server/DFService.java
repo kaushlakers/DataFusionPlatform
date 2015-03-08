@@ -63,11 +63,13 @@ public class DFService
         	nodes.add(map("title", row.get("table"), "label", "table"));
         	
         	//Initialize dataset ID and table ID for creating relations
-        	int dId = i, tId = i;
+        	int dId = i;
+        	i++;
+        	int tId = i;
         	i++;
         	
         	//Create relation between Dataset and Table
-        	rels.add(map("tId", tId, "dId", dId));
+        	rels.add(map("source", tId, "target", dId));
         	
         	//Now create nodes for each column in the collection
         	//Name is collection of column objects
@@ -81,7 +83,7 @@ public class DFService
         		int cId = i++;
         		
         		//Add relation for a column to its corresponding table
-        		//rels.add(map("cId", cId, "tId", tId));
+        		rels.add(map("source", cId, "target", tId));
         	}
         }
         return map("nodes", nodes, "links", rels);
