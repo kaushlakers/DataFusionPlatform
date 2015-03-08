@@ -62,12 +62,16 @@ $(document).ready(function(){
                 .append("circle")
                 .attr("class", function (d) { return "node "+d.label })
                 .attr("r", 20)
+                .style("fill", function(d) {return d.colr; })
                 .call(force.drag);
 
         // html title attribute
         node.append("title")
                 .text(function (d) { return d.title; })
                 
+		var state = false;
+        var last = null;
+        var current = null;
  		node.on("click", function(n)
         		{
 					//d3.json("/node_info", function(error, nodeInfo){if(error) return;})
@@ -77,6 +81,11 @@ $(document).ready(function(){
 					console.log(metainf);
 					d3.select("#metainfo")
 						.html(metainf);
+					
+					last = current;
+					current = d3.select(this);
+				    current.style('fill', 'red');
+				    last.style('fill', function(d) { return d.colr; });
         		});
 
 
