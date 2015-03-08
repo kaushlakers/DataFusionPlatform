@@ -53,7 +53,7 @@ $(document).ready(function(){
 
 
  	
-    d3.json("/Justin/graph", function(error, graph) {
+    d3.json("/ty/graph", function(error, graph) {
 		if (error) return;
 		
         force.nodes(graph.nodes).links(graph.links).start();
