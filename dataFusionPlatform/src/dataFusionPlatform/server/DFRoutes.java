@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import dataFusionPlatform.cypher.*;
+import dataFusionPlatform.server.DFService;
 import dataFusionPlatform.utility.*;
 import spark.servlet.SparkApplication;
 import spark.Request;
@@ -23,7 +24,16 @@ public class DFRoutes implements SparkApplication{
 	{
 		// TODO Auto-generated method stub
 		// TODO Auto-generated method stub
-		get("/hello", (req, res) -> "Hello World"); // Hello World Route
+		get("/hello", new Route() {
+            public Object handle(Request request, Response response) {
+            	int limit = request.queryParams("limit") != null ? Integer.valueOf(request.queryParams("limit")) : 100;
+                
+            	return gson.toJson(service.graph(limit));
+               
+            }
+        });
+               
+            
 		
 		get("/graph", new Route() {
             public Object handle(Request request, Response response) {

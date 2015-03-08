@@ -40,38 +40,54 @@ public class DFService
 	
     @SuppressWarnings("unchecked")
     public Map<String, Object> graph(int limit) {
-    /*    Iterator<Map<String,Object>> result = cypher.query(
-                "MATCH (m:Movie)<-[:ACTED_IN]-(a:Person) " +
-                " RETURN m.title as movie, collect(a.name) as cast " +
-                " LIMIT {1}", map("1",limit));   */
+
     	Iterator<Map<String,Object>> result = cypher.query(
-                "MATCH (t:Table)<-[:BELONGS_TO]-(c:Column) " +
-                " RETURN t.title as table, collect(c.title) as columns", map("1",limit));
+                "MATCH (d:Dataset)<-[:BELONGS_TO]-(t:Table)<-[:BELONGS_TO]-(c:Column) " +
+                " RETURN d.title as dataset, t.title as table, collect(c.title) as columns", map("1",limit));
         
         
         List nodes = new ArrayList();
         List rels= new ArrayList();
-        int i=0;
+        
+        int i = 0;
+        //Iterate through each row of the resulting cypher query
         while (result.hasNext()) {
-            Map<String, Object> row = result.next();
-            nodes.add(map("title",row.get("table"),"label","table"));
-            int target=i;
-            i++;
-            for (Object name : (Collection) row.get("columns")) {
-                Map<String, Object> column = map("title", name,"label","column");
-                /*
-                int source = nodes.indexOf(column);
-                if (source == -1) {
-                    nodes.add(column);
-                    source = i++;
-                }
-                */
-                nodes.add(column);
-                int source = i++;
-                rels.add(map("source",source,"target",target));
-            }
+        	
+        	//Row has a dataset, a table, and a collection of columns
+        	Map<String, Object> row = result.next();
+    
+        	//Add the Dataset nodes
+        	nodes.add(map("title", row.get("dataset"), "label", "dataset"));
+        	
+        	//Add the Table nodes
+        	nodes.add(map("title", row.get("table"), "label", "table"));
+        	
+        	//Initialize dataset ID and table ID for creating relations
+        	int dId = i;
+        	i++;
+        	int tId = i;
+        	i++;
+        	
+        	//Create relation between Dataset and Table
+        	rels.add(map("source", tId, "target", dId));
+        	
+        	//Now create nodes for each column in the collection
+        	//Name is collection of column objects
+        	for (Object name : (Collection) row.get("columns")) {
+        		Map<String, Object> column = map("title", name, "label", "column");
+        		
+        		//Add one column to our list of nodes
+        		nodes.add(column);
+        		
+        		//Initialize column ID for creating relations
+        		int cId = i++;
+        		
+        		//Add relation for a column to its corresponding table
+        		rels.add(map("source", cId, "target", tId));
+        	}
         }
         return map("nodes", nodes, "links", rels);
+        	
     }
 
 }

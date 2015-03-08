@@ -21,6 +21,7 @@ $(document).ready(function(){
 <div id="metainfo"></div>
 </div>
 
+
 <div id="graph">
 </div>
 
@@ -41,6 +42,7 @@ $(document).ready(function(){
 <script type="text/javascript">
     var width = 800, height = 800;
 
+	//Change made
     var force = d3.layout.force()
             .charge(-1000).linkDistance(150).size([width, height]);
 
@@ -48,7 +50,10 @@ $(document).ready(function(){
             .attr("width", "100%").attr("height", "100%")
             .attr("pointer-events", "all");
  
-    d3.json("/dataFusionPlatform-0.0.1-SNAPSHOT/graph", function(error, graph) {
+
+
+ 	
+    d3.json("/Justin/graph", function(error, graph) {
 		if (error) return;
 		
         force.nodes(graph.nodes).links(graph.links).start();
