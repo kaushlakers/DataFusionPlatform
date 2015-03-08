@@ -41,11 +41,15 @@ public class DFService
     @SuppressWarnings("unchecked")
     public Map<String, Object> graph(int limit) {
 
+    	//Iterator<Map<String,Object>> result = cypher.query(
+        //        "MATCH (d:Dataset)<-[:BELONGS_TO]-(t:Table)<-[:BELONGS_TO]-(c:Column) " +
+        //        " RETURN d.title as dataset, t.title as table, collect(c.title) as columns", map("1",limit));
+    	/*
+    	 * New cypher query that pulls datasets, jointables, and represents property
+    	 */
     	Iterator<Map<String,Object>> result = cypher.query(
-                "MATCH (d:Dataset)<-[:BELONGS_TO]-(t:Table)<-[:BELONGS_TO]-(c:Column) RETURN d.title as dataset, t.title as table, collect(c.title) as columns " 
-    			+ "UNION "
-    			+ "MATCH (d:Dataset)<-[:BELONGS_TO]-(j:JoinTable)<-[:BELONGS_TO]-(c:Column) RETURN d.title as dataset, j.title as table, collect(c.title) as columns", map("1",limit));
-        
+               "MATCH (jc:Column)-[:BELONGS_TO]->(j:JoinTable)-[:BELONGS_TO]->(d:Dataset)<-[:BELONGS_TO]-(t:Table)<-[:BELONGS_TO]-(c:Column)" + 
+    	       "RETURN collect(jc.title) as joincolumn, collect(jc.represents) as jc_r, j.title as jointable, d.title as dataset, t.title as table, t.represents as t_r, collect(c.title) as columns", map("1",limit));
         
         List nodes = new ArrayList();
         List rels= new ArrayList();
