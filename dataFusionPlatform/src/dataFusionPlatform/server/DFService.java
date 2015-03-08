@@ -81,7 +81,7 @@ public class DFService
         		int cId = i++;
         		
         		//Add relation for a column to its corresponding table
-        		rels.add(map("cId", cId, "tId", tId));
+        		//rels.add(map("cId", cId, "tId", tId));
         	}
         }
         return map("nodes", nodes, "links", rels);
