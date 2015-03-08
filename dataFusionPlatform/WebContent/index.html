@@ -22,9 +22,6 @@ $(document).ready(function(){
 </div>
 
 
-<div id="hello">
-</div>
-
 <div id="graph">
 </div>
 
@@ -52,16 +49,9 @@ $(document).ready(function(){
             .attr("width", "100%").attr("height", "100%")
             .attr("pointer-events", "all");
  
- 
- 	d3.text("/hello", function(error, stringData) 
- 	{
- 		if (error) return;
- 		
- 		d3.select("#hello").append("p").text(stringData);
+
+ 	// CHANGES MADE!!!!!!!!!!!!!!!!!!!
  	
- 	});
- 	
- 
     d3.json("/dataFusionPlatform-0.0.1-SNAPSHOT/graph", function(error, graph) {
 		if (error) return;
 		

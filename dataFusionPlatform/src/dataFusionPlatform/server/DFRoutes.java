@@ -1,9 +1,10 @@
-package dataFusionPlatform.server;
+//package dataFusionPlatform.server;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import dataFusionPlatform.cypher.*;
+import dataFusionPlatform.server.DFService;
 import dataFusionPlatform.utility.*;
 import spark.servlet.SparkApplication;
 import spark.Request;
