@@ -16,7 +16,7 @@ $(document).ready(function(){
 <div id="console">
 <button type="button">Find available data</button>
 <button type="button">Find all matches</button>
-<button type="button">Suggest match</button>
+<button id="repMatch" onclick="findRepresents()" type="button">Suggest match</button>
 <button type="button">Suggest intermediate</button>
 <div id="metainfo"></div>
 </div>
@@ -52,8 +52,8 @@ $(document).ready(function(){
             .attr("width", "100%").attr("height", "100%")
             .attr("pointer-events", "all");
  
-
-
+	var currRepresents = "null";
+    
  	
     d3.json("/ty/graph", function(error, graph) {
 		if (error) return;
@@ -86,6 +86,8 @@ $(document).ready(function(){
 					//d3.json("/node_info", function(error, nodeInfo){if(error) return;})
 					var metainf = "";
 					
+					currRepresents = n.properties.represents;
+					
 					metainf = metainf.concat("Title: ", n.name, "<br/>Label: ", n.type);
 					console.log(metainf);
 					d3.select("#metainfo")
@@ -115,6 +117,15 @@ $(document).ready(function(){
                     .attr("cy", function(d) { return d.y; });
         });
     });
+    
+    function findRepresents() {
+    	if (currRepresents == "null") {
+    		console.log("No node is clicked on currently!");
+    	} else {
+        	console.log(currRepresents);
+    	}
+    	
+    }
 </script>
 </body>
 </html>
