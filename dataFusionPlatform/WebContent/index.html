@@ -67,7 +67,7 @@ $(document).ready(function(){
         var node = svg.selectAll(".node")
                 .data(graph.nodes).enter()
                 .append("circle")
-                .attr("class", function (d) { console.log(d); return "node "+ d.type.toString() })
+                .attr("class", function (d) { console.log("Represents: " + d.properties.represents); return "node "+ d.type.toString() })
                 .attr("r", radius)
                 .style("fill", function(d) {return d.colr; })
                 .call(force.drag);
