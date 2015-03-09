@@ -41,58 +41,45 @@ public class DFService
     @SuppressWarnings("unchecked")
     public Map<String, Object> graph(int limit) {
 
-    	//Iterator<Map<String,Object>> result = cypher.query(
-        //        "MATCH (d:Dataset)<-[:BELONGS_TO]-(t:Table)<-[:BELONGS_TO]-(c:Column) " +
-        //        " RETURN d.title as dataset, t.title as table, collect(c.title) as columns", map("1",limit));
-    	/*
-    	 * New cypher query that pulls datasets, jointables, and represents property
-    	 */
     	Iterator<Map<String,Object>> result = cypher.query(
-               "MATCH (jc:Column)-[:BELONGS_TO]->(j:JoinTable)-[:BELONGS_TO]->(d:Dataset)<-[:BELONGS_TO]-(t:Table)<-[:BELONGS_TO]-(c:Column)" + 
-    	       "RETURN collect(jc.title) as joincolumn, collect(jc.represents) as jc_r, j.title as jointable, d.title as dataset, t.title as table, t.represents as t_r, collect(c.title) as columns", map("1",limit));
+    			"match (c)-[:BELONGS_TO]->(p) " +
+    			"return c.title as childName, labels(c) as childType, ID(c) as childId, c as child, p.title as parentName, labels(p) as parentType, ID(p) as parentId, p as parent ", 
+    			map("1",limit));
         
-        List nodes = new ArrayList();
-        List rels= new ArrayList();
-        
-        int i = 0;
-        //Iterate through each row of the resulting cypher query
-        while (result.hasNext()) {
-        	
-        	//Row has a dataset, a table, and a collection of columns
-        	Map<String, Object> row = result.next();
-    
-        	//Add the Dataset nodes
-        	nodes.add(map("title", row.get("dataset"), "label", "dataset"));
-        	
-        	//Add the Table nodes
-        	nodes.add(map("title", row.get("table"), "label", "table"));
-        	
-        	//Initialize dataset ID and table ID for creating relations
-        	int dId = i;
-        	i++;
-        	int tId = i;
-        	i++;
-        	
-        	//Create relation between Dataset and Table
-        	rels.add(map("source", tId, "target", dId));
-        	
-        	//Now create nodes for each column in the collection
-        	//Name is collection of column objects
-        	for (Object name : (Collection) row.get("columns")) {
-        		Map<String, Object> column = map("title", name, "label", "column");
-        		
-        		//Add one column to our list of nodes
-        		nodes.add(column);
-        		
-        		//Initialize column ID for creating relations
-        		int cId = i++;
-        		
-        		//Add relation for a column to its corresponding table
-        		rels.add(map("source", cId, "target", tId));
-        	}
-        }
-        return map("nodes", nodes, "links", rels);
-        	
-    }
+    	 List nodes = new ArrayList();
+         List rels= new ArrayList();
+         
+         int i = 0;
+         //Iterate through each row of the resulting cypher query
+         while (result.hasNext()) 
+         {
+         	
+         	//Row has a dataset, a table, and a collection of columns
+         	Map<String, Object> row = result.next();
+     
+         	//Add the child node if it is not already there
+         	Map<String, Object> childNode = map("id", row.get("childId"), "name", row.get("childName"), "type", row.get("childType"), "properties", row.get("child"));
+         	int source = nodes.indexOf(childNode);
+            if (source == -1) 
+            {
+                nodes.add(childNode);
+                source = i++;
+            }
+         	
+         	//Add the parent node if it is not already there
+         	Map<String, Object> parentNode = map("id", row.get("parentId"), "name", row.get("parentName"), "type", row.get("parentType"), "properties", row.get("parent"));
+         	int target = nodes.indexOf(parentNode);
+            if (target == -1) 
+            {
+                nodes.add(parentNode);
+                target = i++;
+            }
+            
+         	rels.add(map("source", source, "target", target));
+         	
+         }
+         return map("nodes", nodes, "links", rels);
+         	
+     }
 
 }

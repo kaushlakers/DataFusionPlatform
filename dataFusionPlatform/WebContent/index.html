@@ -29,8 +29,10 @@ $(document).ready(function(){
 
 <style type="text/css">
     .node { stroke: #222; stroke-width: 1.5px; }
-    .node.column { fill: #888; }
-    .node.table { fill: #BBB; }
+    .node.Column { fill: #777; }
+    .node.Table { fill: #BBB; }
+    .node.JoinTable { fill: #999}
+    .node.Dataset { fill: #333}
     .link { stroke: #999; stroke-width: 7px; }
     div {height: 100%;}
     html {height: 100%;}
@@ -65,14 +67,16 @@ $(document).ready(function(){
         var node = svg.selectAll(".node")
                 .data(graph.nodes).enter()
                 .append("circle")
-                .attr("class", function (d) { return "node "+d.label })
+                .attr("class", function (d) { console.log(d); return "node "+ d.type.toString() })
                 .attr("r", radius)
                 .style("fill", function(d) {return d.colr; })
                 .call(force.drag);
 
         // html title attribute
         node.append("title")
-                .text(function (d) { return d.title; })
+                .text(function (d) { return d.name; })
+                
+                
                 
 		var state = false;
         var last = null;
@@ -82,7 +86,7 @@ $(document).ready(function(){
 					//d3.json("/node_info", function(error, nodeInfo){if(error) return;})
 					var metainf = "";
 					
-					metainf = metainf.concat("Title: ", n.title, "<br/>Label: ", n.label);
+					metainf = metainf.concat("Title: ", n.name, "<br/>Label: ", n.type);
 					console.log(metainf);
 					d3.select("#metainfo")
 						.html(metainf);
