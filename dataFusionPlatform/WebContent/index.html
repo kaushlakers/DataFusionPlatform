@@ -76,7 +76,6 @@ $(document).ready(function(){
                 .text(function (d) { return d.name; })
                 
                 
-                
 		var state = false;
         var last = null;
         var current = null;
@@ -90,7 +89,7 @@ $(document).ready(function(){
 					
 					currRepresents = n.properties.represents;
 					
-					metainf = metainf.concat("Title: ", n.name, "<br/>Label: ", n.type);
+					metainf = metainf.concat("Title: ", n.name, "<br/>Label: ", n.type, "<br/>Represents: ", n.properties.represents);
 					console.log(metainf);
 					d3.select("#metainfo")
 						.html(metainf);
