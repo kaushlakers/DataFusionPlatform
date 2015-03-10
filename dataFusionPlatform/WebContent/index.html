@@ -54,7 +54,7 @@ $(document).ready(function(){
 	var currRepresents = "null";
     var nodeCollection = null;
  	
-    d3.json("/Justin/graph", function(error, graph) {
+    d3.json("/ty/graph", function(error, graph) {
 		if (error) return;
 		
         force.nodes(graph.nodes).links(graph.links).start();
@@ -103,7 +103,7 @@ $(document).ready(function(){
 				    last.style('fill', function(d) { return d.colr; });
 				
 
-				    //getRep = n.properties.represents;
+				    getRep = n.properties.represents;
 				   
 
 				    
