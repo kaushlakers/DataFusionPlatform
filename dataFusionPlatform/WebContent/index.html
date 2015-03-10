@@ -15,7 +15,7 @@ $(document).ready(function(){
 
 <div id="console">
 <button type="button">Find available data</button>
-<button type="button">Find all matches</button>
+<button id="findRep" onclick="findRep()" type="button">Find all matches</button>
 <button id="repMatch" onclick="findRepresents()" type="button">Suggest match</button>
 <button type="button">Suggest intermediate</button>
 <div id="metainfo"></div>
@@ -102,16 +102,20 @@ $(document).ready(function(){
 				    current.style('fill', 'red');
 				    last.style('fill', function(d) { return d.colr; });
 				
+
+				    //getRep = n.properties.represents;
+				   
+
 				    
 				    //Dont highlight all the nodes with no represents value
-				    if (currRepresents !== undefined) {
-				    	console.log("Get rep is " + getRep);
+				    //if (currRepresents !== undefined) {
+				    //	console.log("Get rep is " + currRepresents);
 				    	
 				    	//Filter through all nodes to find matches, and color them blue
-				    	svg.selectAll(".node")
-				    		.filter(function(d) { return d.properties.represents == getRep; })
-				    		.style('fill', 'blue');
-				   	}
+				    //	svg.selectAll(".node")
+				    //		.filter(function(d) { return d.properties.represents == currRepresents; })
+				    //		.style('fill', 'blue');
+				   	//}
 				    
         		});
 
@@ -149,6 +153,20 @@ $(document).ready(function(){
     	}
     	
     }
+    function findRep() {
+				    
+		//Dont highlight all the nodes with no represents value
+	   	if (currRepresents !== undefined) {
+	    	console.log("Get rep is " + getRep);
+				    	
+			//Filter through all nodes to find matches, and color them blue
+			svg.selectAll(".node")
+			.filter(function(d) { return d.properties.represents == getRep; })
+			.style('fill', 'blue');
+		}
+	}
+    
+
 </script>
 </body>
 </html>
