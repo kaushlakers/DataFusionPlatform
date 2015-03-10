@@ -52,9 +52,9 @@ $(document).ready(function(){
             .attr("pointer-events", "all");
  
 	var currRepresents = "null";
-    var nodeCollection = null;
+    
  	
-    d3.json("/ty/graph", function(error, graph) {
+    d3.json("/Justin/graph", function(error, graph) {
 		if (error) return;
 		
         force.nodes(graph.nodes).links(graph.links).start();
@@ -70,13 +70,11 @@ $(document).ready(function(){
                 .attr("r", radius)
                 .style("fill", function(d) {return d.colr; })
                 .call(force.drag);
-        
-        nodeCollection = node;
 
         // html title attribute
         node.append("title")
                 .text(function (d) { return d.name; })
-       
+                
                 
 		var state = false;
         var last = null;
@@ -103,19 +101,6 @@ $(document).ready(function(){
 				    last.style('fill', function(d) { return d.colr; });
 				
 
-				    getRep = n.properties.represents;
-				   
-
-				    
-				    //Dont highlight all the nodes with no represents value
-				    //if (currRepresents !== undefined) {
-				    //	console.log("Get rep is " + currRepresents);
-				    	
-				    	//Filter through all nodes to find matches, and color them blue
-				    //	svg.selectAll(".node")
-				    //		.filter(function(d) { return d.properties.represents == currRepresents; })
-				    //		.style('fill', 'blue');
-				   	//}
 				    
         		});
 
@@ -143,13 +128,9 @@ $(document).ready(function(){
     
     function findRepresents() {
     	if (currRepresents == "null") {
-    		console.log("No represents data is available.");
+    		console.log("No node is clicked on currently!");
     	} else {
         	console.log(currRepresents);
-        
-        	
-
-        	
     	}
     	
     }
