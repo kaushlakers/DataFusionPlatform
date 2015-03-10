@@ -103,11 +103,11 @@ $(document).ready(function(){
 				    
 				    //Dont highlight all the nodes with no represents value
 				    if (currRepresents !== undefined) {
-				    	console.log("Get rep is " + getRep);
+				    	console.log("Get rep is " + currRepresents);
 				    	
 				    	//Filter through all nodes to find matches, and color them blue
 				    	svg.selectAll(".node")
-				    		.filter(function(d) { return d.properties.represents == getRep; })
+				    		.filter(function(d) { return d.properties.represents == currRepresents; })
 				    		.style('fill', 'blue');
 				   	}
 				    
