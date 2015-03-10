@@ -53,7 +53,7 @@ $(document).ready(function(){
             .attr("pointer-events", "all");
  
 	var currRepresents = "null";
-    
+    var nodeCollection = null;
  	
     d3.json("/ty/graph", function(error, graph) {
 		if (error) return;
@@ -71,12 +71,14 @@ $(document).ready(function(){
                 .attr("r", radius)
                 .style("fill", function(d) {return d.colr; })
                 .call(force.drag);
+        
+        nodeCollection = node;
 
         // html title attribute
         node.append("title")
                 .text(function (d) { return d.name; })
                 
-                
+        
                 
 		var state = false;
         var last = null;
@@ -120,9 +122,13 @@ $(document).ready(function(){
     
     function findRepresents() {
     	if (currRepresents == "null") {
-    		console.log("No node is clicked on currently!");
+    		console.log("No represents data is available.");
     	} else {
         	console.log(currRepresents);
+        
+        	
+
+        	
     	}
     	
     }
