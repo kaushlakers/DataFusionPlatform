@@ -44,7 +44,6 @@ $(document).ready(function(){
 <script type="text/javascript">
     var width = 1200, height = 800, radius = 20;
 
-	//Change made
     var force = d3.layout.force()
             .charge(-1000).linkDistance(150).size([width, height]);
 
@@ -55,7 +54,7 @@ $(document).ready(function(){
 	var currRepresents = "null";
     
  	
-    d3.json("/ty/graph", function(error, graph) {
+    d3.json("/Justin/graph", function(error, graph) {
 		if (error) return;
 		
         force.nodes(graph.nodes).links(graph.links).start();
@@ -83,6 +82,9 @@ $(document).ready(function(){
         var current = null;
  		node.on("click", function(n)
         		{
+        			//Return color of nodes back to normal
+        			svg.selectAll(".node").style("fill", function(d) { return d.colr; });
+        			
 					//d3.json("/node_info", function(error, nodeInfo){if(error) return;})
 					var metainf = "";
 					
@@ -97,6 +99,21 @@ $(document).ready(function(){
 					current = d3.select(this);
 				    current.style('fill', 'red');
 				    last.style('fill', function(d) { return d.colr; });
+				    
+				    
+				    //Get Represents property from currently selected node
+				    getRep = n.properties.represents;
+				    
+				    //Dont highlight all the nodes with no represents value
+				    if (getRep !== undefined) {
+				    	console.log("Get rep is " + getRep);
+				    	
+				    	//Filter through all nodes to find matches, and color them blue
+				    	svg.selectAll(".node")
+				    		.filter(function(d) { return d.properties.represents == getRep; })
+				    		.style('fill', 'blue');
+				   	}
+				    
         		});
 
 
