@@ -40,15 +40,21 @@
     var width = 1200 - margin.left - margin.right, height = 800 - margin.top - margin.bottom;
     
     var force = d3.layout.force()
-            .charge(-1000).linkDistance(150).size([width, height]);
+            .charge(-1000).linkDistance(100).size([width, height]);
     //[width, height] [width + margin.left + margin.right, height + margin.top + margin.bottom]
     
     
     //Test zoom functionality
     // create the zoom listener
     var zoom = d3.behavior.zoom()
-            .scaleExtent([1, 10])
+            .scaleExtent([0.5, 10])
             .on("zoom", zoomed);
+    
+    var drag = d3.behavior.drag()
+   				.origin(function(d) { return d; })
+    			.on("dragstart", dragstarted)
+    			.on("drag", dragged)
+    			.on("dragend", dragended);
     
     var svg = d3.select("#graph")
             .append("svg")
@@ -77,7 +83,7 @@
                 .attr("class", function (d) { console.log("Represents: " + d.properties.represents); return "node "+ d.type.toString() })
                 .attr("r", radius)
                 .style("fill", function(d) {return d.colr; })
-                .call(force.drag);
+                .call(drag);
         
         // Increase node radius of Dataset nodes      
         svg.selectAll(".node")
@@ -200,6 +206,24 @@
         container.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
       }
 
+    
+    function dragstarted(d) {
+        d3.event.sourceEvent.stopPropagation();
+        
+        d3.select(this).classed("dragging", true);
+        force.start();
+      }
+
+      function dragged(d) {
+        
+        d3.select(this).attr("cx", d.x = d3.event.x).attr("cy", d.y = d3.event.y);
+        
+      }
+
+      function dragended(d) {
+        
+        d3.select(this).classed("dragging", false);
+      }
 
     // TODO: create single function to streamline the following 4
     // -brad
