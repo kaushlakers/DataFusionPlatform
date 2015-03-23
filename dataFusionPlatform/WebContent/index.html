@@ -137,40 +137,18 @@
                     getSemanticRelation = n.properties.semanticrelation;
 
                     function createButton(label, functionCall) {
-                        //Create the button element
-                        var btn = document.createElement("BUTTON"); 
-                        
-                        //Create the button label, and add it to the button
-                        var title = document.createTextNode(label);
-
+                        var btn = document.createElement("BUTTON"); //Create the button element
+                        var title = document.createTextNode(label); //Create the button label, and add it to the button
                         btn.appendChild(title);
-                        
-                        //Call function when button is clicked
-                        btn.onclick = functionCall;
-                        
-                        //Add button to the 'displayOptions' div inside the console
-                        document.getElementById("displayOptions").appendChild(btn);
+                        btn.onclick = functionCall; //Call function when button is clicked
+                        document.getElementById("displayOptions").appendChild(btn); //Add button to the 'displayOptions' div inside the console
                     }
                     
-                    //Dynamically create button for finding related Titles
-                    if (getTitle !== undefined) {
-                        createButton("Find Related Titles", findTitle);
-                    }
-                    
-                    //Dynamically create button for finding related Represents
-                    if (getRepresents !== undefined) {
-                        createButton("Find Related Represents", findRep);
-                    }
-                    
-                    //Dynamically create button for finding related Column Types
-                    if (getColumnType !== undefined) {
-                        createButton("find Related Column Types", findColType);
-                    }
-                    
-                    //Dynamically create button for finding related Semantic Relations
-                    if (getSemanticRelation !== undefined) {
-                        createButton("Find Related Semantic Relations", findSemRel);
-                    }
+                    //Dynamically create button for finding related Titles, Represents, Column Types, Relations
+                    if (getTitle !== undefined)            { createButton("Find Related Titles", findTitle); }
+                    if (getRepresents !== undefined)       { createButton("Find Related Represents", findRep); }
+                    if (getColumnType !== undefined)       { createButton("find Related Column Types", findColType); }
+                    if (getSemanticRelation !== undefined) { createButton("Find Related Semantic Relations", findSemRel); }
                 });
 
 
@@ -180,7 +158,6 @@
         
              node.attr("cx", function(d) { return d.x = Math.max(radius, Math.min(width - radius, d.x)); })
              .attr("cy", function(d) { return d.y = Math.max(radius, Math.min(height - radius, d.y)); });
-            
             
             link.attr("x1", function(d) { return d.source.x; })
                     .attr("y1", function(d) { return d.source.y; })
@@ -200,72 +177,19 @@
         container.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
       }
 
-
-    // TODO: create single function to streamline the following 4
-    // -brad
-
-    // function find(att, color) {
-    //     svg.selectAll(".node").style("fill", function(d) { return d.colr; });
-        
-    //     //Filter through all nodes to find matching titles, color them yellow
-    //     svg.selectAll(".node")
-    //     .filter(function(d) { return d.properties.att == getTitle; })
-    //     .style('fill', color);
-    // }
-    
-    //Function used to find nodes with related 'Title' properties
-    function findTitle() {
-            
-        //Return color of nodes back to normal
+    function find(att, match, color) {
         svg.selectAll(".node").style("fill", function(d) { return d.colr; });
-        
-        //Filter through all nodes to find matching titles, color them yellow
+        //Filter through all nodes to find matches, color them appropriately
         svg.selectAll(".node")
-        .filter(function(d) { return d.properties.title == getTitle; })
-        .style('fill', 'yellow');
-                
+        .filter(function(d) { return d.properties[att] == match; })
+        .style('fill', color);
     }
     
-    //Function used to find nodes with related 'Represents' properties
-    function findRep() {      
-      
-        //Return color of nodes back to normal
-        svg.selectAll(".node").style("fill", function(d) { return d.colr; });
-        
-        //Filter through all nodes to find matching represents, color them blue
-        svg.selectAll(".node")
-        .filter(function(d) { return d.properties.represents == getRepresents; })
-        .style('fill', 'blue');
-                
-    }
+    function findTitle()   { find("title", getTitle, "yellow"); }
+    function findRep()     { find("represents", getRepresents, "blue"); }
+    function findColType() { find("columntype", getColumnType, "green"); }
+    function findSemRel()  { find("semanticrelation", getSemanticRelation, "orange"); }
     
-    //Function used to find nodes with related 'Column Type' properties
-    function findColType() {        
-                
-        //Return color of nodes back to normal
-        svg.selectAll(".node").style("fill", function(d) { return d.colr; });
-        
-        //Filter through all nodes to find matching column types, color them green
-        svg.selectAll(".node")
-        .filter(function(d) { return d.properties.columntype == getColumnType; })
-        .style('fill', 'green');
-        
-    }
-    
-    //Function used to find nodes with related 'Semantic Relation' properties
-    function findSemRel() {     
-                        
-        //Return color of nodes back to normal
-        svg.selectAll(".node").style("fill", function(d) { return d.colr; });
-        
-        //Filter through all nodes to find matching semantic relations, color them orange
-        svg.selectAll(".node")
-        .filter(function(d) { return d.properties.semanticrelation == getSemanticRelation; })
-        .style('fill', 'orange');
-        
-    }
-    
-
 </script>
 </body>
 </html>
