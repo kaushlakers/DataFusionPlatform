@@ -10,7 +10,7 @@
 <body>
 
 <div id="console">
-<h2>Find all matches:</h3>
+<h2>Find all matches:</h2>
 <div id="displayOptions"></div>
 
 <div id="metainfo"></div>
@@ -34,41 +34,82 @@
 
 
 <script type="text/javascript">
-    var width = 1200, height = 800, radius = 20;
-
+    //var width = 1200, height = 800, radius = 20, rTable = 30, rDataset = 40;
+    var radius = 20, rTable = 30, rDataset = 40;
+    var margin = {top: -5, right: -5, bottom: -5, left: -5};
+    var width = 1200 - margin.left - margin.right, height = 800 - margin.top - margin.bottom;
+    
     var force = d3.layout.force()
             .charge(-1000).linkDistance(150).size([width, height]);
-
-    var svg = d3.select("#graph").append("svg")
-            .attr("width", "100%").attr("height", "100%")
-            .attr("pointer-events", "all");
- 
-	//var currRepresents = "null";
-	
+	//[width, height] [width + margin.left + margin.right, height + margin.top + margin.bottom]
     
+    
+    //Test zoom functionality
+ 	// create the zoom listener
+ 	var zoom = d3.behavior.zoom()
+            .scaleExtent([1, 10])
+            .on("zoom", zoomed);
  	
+//  	var svg = d3.select("#graph").append("svg")
+//     			.attr("width", "100%")
+//     			.attr("height", "100%")
+//     			.append("g")
+//     			.attr("transform", "translate(" + margin.left + "," + margin.right + ")")
+//     			.call(zoom);
+    
+    var svg = d3.select("#graph")
+    		.append("svg")
+            .attr("width", "100%")
+            .attr("height", "100%")
+            .attr("pointer-events", "all")
+            .attr("transform", "translate(" + margin.left + "," + margin.right + ")")
+            .call(zoom);
+    
+    var container = svg.append("g");
+    
+	//var currRepresents = "null";
+	//zoomListener(svg);
+	
     d3.json("/Justin/graph", function(error, graph) {
 		if (error) return;
 		
         force.nodes(graph.nodes).links(graph.links).start();
 
-        var link = svg.selectAll(".link")
+        var link = container.append("g")
+        		.selectAll(".link")
                 .data(graph.links).enter()
                 .append("line").attr("class", "link");
 
-        var node = svg.selectAll(".node")
+        var node = container.append("g")
+        		.selectAll(".node")
                 .data(graph.nodes).enter()
                 .append("circle")
                 .attr("class", function (d) { console.log("Represents: " + d.properties.represents); return "node "+ d.type.toString() })
                 .attr("r", radius)
                 .style("fill", function(d) {return d.colr; })
                 .call(force.drag);
-
+        
+     	// Increase node radius of Dataset nodes      
+        svg.selectAll(".node")
+		.filter(function(d) { return d.type == "Dataset"; })
+		.attr("r", rDataset);
+        
+    	// Increase node radius of Table nodes      
+        svg.selectAll(".node")
+		.filter(function(d) { return d.type == "Table"; })
+		.attr("r", rTable);
+    	
+     	// Increase node radius of JoinTable nodes      
+        svg.selectAll(".node")
+		.filter(function(d) { return d.type == "JoinTable"; })
+		.attr("r", rTable);
+     	
+        //zoomListener(svg);
+     	
         // html title attribute
         node.append("title")
                 .text(function (d) { return d.name; })
-                
-                
+             
 		var state = false;
         var last = null;
         var current = null;
@@ -83,8 +124,7 @@
         			}
         			
         			
-        			
-					
+        								
 					//Get Represents property from currently selected node
 					currRepresents = n.properties.represents;
 					
@@ -196,14 +236,10 @@
         
     });
     
-    function findRepresents() {
-    	if (currRepresents == "null") {
-    		console.log("No node is clicked on currently!");
-    	} else {
-        	console.log(currRepresents);
-    	}
-    	
-    }
+ 	// function for handling zoom event
+    function zoomed() {
+        container.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+      }
     
     //Function used to find nodes with related 'Title' properties
     function findTitle() {
