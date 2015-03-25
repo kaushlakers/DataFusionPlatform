@@ -153,6 +153,7 @@ function find(att, match, color) {
     svg.selectAll(".node").style("fill", function(d) { return d.colr; });
     //Filter through all nodes to find matches, color them appropriately
     svg.selectAll(".node")
+    .transition()
     .filter(function(d) { return d.properties[att] == match; })
     .style('fill', color);
 }
