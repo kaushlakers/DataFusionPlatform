@@ -11,7 +11,7 @@
 
 <div id="console">
 <h2>Find all matches:</h2>
-<form>
+<form method="post" onsubmit="search(); return false">
 <input id="searchbox" type="text" placeholder="Search..." required>
 <button type="button" onclick="search()">Search</button>
 </form>

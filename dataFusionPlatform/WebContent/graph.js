@@ -1,18 +1,18 @@
 //var width = 1200, height = 800, radius = 20, rTable = 30, rDataset = 40;
-var radius = 20, rTable = 30, rDataset = 40;
+var maxRadius = 25, rDefault = 15, rTable = 20, rDataset = 25;
 var margin = {top: -5, right: -5, bottom: -5, left: -5};
 var width = 1200 - margin.left - margin.right, height = 800 - margin.top - margin.bottom;
 
 var force = d3.layout.force()
-    .charge(-1000)
-    .linkDistance(100)
+    .charge(-500)
+    .linkDistance(50)
     .size([width, height]);
 //[width, height] [width + margin.left + margin.right, height + margin.top + margin.bottom]
 
 //Test zoom functionality
 // create the zoom listener
 var zoom = d3.behavior.zoom()
-    .scaleExtent([0.5, 10])
+    .scaleExtent([1, 15])
     .on("zoom", zoomed);
 
 var drag = d3.behavior.drag()
@@ -52,10 +52,10 @@ d3.json("/Justin/graph", function(error, graph) {
         })
         .attr("r", function(d) {
             switch (d.type.toString()) {
-                case "Dataset":   return 40;
-                case "Table":     return 30;
-                case "JoinTable": return 30;
-                default: return 20;
+                case "Dataset":   return rDataset;
+                case "Table":     return rTable;
+                case "JoinTable": return rTable;
+                default: return rDefault;
             }
         })
         .style("fill", function(d) {return d.colr; })
@@ -117,8 +117,8 @@ d3.json("/Justin/graph", function(error, graph) {
 
     // force feed algo ticks
     force.on("tick", function() {
-        node.attr("cx", function(d) { return d.x = Math.max(radius, Math.min(width - radius, d.x)); })
-        .attr("cy", function(d) { return d.y = Math.max(radius, Math.min(height - radius, d.y)); });
+        node.attr("cx", function(d) { return d.x = Math.max(maxRadius, Math.min(width - maxRadius, d.x)); })
+        .attr("cy", function(d) { return d.y = Math.max(maxRadius, Math.min(height - maxRadius, d.y)); });
         
         link.attr("x1", function(d) { return d.source.x; })
             .attr("y1", function(d) { return d.source.y; })
