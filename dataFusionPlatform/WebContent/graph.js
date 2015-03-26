@@ -130,6 +130,13 @@ d3.json("/Justin/graph", function(error, graph) {
     });
 });
 
+function search() {
+    var userinput = document.getElementById("searchbox");
+    d3.selectAll(".node")
+        .filter(function(d) { return d.properties.title == userinput.value; })
+        .style('fill', "teal");
+}
+
 // function for handling zoom event
 function zoomed() {
     container.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
