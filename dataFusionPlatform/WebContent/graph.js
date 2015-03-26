@@ -131,10 +131,23 @@ d3.json("/Justin/graph", function(error, graph) {
 });
 
 function search() {
-    var userinput = document.getElementById("searchbox");
-    d3.selectAll(".node")
-        .filter(function(d) { return d.properties.title == userinput.value; })
-        .style('fill', "teal");
+    var arr = ["title", "represents", "columntype", "semanticrelation"];
+    for (i = 0; i < arr.length; i++) {
+        att = arr[i];
+        var userinput = document.getElementById("searchbox").value;
+        "string".toLowerCase();
+        d3.selectAll(".node")
+            .filter(function(d) {
+                if (d.properties[att] != null) {
+                    // return d.properties[att].toLowerCase() == userinput.toLowerCase();
+                    return d.properties[att].toLowerCase().indexOf(userinput.toLowerCase()) > -1;
+                }
+                else {
+                    return false;
+                }
+            })
+            .style('fill', "teal");
+    }
 }
 
 // function for handling zoom event
