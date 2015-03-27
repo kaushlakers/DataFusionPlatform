@@ -12,6 +12,10 @@
 <div id="console">
 <h2>Find all matches:</h2>
 <form method="post" onsubmit="search(); return false">
+<input type="checkbox" class="check" name="title">title<br>
+<input type="checkbox" class="check" name="represents">represents<br>
+<input type="checkbox" class="check" name="columntype">column type<br>
+<input type="checkbox" class="check" name="semanticrelation">semantic relation<br>
 <input id="searchbox" type="text" placeholder="Search..." required>
 <button type="button" onclick="search()">Search</button>
 </form>
