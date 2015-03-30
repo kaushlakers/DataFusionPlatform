@@ -38,34 +38,49 @@ d3.json("/Justin/graph", function(error, graph) {
     force.nodes(graph.nodes).links(graph.links).start();
 
     var link = container.append("g")
-        .selectAll(".link")
+    	.selectAll(".link")
         .data(graph.links).enter()
         .append("line").attr("class", "link");
 
+    //Modified D3 nodes on 3/27/15 By Justin 
+    //Nodes are now a container that contains a circle graphic and its title
+    //Each node creates a "g" element container and appends:
+   	//	1: SVG Circle
+   	//	2: Text displaying title of node
     var node = container.append("g")
-        .selectAll(".node")
-        .data(graph.nodes).enter()
-        .append("circle")
-        .attr("class", function (d) {
-            console.log("Represents: " + d.properties.represents);
-            return "node "+ d.type.toString();
-        })
-        .attr("r", function(d) {
-            switch (d.type.toString()) {
-                case "Dataset":   return 40;
-                case "Table":     return 30;
-                case "JoinTable": return 30;
-                default: return 20;
-            }
-        })
-        .style("fill", function(d) {return d.colr; })
-        .call(drag);
+    	.selectAll(".node")
+    	.data(graph.nodes)
+    	.enter().append("g")
+    	.attr("class", function (d) { return "node "+ d.type.toString(); })
+    	.style("fill", function(d) {return d.colr; })
+    	.call(drag);
     
-    //zoomListener(svg);
-    
-    // html title attribute
-    node.append("title")
+    //Add a SVG circle element to the node container	
+    node.append("circle")
+    	//Dynamically adjust the size of circles depending on its type
+    	.attr("r", function (d) {
+    		switch (d.type.toString()) {
+    			case "Dataset":		return 40;
+    			case "Table":		return 30;
+    			case "JoinTable":	return 30;
+    			default:			return 20;
+    		}
+    	})
+    	
+    //Add a Title element to display nodes title container
+    node.append("text")
+    	//Adjust the placement of text on the X-AXIS for displaying the title
+    	.attr("dx", function (d) {
+    		switch (d.type.toString()) {
+    			case "Dataset":		return 40;
+    			case "Table":		return 30;
+    			case "JoinTable":	return 30;
+    			default:			return 20;
+    		}
+    	})
+    	.attr("dy", ".35em")
         .text(function (d) { return d.name; })
+        
          
     var state = false;
     var last = null;
@@ -127,6 +142,8 @@ d3.json("/Justin/graph", function(error, graph) {
 
         node.attr("cx", function(d) { return d.x; })
             .attr("cy", function(d) { return d.y; });
+        
+        node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
     });
 });
 
