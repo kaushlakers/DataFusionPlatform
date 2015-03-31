@@ -80,14 +80,24 @@ public class DFService
          	
          	//Row has a dataset, a table, and a collection of columns
          	Map<String, Object> row = result.next();
+         	Map<String, Object> datasetNode = map("datasetNode", row.get("dataset"));
+         	int dtarget = i;
+         	int dsource = nodes.indexOf(datasetNode);
+         	
+         	if (dsource == -1)
+         	{
+         		nodes.add(datasetNode);
+         		dtarget = i++;
+         	}
          	
         	//Add the parent node if it is not already there
          	Map<String, Object> parentNode = map("id", row.get("parentId"), "name", row.get("parentName"), "type", row.get("parentType"), "properties", row.get("parent"));
-         	int target = nodes.indexOf(parentNode);
-            if (target == -1) 
+         	int ptarget = nodes.indexOf(parentNode);
+            if (ptarget == -1) 
             {
                 nodes.add(parentNode);
-                target = i++;
+                rels.add(map("source", ptarget, "target", dtarget));
+                ptarget = i++;
             }
             
          	//Add the child node if it is not already there
@@ -100,7 +110,7 @@ public class DFService
             }
          	
          
-         	rels.add(map("source", source, "target", target));
+         	rels.add(map("source", source, "target", ptarget));
          	
          }
          return map("nodes", nodes, "links", rels);

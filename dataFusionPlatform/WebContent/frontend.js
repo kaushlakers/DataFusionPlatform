@@ -4,15 +4,15 @@ var margin = {top: -5, right: -5, bottom: -5, left: -5};
 var width = 1200 - margin.left - margin.right, height = 800 - margin.top - margin.bottom;
 
 var force = d3.layout.force()
-    .charge(-1000)
-    .linkDistance(100)
+    .charge(-500)
+    .linkDistance(50)
     .size([width, height]);
 //[width, height] [width + margin.left + margin.right, height + margin.top + margin.bottom]
 
 //Test zoom functionality
 // create the zoom listener
 var zoom = d3.behavior.zoom()
-    .scaleExtent([0.5, 10])
+    .scaleExtent([1, 15])
     .on("zoom", zoomed);
 
 var drag = d3.behavior.drag()
