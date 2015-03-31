@@ -107,10 +107,9 @@ public class DFService
          	
      }
 	
-	@SuppressWarnings("unchecked")
-    public Map<String, Object> graph(int limit) {
-
-    	Iterator<Map<String,Object>> result = cypher.query(
+	public Map<String, Object> graph(int limit) {
+		
+		Iterator<Map<String,Object>> result = cypher.query(
     			"match (c)-[:BELONGS_TO]->(p) " +
     			"return c.title as childName, labels(c) as childType, ID(c) as childId, c as child, p.title as parentName, labels(p) as parentType, ID(p) as parentId, p as parent ", 
     			map("1",limit));
@@ -148,7 +147,7 @@ public class DFService
          	
          }
          return map("nodes", nodes, "links", rels);
-         	
-     }
+		
+	}
 }
 
