@@ -2,17 +2,13 @@ package dataFusionPlatform.server;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-
-import dataFusionPlatform.cypher.*;
 import dataFusionPlatform.server.DFService;
 import dataFusionPlatform.utility.*;
 import spark.servlet.SparkApplication;
 import spark.Request;
 import spark.Response;
 import spark.Route;
-import spark.SparkBase;
 import static spark.Spark.get;
-import static spark.SparkBase.externalStaticFileLocation;
 
 public class DFRoutes implements SparkApplication{
 
@@ -22,36 +18,39 @@ public class DFRoutes implements SparkApplication{
 	@Override
 	public void init() 
 	{
-		// TODO Auto-generated method stub
-		// TODO Auto-generated method stub
-		get("/hello", new Route() {
+		
+		get("/ty/graph", new Route() {
             public Object handle(Request request, Response response) {
             	int limit = request.queryParams("limit") != null ? Integer.valueOf(request.queryParams("limit")) : 100;
                 
             	return gson.toJson(service.graph(limit));
+               
+            }
+        });
+		
+		get("/ty/datasets", new Route() {
+            public Object handle(Request request, Response response) {
+            	int limit = request.queryParams("limit") != null ? Integer.valueOf(request.queryParams("limit")) : 100;
+                
+            	return gson.toJson(service.datasets(limit));
                
             }
         });
                
             
 		
-		get("/graph", new Route() {
+		get("/ty/getDataset", new Route() {
             public Object handle(Request request, Response response) {
             	int limit = request.queryParams("limit") != null ? Integer.valueOf(request.queryParams("limit")) : 100;
                 
-            	return gson.toJson(service.graph(limit));
+            	return gson.toJson(service.getDataset(limit));
                
             }
         });
 		
 	}
+	
 	/*
-    public DFRoutes(DFService service) 
-    {
-        this.service = service;
-    }
-	
-	
 	public static void main(String[] args) 
 	{
 	    SparkBase.port(Util.getWebPort());
