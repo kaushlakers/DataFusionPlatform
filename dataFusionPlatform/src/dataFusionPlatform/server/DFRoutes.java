@@ -19,7 +19,7 @@ public class DFRoutes implements SparkApplication{
 	public void init() 
 	{
 		
-		get("/ty/graph", new Route() {
+		get("/graph", new Route() {
             public Object handle(Request request, Response response) {
             	int limit = request.queryParams("limit") != null ? Integer.valueOf(request.queryParams("limit")) : 100;
                 
@@ -28,7 +28,7 @@ public class DFRoutes implements SparkApplication{
             }
         });
 		
-		get("/ty/datasets", new Route() {
+		get("/datasets", new Route() {
             public Object handle(Request request, Response response) {
             	int limit = request.queryParams("limit") != null ? Integer.valueOf(request.queryParams("limit")) : 100;
                 
@@ -39,7 +39,7 @@ public class DFRoutes implements SparkApplication{
                
             
 		
-		get("/ty/getDataset", new Route() {
+		get("/getDataset", new Route() {
             public Object handle(Request request, Response response) {
             	int limit = request.queryParams("limit") != null ? Integer.valueOf(request.queryParams("limit")) : 100;
                 

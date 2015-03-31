@@ -31,7 +31,7 @@ var svg = d3.select("#graph")
 
 var container = svg.append("g");
 
-d3.json("/Justin/graph", function(error, graph) {
+d3.json("/ty/graph", function(error, graph) {
 
     if (error) return;
     
