@@ -12,7 +12,7 @@ var force = d3.layout.force()
 //Test zoom functionality
 // create the zoom listener
 var zoom = d3.behavior.zoom()
-    .scaleExtent([0.5, 10])
+    .scaleExtent([1, 15])
     .on("zoom", zoomed);
 
 var drag = d3.behavior.drag()

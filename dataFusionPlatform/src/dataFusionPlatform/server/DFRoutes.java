@@ -39,11 +39,11 @@ public class DFRoutes implements SparkApplication{
                
             
 		
-		get("/getDataset", new Route() {
+		get("/getDataset/:datasetID", new Route() {
             public Object handle(Request request, Response response) {
             	int limit = request.queryParams("limit") != null ? Integer.valueOf(request.queryParams("limit")) : 100;
-                
-            	return gson.toJson(service.getDataset(limit));
+                int dID = Integer.parseInt(request.params(":datasetID"));
+            	return gson.toJson(service.getDataset(dID, limit));
                
             }
         });

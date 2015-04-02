@@ -52,7 +52,6 @@ public class DFService
 		while (result.hasNext())
 		{
 			Map<String, Object> row = result.next();
-			
 			Map<String, Object> dataset = map("id", row.get("id"), "datasetNode", row.get("dataset"));
 			datasets.add(dataset);
 			
@@ -63,10 +62,12 @@ public class DFService
 	
 	
 	
-	public Map<String, Object> getDataset(int limit) {
+	public Map<String, Object> getDataset(int datasetID, int limit) {
+		
+		System.out.println(datasetID);
 		
 		Iterator<Map<String,Object>> result = cypher.query(
-    			"start n=node(536) match (n)<-[:BELONGS_TO*]-(p)<-[:BELONGS_TO]-(c) " +
+    			"start n=node(" + datasetID + ") match (n)<-[:BELONGS_TO*]-(p)<-[:BELONGS_TO]-(c) " +
     			"return n as dataset, p.title as parentName, labels(p) as parentType, ID(p) as parentId, p as parent, c.title as childName, labels(c) as childType, ID(c) as childId, c as child", 
     			map("1",limit));
         
@@ -80,14 +81,24 @@ public class DFService
          	
          	//Row has a dataset, a table, and a collection of columns
          	Map<String, Object> row = result.next();
+         	Map<String, Object> datasetNode = map("datasetNode", row.get("dataset"));
+         	int dtarget = i;
+         	int dsource = nodes.indexOf(datasetNode);
+         	
+         	if (dsource == -1)
+         	{
+         		nodes.add(datasetNode);
+         		dtarget = i++;
+         	}
          	
         	//Add the parent node if it is not already there
          	Map<String, Object> parentNode = map("id", row.get("parentId"), "name", row.get("parentName"), "type", row.get("parentType"), "properties", row.get("parent"));
-         	int target = nodes.indexOf(parentNode);
-            if (target == -1) 
+         	int ptarget = nodes.indexOf(parentNode);
+            if (ptarget == -1) 
             {
                 nodes.add(parentNode);
-                target = i++;
+                rels.add(map("source", ptarget, "target", dtarget));
+                ptarget = i++;
             }
             
          	//Add the child node if it is not already there
@@ -100,7 +111,7 @@ public class DFService
             }
          	
          
-         	rels.add(map("source", source, "target", target));
+         	rels.add(map("source", source, "target", ptarget));
          	
          }
          return map("nodes", nodes, "links", rels);
