@@ -39,10 +39,20 @@ d3.json("/ty/datasets", function(error, data)
 			console.log(data);
 			console.log(data.datasets);
 			
+		})
+
+		
+// this ID should be set via user input
+var datasetID = 536;
+
+d3.json("/getDataset/" + datasetID, function(error, dataset)
+		{
+			if(error) return;
+			
+			console.log(dataset);
 			
 			
 		})
-
 
 
 // titles

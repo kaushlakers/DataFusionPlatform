@@ -52,7 +52,6 @@ public class DFService
 		while (result.hasNext())
 		{
 			Map<String, Object> row = result.next();
-			
 			Map<String, Object> dataset = map("id", row.get("id"), "datasetNode", row.get("dataset"));
 			datasets.add(dataset);
 			
@@ -63,10 +62,12 @@ public class DFService
 	
 	
 	
-	public Map<String, Object> getDataset(int limit) {
+	public Map<String, Object> getDataset(int datasetID, int limit) {
+		
+		System.out.println(datasetID);
 		
 		Iterator<Map<String,Object>> result = cypher.query(
-    			"start n=node(536) match (n)<-[:BELONGS_TO*]-(p)<-[:BELONGS_TO]-(c) " +
+    			"start n=node(" + datasetID + ") match (n)<-[:BELONGS_TO*]-(p)<-[:BELONGS_TO]-(c) " +
     			"return n as dataset, p.title as parentName, labels(p) as parentType, ID(p) as parentId, p as parent, c.title as childName, labels(c) as childType, ID(c) as childId, c as child", 
     			map("1",limit));
         
