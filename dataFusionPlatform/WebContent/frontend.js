@@ -31,19 +31,41 @@ var svg = d3.select("#graph")
 
 var container = svg.append("g");
 
+console.log("Before entering route");
 
-d3.json("/ty/datasets", function(error, data)
+d3.json("/Justin/datasets", function(error, data)
 		{
 			if(error) return;
 			
 			console.log(data);
 			console.log(data.datasets);
 			
-		})
+			console.log("Inside of route");
+		});
 
+console.log("outside of route");
 		
 // this ID should be set via user input
 var datasetID = 536;
+
+console.log("datasetID before method:" + datasetID); 
+
+
+//Function takes the checked option from the user input form 
+//and saves it into an array
+function getDataSets() {
+
+	//jquery function gets the "VALUE" field from each checked option in the form
+    var checkedData = $('input[name="dataSet"]:checked').map(function () {
+        return this.value;
+    }).get();
+    
+    console.log(checkedData);
+    datasetID = checkedData;
+}
+
+console.log("datasetID after method:" + datasetID); 
+
 
 d3.json("/getDataset/" + datasetID, function(error, dataset)
 		{
@@ -52,13 +74,9 @@ d3.json("/getDataset/" + datasetID, function(error, dataset)
 			console.log(dataset);
 			
 			
-		})
+		});
 
 
-// titles
-// column types
-// represents
-// semantic relation
 
 function search() {
     var arr = [];

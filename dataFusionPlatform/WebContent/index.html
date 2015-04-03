@@ -11,6 +11,7 @@
 
 <div id="console">
 <h2>Find all matches:</h2>
+<!--
 <form method="post" onsubmit="search(); return false">
 <input type="checkbox" class="check" name="title">title<br>
 <input type="checkbox" class="check" name="represents">represents<br>
@@ -19,6 +20,17 @@
 <input id="searchbox" type="text" placeholder="Search..." required>
 <button type="button" onclick="search()">Search</button>
 </form>
+-->
+
+<form id="getDataForm" method="POST">
+<input type="checkbox" name="dataSet" value="546">Drug Dataset
+<br>
+<input type="checkbox" name="dataSet" value="536">Disease Dataset
+<br>
+<input type="checkbox" name="dataSet" value="555">Gene Dataset
+<br><br>
+<input type="button" onclick="getDataSets()" value="Submit"/>
+</form> 
 
 <div id="displayOptions"></div>
 
@@ -43,7 +55,7 @@
 </style>
 
 
-<script src="graph.js"></script>
+<script src="frontend.js"></script>
 
 </body>
 </html>
