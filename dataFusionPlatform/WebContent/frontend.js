@@ -4,8 +4,8 @@ var margin = {top: -5, right: -5, bottom: -5, left: -5};
 var width = 1200 - margin.left - margin.right, height = 800 - margin.top - margin.bottom;
 
 var force = d3.layout.force()
-    .charge(-500)
-    .linkDistance(50)
+    .charge(-1000)
+    .linkDistance(100)
     .size([width, height]);
 //[width, height] [width + margin.left + margin.right, height + margin.top + margin.bottom]
 
@@ -46,13 +46,12 @@ d3.json("/Justin/datasets", function(error, data)
 console.log("outside of route");
 		
 // this ID should be set via user input
-var datasetID = 536;
+var datasetID;
 
 console.log("datasetID before method:" + datasetID); 
 
-
 //Function takes the checked option from the user input form 
-//and saves it into an array
+//and saves it into the datasetID variable.
 function getDataSets() {
 
 	//jquery function gets the "VALUE" field from each checked option in the form
@@ -62,21 +61,86 @@ function getDataSets() {
     
     console.log(checkedData);
     datasetID = checkedData;
-}
-
-console.log("datasetID after method:" + datasetID); 
-
-
-d3.json("/getDataset/" + datasetID, function(error, dataset)
+    console.log("datasetID inside getDataSets function:" + datasetID); 
+    
+    //Call the route to dynamically add the dataset to the webapp
+    d3.json("/Justin/getDataset/" + datasetID, function(error, dataset)
 		{
 			if(error) return;
 			
+			console.log("Dataset value inside getDataset is:" + dataset);
 			console.log(dataset);
 			
+			force.nodes(dataset.nodes).links(dataset.links).start();
+
+			console.log("after force check");
 			
+		    var link = container.append("g")
+		    	.selectAll(".link")
+		        .data(dataset.links).enter()
+		        .append("line").attr("class", "link");
+		
+		    //Modified D3 nodes on 3/27/15 By Justin 
+		    //Nodes are now a container that contains a circle graphic and its title
+		    //Each node creates a "g" element container and appends:
+		   	//	1: SVG Circle
+		   	//	2: Text displaying title of node
+		    var node = container.append("g")
+		    	.selectAll(".node")
+		    	.data(dataset.nodes)
+		    	.enter().append("g")
+		    	.attr("class", function (d) { return "node "+ d.type.toString(); })
+		    	.style("fill", function(d) {return d.colr; })
+		    	.call(drag);
+		    
+		    //Add a SVG circle element to the node container	
+		    node.append("circle")
+		    	//Dynamically adjust the size of circles depending on its type
+		    	.attr("r", function (d) {
+		    		switch (d.type.toString()) {
+		    			case "Dataset":		return 40;
+		    			case "Table":		return 30;
+		    			case "JoinTable":	return 30;
+		    			default:			return 20;
+		    		}
+		    	})
+		    	
+		    //Add a Title element to display nodes title container
+		    node.append("text")
+		    	//Adjust the placement of text on the X-AXIS for displaying the title
+		    	.attr("dx", function (d) {
+		    		switch (d.type.toString()) {
+		    			case "Dataset":		return 40;
+		    			case "Table":		return 30;
+		    			case "JoinTable":	return 30;
+		    			default:			return 20;
+		    		}
+		    	})
+		    	.attr("dy", ".35em")
+		        .text(function (d) { return d.name; })
+			
+			
+			// force feed algo ticks
+		    force.on("tick", function() {
+		        node.attr("cx", function(d) { return d.x = Math.max(radius, Math.min(width - radius, d.x)); })
+		        .attr("cy", function(d) { return d.y = Math.max(radius, Math.min(height - radius, d.y)); });
+		        
+		        link.attr("x1", function(d) { return d.source.x; })
+		            .attr("y1", function(d) { return d.source.y; })
+		            .attr("x2", function(d) { return d.target.x; })
+		            .attr("y2", function(d) { return d.target.y; });
+		
+		        node.attr("cx", function(d) { return d.x; })
+		            .attr("cy", function(d) { return d.y; });
+		        
+		        node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+		    });
+				
 		});
+    
+}
 
-
+console.log("datasetID after method:" + datasetID); 
 
 function search() {
     var arr = [];
