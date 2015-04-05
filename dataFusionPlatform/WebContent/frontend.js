@@ -54,7 +54,7 @@ console.log("datasetID before method:" + datasetID);
 //and saves it into the datasetID variable.
 function getDataSets() {
 
-	//jquery function gets the "VALUE" field from each checked option in the form
+	//Jquery function gets the "VALUE" field from each checked option in the form
     var checkedData = $('input[name="dataSet"]:checked').map(function () {
         return this.value;
     }).get();
@@ -78,7 +78,8 @@ function getDataSets() {
 		    var link = container.append("g")
 		    	.selectAll(".link")
 		        .data(dataset.links).enter()
-		        .append("line").attr("class", "link");
+		        .append("line")
+		        .attr("class", "link");
 		
 		    //Modified D3 nodes on 3/27/15 By Justin 
 		    //Nodes are now a container that contains a circle graphic and its title

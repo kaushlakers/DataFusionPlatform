@@ -68,7 +68,7 @@ public class DFService
 		
 		Iterator<Map<String,Object>> result = cypher.query(
     			"start n=node(" + datasetID + ") match (n)<-[:BELONGS_TO*]-(p)<-[:BELONGS_TO]-(c) " +
-    			"return n as dataset, p.title as parentName, labels(p) as parentType, ID(p) as parentId, p as parent, c.title as childName, labels(c) as childType, ID(c) as childId, c as child", 
+    			"return n as dataset, labels(n) as datasetType, p.title as parentName, labels(p) as parentType, ID(p) as parentId, p as parent, c.title as childName, labels(c) as childType, ID(c) as childId, c as child", 
     			map("1",limit));
         
     	 List nodes = new ArrayList();
@@ -81,14 +81,22 @@ public class DFService
          	
          	//Row has a dataset, a table, and a collection of columns
          	Map<String, Object> row = result.next();
-         	Map<String, Object> datasetNode = map("datasetNode", row.get("dataset"));
-         	int dtarget = i;
-         	int dsource = nodes.indexOf(datasetNode);
+         	Map<String, Object> datasetNode = map("datasetNode", row.get("dataset"), "type", row.get("datasetType"));
          	
+         	//Dont need dtarget (Justin 4/5/15)
+         	//int dtarget = i;
+         	
+         	//Check index for a dataset node, if it does not exist, add it to the 
+         	//list of nodes
+         	int dsource = nodes.indexOf(datasetNode);
          	if (dsource == -1)
          	{
          		nodes.add(datasetNode);
-         		dtarget = i++;
+         		
+         		//Increment and use dsource to create edges from a dataset 
+         		//node to a Column or JoinColumn node (Justin 4/5/15)
+         		dsource = i++;
+         		//dtarget = i++;
          	}
          	
         	//Add the parent node if it is not already there
@@ -97,8 +105,16 @@ public class DFService
             if (ptarget == -1) 
             {
                 nodes.add(parentNode);
-                rels.add(map("source", ptarget, "target", dtarget));
+                
+                //Needed the increment of the parent index before adding 
+                //the relation to a dataset node. Also use the counter dsource 
+                //not dtarget (Justin 4/5/15)
                 ptarget = i++;
+                rels.add(map("source", ptarget, "target", dsource));
+                
+               // rels.add(map("source", ptarget, "target", dtarget));
+               // ptarget = i++;
+                
             }
             
          	//Add the child node if it is not already there
@@ -109,8 +125,7 @@ public class DFService
                 nodes.add(childNode);
                 source = i++;
             }
-         	
-         
+         	 
          	rels.add(map("source", source, "target", ptarget));
          	
          }
