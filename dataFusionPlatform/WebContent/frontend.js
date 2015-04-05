@@ -33,7 +33,7 @@ var container = svg.append("g");
 
 console.log("Before entering route");
 
-d3.json("/Justin/datasets", function(error, data)
+d3.json("/ty/datasets", function(error, data)
 		{
 			if(error) return;
 			
@@ -52,8 +52,20 @@ console.log("datasetID before method:" + datasetID);
 
 //Function takes the checked option from the user input form 
 //and saves it into the datasetID variable.
-function getDataSets() {
+function getDataSet() {
 
+	d3.select("svg").remove();
+	
+    var svg = d3.select("#graph")
+    .append("svg")
+    .attr("width", "100%")
+    .attr("height", "100%")
+    .attr("pointer-events", "all")
+    .attr("transform", "translate(" + margin.left + "," + margin.right + ")")
+    .call(zoom);
+
+    var container = svg.append("g");
+	
 	//Jquery function gets the "VALUE" field from each checked option in the form
     var checkedData = $('input[name="dataSet"]:checked').map(function () {
         return this.value;
@@ -64,7 +76,7 @@ function getDataSets() {
     console.log("datasetID inside getDataSets function:" + datasetID); 
     
     //Call the route to dynamically add the dataset to the webapp
-    d3.json("/Justin/getDataset/" + datasetID, function(error, dataset)
+    d3.json("/ty/getDataset/" + datasetID, function(error, dataset)
 		{
 			if(error) return;
 			
