@@ -10,7 +10,6 @@
 <body>
 
 <div id="console">
-<h2>Find all matches:</h2>
 <!--
 <form method="post" onsubmit="search(); return false">
 <input type="checkbox" class="check" name="title">title<br>
@@ -22,15 +21,32 @@
 </form>
 -->
 
+<!-- First Form -->
 <form id="getDataForm" method="POST">
-<input type="checkbox" name="dataSet" value="546">Drug Dataset
-<br>
-<input type="checkbox" name="dataSet" value="536">Disease Dataset
-<br>
-<input type="checkbox" name="dataSet" value="555">Gene Dataset
-<br><br>
-<input type="button" onclick="getDataSet()" value="Submit"/>
+	<fieldset>
+		<legend>Choose a data set!</legend>
+		<input type="radio" name="dataSet" value="546">Drug Dataset
+		<br>
+		<input type="radio" name="dataSet" value="536">Disease Dataset
+		<br>
+		<input type="radio" name="dataSet" value="555">Gene Dataset
+		<br><br>
+		<input type="button" onclick="getDataSet()" value="Submit"/>
+	</fieldset>
 </form> 
+
+<!-- Second Form -->
+<form id="pickNode" method="POST">
+	<fieldset>
+		<legend>Pick a node!</legend>
+		<select name="FavWebSite" size="5">
+		</select>
+		<br><br>
+		<input type="button" onclick="goBack()" value="Back"/>
+		<input type="button" onclick="getNode()" value="Submit"/>
+	</fieldset>
+</form>
+
 
 <div id="displayOptions"></div>
 
