@@ -137,8 +137,8 @@ public class DFService
 	public Map<String, Object> matchProperty(String property, String propertyValue, int limit)
 	{
 		Iterator<Map<String,Object>> result = cypher.query(
-    			"match (n:Column) where n." + property + "  = " + propertyValue + " return n as node, id(n) as id", 
-    			map("1", limit));
+				"match (n:Column) where n." + property + " = \"" + propertyValue + "\" return n as node, id(n) as id", 
+				map("1", limit));
 		
 		List<Map<String, Object>> resultingNodes = new ArrayList<Map<String, Object>>();
 		

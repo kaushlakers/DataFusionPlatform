@@ -306,7 +306,7 @@ function match(prop, propVal, color) {
 			{
 				if(error) return;
 				
-				console.log("Nodes Resulting from query:" + data);
+				console.log(data.resultingNodes);
 				
 			});
 	
