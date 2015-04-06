@@ -4,8 +4,8 @@ var margin = {top: -5, right: -5, bottom: -5, left: -5};
 var width = 1200 - margin.left - margin.right, height = 800 - margin.top - margin.bottom;
 
 var force = d3.layout.force()
-    .charge(-1000)
-    .linkDistance(100)
+    .charge(-500)
+    .linkDistance(75)
     .size([width, height]);
 //[width, height] [width + margin.left + margin.right, height + margin.top + margin.bottom]
 
@@ -56,7 +56,7 @@ function getDataSet() {
 
 	d3.select("svg").remove();
 	
-    var svg = d3.select("#graph")
+    svg = d3.select("#graph")
     .append("svg")
     .attr("width", "100%")
     .attr("height", "100%")
@@ -64,7 +64,7 @@ function getDataSet() {
     .attr("transform", "translate(" + margin.left + "," + margin.right + ")")
     .call(zoom);
 
-    var container = svg.append("g");
+    container = svg.append("g");
 	
 	//Jquery function gets the "VALUE" field from each checked option in the form
     var checkedData = $('input[name="dataSet"]:checked').map(function () {
@@ -111,10 +111,10 @@ function getDataSet() {
 		    	//Dynamically adjust the size of circles depending on its type
 		    	.attr("r", function (d) {
 		    		switch (d.type.toString()) {
-		    			case "Dataset":		return 40;
-		    			case "Table":		return 30;
-		    			case "JoinTable":	return 30;
-		    			default:			return 20;
+		    			case "Dataset":		return 25;
+		    			case "Table":		return 20;
+		    			case "JoinTable":	return 20;
+		    			default:			return 15;
 		    		}
 		    	})
 		    	
@@ -123,15 +123,62 @@ function getDataSet() {
 		    	//Adjust the placement of text on the X-AXIS for displaying the title
 		    	.attr("dx", function (d) {
 		    		switch (d.type.toString()) {
-		    			case "Dataset":		return 40;
-		    			case "Table":		return 30;
-		    			case "JoinTable":	return 30;
-		    			default:			return 20;
+		    			case "Dataset":		return 25;
+		    			case "Table":		return 20;
+		    			case "JoinTable":	return 20;
+		    			default:			return 15;
 		    		}
 		    	})
 		    	.attr("dy", ".35em")
 		        .text(function (d) { return d.name; })
 			
+		            var state = false;
+    var last = null;
+    var current = null;
+    node.on("click", function(n) {
+        //Return color of nodes back to normal
+        svg.selectAll(".node").style("fill", function(d) { return d.colr; });
+        
+        var getOptionsDiv = document.getElementById("displayOptions");
+        while (getOptionsDiv.hasChildNodes()) { 
+            getOptionsDiv.removeChild(getOptionsDiv.lastChild);
+        }
+              
+        //Get Represents property from currently selected node
+        currRepresents = n.properties.represents;
+        
+        //Add data to meta info div
+        var metainf = "";
+        metainf = metainf.concat("Title: ", n.name, "<br/>Label: ", n.type, "<br/>Represents: ", n.properties.represents, 
+        "<br/>Column Type: ", n.properties.columntype, "<br/>Semantic Relation: ", n.properties.semanticrelation);
+        console.log(metainf);
+        d3.select("#metainfo")
+            .html(metainf);
+        
+        last = current;
+        current = d3.select(this);
+        current.style('fill', 'red');
+        last.style('fill', function(d) { return d.colr; });
+    
+        getTitle = n.properties.title;
+        getRepresents = n.properties.represents;
+        getColumnType = n.properties.columntype;
+        getSemanticRelation = n.properties.semanticrelation;
+
+        function createButton(label, functionCall) {
+            var btn = document.createElement("BUTTON"); //Create the button element
+            var title = document.createTextNode(label); //Create the button label, and add it to the button
+            btn.appendChild(title);
+            btn.onclick = functionCall; //Call function when button is clicked
+            document.getElementById("displayOptions").appendChild(btn); //Add button to the 'displayOptions' div inside the console
+        }
+        
+        //Dynamically create button for finding related Titles, Represents, Column Types, Relations
+        if (getTitle !== undefined)            { createButton("Find Related Titles", findTitle); }
+        if (getRepresents !== undefined)       { createButton("Find Related Represents", findRep); }
+        if (getColumnType !== undefined)       { createButton("find Related Column Types", findColType); }
+        if (getSemanticRelation !== undefined) { createButton("Find Related Semantic Relations", findSemRel); }
+    });
 			
 			// force feed algo ticks
 		    force.on("tick", function() {
