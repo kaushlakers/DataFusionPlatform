@@ -1,7 +1,10 @@
-
 var radius = 20, rTable = 30, rDataset = 40;
 var margin = {top: -5, right: -5, bottom: -5, left: -5};
 var width = 1200 - margin.left - margin.right, height = 800 - margin.top - margin.bottom;
+
+
+//Initially set the 2nd form to hidden
+document.getElementById("pickNode").style.display="none";
 
 var force = d3.layout.force()
     .charge(-500)
@@ -54,7 +57,16 @@ console.log("datasetID before method:" + datasetID);
 //and saves it into the datasetID variable.
 function getDataSet() {
 
+	//Refresh the D3 Graph
 	d3.select("svg").remove();
+	
+	//Hide the first form
+	document.getElementById("getDataForm").style.display="none";
+	
+	//Display the second form
+	document.getElementById("pickNode").style.display="block";
+	
+	
 	
     svg = d3.select("#graph")
     .append("svg")
@@ -132,53 +144,56 @@ function getDataSet() {
 		    	.attr("dy", ".35em")
 		        .text(function (d) { return d.name; })
 			
-		            var state = false;
-    var last = null;
-    var current = null;
-    node.on("click", function(n) {
-        //Return color of nodes back to normal
-        svg.selectAll(".node").style("fill", function(d) { return d.colr; });
-        
-        var getOptionsDiv = document.getElementById("displayOptions");
-        while (getOptionsDiv.hasChildNodes()) { 
-            getOptionsDiv.removeChild(getOptionsDiv.lastChild);
-        }
-              
-        //Get Represents property from currently selected node
-        currRepresents = n.properties.represents;
-        
-        //Add data to meta info div
-        var metainf = "";
-        metainf = metainf.concat("Title: ", n.name, "<br/>Label: ", n.type, "<br/>Represents: ", n.properties.represents, 
-        "<br/>Column Type: ", n.properties.columntype, "<br/>Semantic Relation: ", n.properties.semanticrelation);
-        console.log(metainf);
-        d3.select("#metainfo")
-            .html(metainf);
-        
-        last = current;
-        current = d3.select(this);
-        current.style('fill', 'red');
-        last.style('fill', function(d) { return d.colr; });
-    
-        getTitle = n.properties.title;
-        getRepresents = n.properties.represents;
-        getColumnType = n.properties.columntype;
-        getSemanticRelation = n.properties.semanticrelation;
-
-        function createButton(label, functionCall) {
-            var btn = document.createElement("BUTTON"); //Create the button element
-            var title = document.createTextNode(label); //Create the button label, and add it to the button
-            btn.appendChild(title);
-            btn.onclick = functionCall; //Call function when button is clicked
-            document.getElementById("displayOptions").appendChild(btn); //Add button to the 'displayOptions' div inside the console
-        }
-        
-        //Dynamically create button for finding related Titles, Represents, Column Types, Relations
-        if (getTitle !== undefined)            { createButton("Find Related Titles", findTitle); }
-        if (getRepresents !== undefined)       { createButton("Find Related Represents", findRep); }
-        if (getColumnType !== undefined)       { createButton("find Related Column Types", findColType); }
-        if (getSemanticRelation !== undefined) { createButton("Find Related Semantic Relations", findSemRel); }
-    });
+			//Need to populate the select form
+			populateForm();
+			
+			var state = false;
+		    var last = null;
+		    var current = null;
+		    node.on("click", function(n) {
+		        //Return color of nodes back to normal
+		        svg.selectAll(".node").style("fill", function(d) { return d.colr; });
+		        
+		        var getOptionsDiv = document.getElementById("displayOptions");
+		        while (getOptionsDiv.hasChildNodes()) { 
+		            getOptionsDiv.removeChild(getOptionsDiv.lastChild);
+		        }
+		              
+		        //Get Represents property from currently selected node
+		        currRepresents = n.properties.represents;
+		        
+		        //Add data to meta info div
+		        var metainf = "";
+		        metainf = metainf.concat("Title: ", n.name, "<br/>Label: ", n.type, "<br/>Represents: ", n.properties.represents, 
+		        "<br/>Column Type: ", n.properties.columntype, "<br/>Semantic Relation: ", n.properties.semanticrelation);
+		        console.log(metainf);
+		        d3.select("#metainfo")
+		            .html(metainf);
+		        
+		        last = current;
+		        current = d3.select(this);
+		        current.style('fill', 'red');
+		        last.style('fill', function(d) { return d.colr; });
+		    
+		        getTitle = n.properties.title;
+		        getRepresents = n.properties.represents;
+		        getColumnType = n.properties.columntype;
+		        getSemanticRelation = n.properties.semanticrelation;
+		
+		        function createButton(label, functionCall) {
+		            var btn = document.createElement("BUTTON"); //Create the button element
+		            var title = document.createTextNode(label); //Create the button label, and add it to the button
+		            btn.appendChild(title);
+		            btn.onclick = functionCall; //Call function when button is clicked
+		            document.getElementById("displayOptions").appendChild(btn); //Add button to the 'displayOptions' div inside the console
+		        }
+		        
+		        //Dynamically create button for finding related Titles, Represents, Column Types, Relations
+		        if (getTitle !== undefined)            { createButton("Find Related Titles", findTitle); }
+		        if (getRepresents !== undefined)       { createButton("Find Related Represents", findRep); }
+		        if (getColumnType !== undefined)       { createButton("find Related Column Types", findColType); }
+		        if (getSemanticRelation !== undefined) { createButton("Find Related Semantic Relations", findSemRel); }
+		    });
 			
 			// force feed algo ticks
 		    force.on("tick", function() {
@@ -199,6 +214,33 @@ function getDataSet() {
 		});
     
 }
+
+//Function finds the current column nodes and populates the selection form
+function populateForm() {
+	var nodeType = "Column"
+	var columnNodes = svg.selectAll(".node")
+						.filter(function(d) { return d.type == nodeType })
+						.style('fill', 'blue');
+	
+	console.log("columnNodes is:" + columnNodes);
+	console.log(columnNodes[0]);
+	
+
+}
+
+//Function to change from the second form back
+//to the first form
+function goBack() {
+	//Refresh the D3 Graph
+	d3.select("svg").remove();
+	document.getElementById("pickNode").style.display="none";
+	document.getElementById("getDataForm").style.display="block";
+}
+
+function getNode() {
+	console.log("GOT INSIDE getNODE");
+}
+
 
 console.log("datasetID after method:" + datasetID); 
 
