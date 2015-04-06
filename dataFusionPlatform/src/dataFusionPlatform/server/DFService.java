@@ -133,6 +133,28 @@ public class DFService
          	
      }
 	
+	
+	public Map<String, Object> matchProperty(String property, String propertyValue, int limit)
+	{
+		Iterator<Map<String,Object>> result = cypher.query(
+    			"match (n:Column) where n." + property + "  = " + propertyValue + " return n as node, id(n) as id", 
+    			map("1", limit));
+		
+		List<Map<String, Object>> resultingNodes = new ArrayList<Map<String, Object>>();
+		
+		while (result.hasNext())
+		{
+			Map<String, Object> row = result.next();
+			Map<String, Object> node = map("id", row.get("id"), "node", row.get("node"));
+			resultingNodes.add(node);
+			
+		}
+		
+		return map("resultingNodes", resultingNodes);
+	}
+	
+	
+	
 	public Map<String, Object> graph(int limit) {
 		
 		Iterator<Map<String,Object>> result = cypher.query(

@@ -41,6 +41,10 @@ d3.json("/ty/datasets", function(error, data)
 			console.log(data.datasets);
 			
 			console.log("Inside of route");
+			
+			
+			
+			
 		});
 
 console.log("outside of route");
@@ -248,16 +252,27 @@ function dragended(d) {
     d3.select(this).classed("dragging", false);
 }
 
-function find(att, match, color) {
-    svg.selectAll(".node").style("fill", function(d) { return d.colr; });
+function match(prop, propVal, color) {
+    //svg.selectAll(".node").style("fill", function(d) { return d.colr; });
     //Filter through all nodes to find matches, color them appropriately
-    svg.selectAll(".node")
-    .transition()
-    .filter(function(d) { return d.properties[att] == match; })
-    .style('fill', color);
+    //svg.selectAll(".node")
+    //.transition()
+    //.filter(function(d) { return d.properties[att] == match; })
+    //.style('fill', color);
+	
+	d3.json("/ty/matchProperty/" + prop + "/" + propVal, function(error, data)
+			{
+				if(error) return;
+				
+				console.log("Nodes Resulting from query:" + data);
+				
+			});
+	
+	
+	
 }
 
-function findTitle()   { find("title", getTitle, "yellow"); }
-function findRep()     { find("represents", getRepresents, "blue"); }
-function findColType() { find("columntype", getColumnType, "green"); }
-function findSemRel()  { find("semanticrelation", getSemanticRelation, "orange"); }
+function findTitle()   { match("title", getTitle, "yellow"); }
+function findRep()     { match("represents", getRepresents, "blue"); }
+function findColType() { match("columntype", getColumnType, "green"); }
+function findSemRel()  { match("semanticrelation", getSemanticRelation, "orange"); }

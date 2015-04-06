@@ -35,15 +35,23 @@ public class DFRoutes implements SparkApplication{
             	return gson.toJson(service.datasets(limit));
                
             }
-        });
-               
-            
+        }); 
 		
 		get("/getDataset/:datasetID", new Route() {
             public Object handle(Request request, Response response) {
             	int limit = request.queryParams("limit") != null ? Integer.valueOf(request.queryParams("limit")) : 100;
                 int dID = Integer.parseInt(request.params(":datasetID"));
             	return gson.toJson(service.getDataset(dID, limit));
+               
+            }
+        });
+		
+		get("/matchProperty/:property/:propertyValue", new Route() {
+            public Object handle(Request request, Response response) {
+            	int limit = request.queryParams("limit") != null ? Integer.valueOf(request.queryParams("limit")) : 100;
+                String prop = request.params(":property");
+                String propVal = request.params(":propertyValue");
+            	return gson.toJson(service.matchProperty(prop, propVal, limit));
                
             }
         });

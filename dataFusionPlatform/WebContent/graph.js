@@ -208,7 +208,7 @@ function find(att, match, color) {
     .style('fill', color);
 }
 
-function findTitle()   { find("title", getTitle, "yellow"); }
-function findRep()     { find("represents", getRepresents, "blue"); }
-function findColType() { find("columntype", getColumnType, "green"); }
-function findSemRel()  { find("semanticrelation", getSemanticRelation, "orange"); }
+function findTitle()   { match("title", getTitle, "yellow"); }
+function findRep()     { match("represents", getRepresents, "blue"); }
+function findColType() { match("columntype", getColumnType, "green"); }
+function findSemRel()  { match("semanticrelation", getSemanticRelation, "orange"); }
