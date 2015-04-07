@@ -166,13 +166,23 @@ function getDataSet() {
 		        //Get Represents property from currently selected node
 		        currRepresents = n.properties.represents;
 		        
+		        var info = [n.name, n.type[0], n.properties.represents, n.properties.columntype, n.properties.semanticrelation];
+		        cells = document.getElementsByClassName("infocell");
+		        console.log(cells);
+		        console.log(info);
+		        cells[0].innerHTML = n.name;
+		        cells[1].innerHTML = n.type[0];
+		        cells[2].innerHTML = n.properties.represents;
+		        cells[3].innerHTML = n.properties.columntype;
+		        cells[4].innerHTML = n.properties.semanticrelation;
+
 		        //Add data to meta info div
-		        var metainf = "";
-		        metainf = metainf.concat("Title: ", n.name, "<br/>Label: ", n.type, "<br/>Represents: ", n.properties.represents, 
-		        "<br/>Column Type: ", n.properties.columntype, "<br/>Semantic Relation: ", n.properties.semanticrelation);
-		        console.log(metainf);
-		        d3.select("#metainfo")
-		            .html(metainf);
+		        // var metainf = "";
+		        // metainf = metainf.concat("Title: ", n.name, "<br/>Label: ", n.type, "<br/>Represents: ", n.properties.represents, 
+		        // "<br/>Column Type: ", n.properties.columntype, "<br/>Semantic Relation: ", n.properties.semanticrelation);
+		        // console.log(metainf);
+		        // d3.select("#metainfo")
+		        //     .html(metainf);
 		        
 		        last = current;
 		        current = d3.select(this);
@@ -187,6 +197,7 @@ function getDataSet() {
 		        function createButton(label, functionCall) {
 		            var btn = document.createElement("BUTTON"); //Create the button element
 		            var title = document.createTextNode(label); //Create the button label, and add it to the button
+		            btn.className = "btn btn-default btn-block"
 		            btn.appendChild(title);
 		            btn.onclick = functionCall; //Call function when button is clicked
 		            document.getElementById("displayOptions").appendChild(btn); //Add button to the 'displayOptions' div inside the console

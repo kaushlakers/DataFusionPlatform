@@ -4,13 +4,33 @@ html, body {
 	padding: 0;
 	overflow-y:hidden;
 	overflow-x:hidden;
+	color: white;
+}
+
+legend {
+	color: white;
+	font-family: font"Lucida Console", Monaco, monospace;
+}
+
+.list {
+	color: white;
+	font-family: font"Lucida Console", Monaco, monospace;
 }
 
 div {
+	font-family: font"Lucida Console", Monaco, monospace;
 	height: 100%;
     box-sizing:border-box;
     -moz-box-sizing:border-box;
     -webkit-box-sizing:border-box;
+}
+
+.title {
+	font-family: font"Lucida Console", Monaco, monospace;
+	color: black;
+	font-weight: bold;
+	text-align: center;
+	color: white;
 }
 
 #metainfo {
@@ -34,11 +54,16 @@ div {
 	float: left;
 }
 
-button {
+.infocell {
+	font-family: font"Lucida Console", Monaco, monospace;
+	color: black;
+}
+
+/*button {
 	padding: 10px;
 	margin: 0 auto;
 	display: block;
 	margin-top: 30px;
 	margin-bottom: 30px;
-}
+}*/
 
