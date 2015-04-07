@@ -206,7 +206,7 @@ function getDataSet() {
 		        //Dynamically create button for finding related Titles, Represents, Column Types, Relations
 		        if (getTitle !== undefined)            { createButton("Find Related Titles", findTitle); }
 		        if (getRepresents !== undefined)       { createButton("Find Related Represents", findRep); }
-		        if (getColumnType !== undefined)       { createButton("find Related Column Types", findColType); }
+		        if (getColumnType !== undefined)       { createButton("Find Related Column Types", findColType); }
 		        if (getSemanticRelation !== undefined) { createButton("Find Related Semantic Relations", findSemRel); }
 		    });
 			
