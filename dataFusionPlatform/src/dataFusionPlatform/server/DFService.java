@@ -142,16 +142,16 @@ public class DFService
 	{
 		// limit tells the neo4j server the max length of the response
 		Iterator<Map<String,Object>> result = cypher.query(
-				"match (n:Column) where n." + property + " = \"" + propertyValue + "\" return n as node, id(n) as id", 
+				"match (n:Column) where n." + property + " = \"" + propertyValue + "\" return n.title as name, labels(n) as type, id(n) as id, n as node", 
 				map("1", limit));
-		
 		List<Map<String, Object>> resultingNodes = new ArrayList<Map<String, Object>>();
 		
 		//result is essentially a collection of rows in a table of data returned by the query
 		while (result.hasNext())
 		{
 			Map<String, Object> row = result.next();
-			Map<String, Object> node = map("id", row.get("id"), "node", row.get("node"));
+			Map<String, Object> node = map("id", row.get("id"), "name", row.get("name"), "type", row.get("type"), "properties", row.get("node"));
+         	
 			resultingNodes.add(node);
 			
 		}

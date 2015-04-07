@@ -162,7 +162,7 @@ function getDataSet() {
 		        while (getOptionsDiv.hasChildNodes()) { 
 		            getOptionsDiv.removeChild(getOptionsDiv.lastChild);
 		        }
-		              
+		        
 		        //Get Represents property from currently selected node
 		        currRepresents = n.properties.represents;
 		        
