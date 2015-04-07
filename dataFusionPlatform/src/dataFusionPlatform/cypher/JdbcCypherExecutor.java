@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
+// class used for querying the neo4j database using JDBC drivers
 public class JdbcCypherExecutor implements CypherExecutor
 {
 	 private final Connection conn;
@@ -36,6 +37,7 @@ public class JdbcCypherExecutor implements CypherExecutor
 			}
 	    }
 
+	    // the query parameter is a CYPHER query string and params holds any parameters necessary for the query
 	    @Override
 	    public Iterator<Map<String, Object>> query(String query, Map<String, Object> params) 
 	    {

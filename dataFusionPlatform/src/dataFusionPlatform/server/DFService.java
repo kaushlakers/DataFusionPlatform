@@ -1,7 +1,5 @@
 package dataFusionPlatform.server;
-
 import static org.neo4j.helpers.collection.MapUtil.map;
-
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -9,20 +7,22 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
 import com.google.gson.JsonElement;
-
 import dataFusionPlatform.cypher.*;
 
+/*
+ * DFService is responsible for using the Cypher Executor to query the Neo4j server.
+ * Various methods are set up that run different queries and return JSON parsable data.
+ */
 public class DFService 
 {
 	private final CypherExecutor cypher;
-
+	// Constructor
 	public DFService(String uri) 
 	{
 		cypher = createCypherExecutor(uri);
 	}
-
+	// creates and instance of the Cypher Executor with the given URL
 	private CypherExecutor createCypherExecutor(String uri) 
 	{
 		try 
@@ -41,14 +41,16 @@ public class DFService
 	}
 	
 
-    //request handler for initially sending all dataset nodes to front end
+    // request handler for initially sending all dataset nodes to front end
+	// limit defines the max length of the response. It is used as a parameter in requests
 	public Map<String, Object> datasets(int limit) {
-		
+		// limit tells the neo4j server the max length of the response
 		Iterator<Map<String,Object>> result = cypher.query(
     			"match (n:Dataset) return n as dataset, id(n) as id", 
     			map("1", limit));
 		List<Map<String, Object>> datasets = new ArrayList<Map<String, Object>>();
 		
+		//result is essentially a collection of rows in a table of data returned by the query
 		while (result.hasNext())
 		{
 			Map<String, Object> row = result.next();
@@ -61,11 +63,10 @@ public class DFService
 	}
 	
 	
-	
+	// request handler for obtaining the column and table nodes/edges of a dataset with the given ID
 	public Map<String, Object> getDataset(int datasetID, int limit) {
 		
-		System.out.println(datasetID);
-		
+		// limit tells the neo4j server the max length of the response
 		Iterator<Map<String,Object>> result = cypher.query(
     			"start n=node(" + datasetID + ") match (n)<-[:BELONGS_TO*]-(p)<-[:BELONGS_TO]-(c) " +
     			"return n as dataset, labels(n) as datasetType, p.title as parentName, labels(p) as parentType, ID(p) as parentId, p as parent, c.title as childName, labels(c) as childType, ID(c) as childId, c as child", 
@@ -76,6 +77,7 @@ public class DFService
          
          int i = 0;
          //Iterate through each row of the resulting cypher query
+         //result is essentially a collection of rows in a table of data returned by the query
          while (result.hasNext()) 
          {
          	
@@ -125,7 +127,7 @@ public class DFService
                 nodes.add(childNode);
                 source = i++;
             }
-         	 
+            // source and target are indices of their respective nodes in the nodes list
          	rels.add(map("source", source, "target", ptarget));
          	
          }
@@ -133,15 +135,19 @@ public class DFService
          	
      }
 	
-	
+	// request handler for obtaining nodes that have a certain property value 
+	// the property parameter is used in the query to find nodes that have a 
+	// specific value specified by propertyValue
 	public Map<String, Object> matchProperty(String property, String propertyValue, int limit)
 	{
+		// limit tells the neo4j server the max length of the response
 		Iterator<Map<String,Object>> result = cypher.query(
 				"match (n:Column) where n." + property + " = \"" + propertyValue + "\" return n as node, id(n) as id", 
 				map("1", limit));
 		
 		List<Map<String, Object>> resultingNodes = new ArrayList<Map<String, Object>>();
 		
+		//result is essentially a collection of rows in a table of data returned by the query
 		while (result.hasNext())
 		{
 			Map<String, Object> row = result.next();
@@ -154,9 +160,10 @@ public class DFService
 	}
 	
 	
-	
+	// no longer used, probably going to be deleted
 	public Map<String, Object> graph(int limit) {
 		
+		// limit tells the neo4j server the max length of the response
 		Iterator<Map<String,Object>> result = cypher.query(
     			"match (c)-[:BELONGS_TO]->(p) " +
     			"return c.title as childName, labels(c) as childType, ID(c) as childId, c as child, p.title as parentName, labels(p) as parentType, ID(p) as parentId, p as parent ", 
@@ -167,6 +174,7 @@ public class DFService
          
          int i = 0;
          //Iterate through each row of the resulting cypher query
+         //result is essentially a collection of rows in a table of data returned by the query
          while (result.hasNext()) 
          {
          	
@@ -190,7 +198,7 @@ public class DFService
                 nodes.add(parentNode);
                 target = i++;
             }
-            
+            // source and target are indices of their respective nodes in the nodes list
          	rels.add(map("source", source, "target", target));
          	
          }

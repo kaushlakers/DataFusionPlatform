@@ -1,5 +1,6 @@
 package dataFusionPlatform.utility;
 
+// Utility class for setting up server port and neo4j connection
 public class Util 
 {
 	public static final String DEFAULT_URL = "http://server2.ies.cse.ohio-state.edu:8081";
