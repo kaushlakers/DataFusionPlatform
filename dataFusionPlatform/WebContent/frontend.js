@@ -36,7 +36,7 @@ var container = svg.append("g");
 
 console.log("Before entering route");
 
-d3.json("/Justin/datasets", function(error, data)
+d3.json("/ty/datasets", function(error, data)
 		{
 			if(error) return;
 			
@@ -92,7 +92,7 @@ function getDataSet() {
     console.log("datasetID inside getDataSets function:" + datasetID); 
     
     //Call the route to dynamically add the dataset to the webapp
-    d3.json("/Justin/getDataset/" + datasetID, function(error, dataset)
+    d3.json("/ty/getDataset/" + datasetID, function(error, dataset)
 		{
 			if(error) return;
 			
