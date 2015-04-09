@@ -9,7 +9,8 @@ document.getElementById("pickNode").style.display="none";
 var force = d3.layout.force()
     .charge(-500)
     .linkDistance(75)
-    .size([width, height]);
+    .size([width, height])
+    .on("tick", tick);;
 //[width, height] [width + margin.left + margin.right, height + margin.top + margin.bottom]
 
 //Test zoom functionality
@@ -36,6 +37,17 @@ var container = svg.append("g");
 
 console.log("Before entering route");
 
+
+var graphNodes = force.nodes();
+var graphLinks = force.links();
+var nodeContainers = svg.selectAll(".node");
+var linkContainers = svg.selectAll(".link");
+
+var state = false;
+var last = null;
+var current = null;
+
+
 d3.json("/ty/datasets", function(error, data)
 		{
 			if(error) return;
@@ -43,14 +55,14 @@ d3.json("/ty/datasets", function(error, data)
 			console.log(data);
 			console.log(data.datasets);
 			
-			console.log("Inside of route");
+			console.log("Inside of /datasets");
 			
 			
 			
 			
 		});
 
-console.log("outside of route");
+console.log("outside of /dataset");
 		
 // this ID should be set via user input
 var datasetID;
@@ -98,14 +110,19 @@ function getDataSet() {
 			
 			console.log("Dataset value inside getDataset is:" + dataset);
 			console.log(dataset);
+			console.log(dataset.nodes);
+			console.log(dataset.links);
 			
-			force.nodes(dataset.nodes).links(dataset.links).start();
+			graphNodes = force.nodes();
+			graphLinks = force.links();
+			
+			force.nodes(graphNodes).links(graphLinks).start();
 
 			console.log("after force check");
 			
 		    var link = container.append("g")
 		    	.selectAll(".link")
-		        .data(dataset.links).enter()
+		        .data(graphLinks).enter()
 		        .append("line")
 		        .attr("class", "link");
 		
@@ -116,7 +133,7 @@ function getDataSet() {
 		   	//	2: Text displaying title of node
 		    var node = container.append("g")
 		    	.selectAll(".node")
-		    	.data(dataset.nodes)
+		    	.data(graphNodes)
 		    	.enter().append("g")
 		    	.attr("class", function (d) { return "node "+ d.type.toString(); })
 		    	.style("fill", function(d) {return d.colr; })
@@ -125,107 +142,21 @@ function getDataSet() {
 		    //Add a SVG circle element to the node container	
 		    node.append("circle")
 		    	//Dynamically adjust the size of circles depending on its type
-		    	.attr("r", function (d) {
-		    		switch (d.type.toString()) {
-		    			case "Dataset":		return 25;
-		    			case "Table":		return 20;
-		    			case "JoinTable":	return 20;
-		    			default:			return 15;
-		    		}
-		    	})
+		    	.attr("r", getNodeSize)
 		    	
 		    //Add a Title element to display nodes title container
 		    node.append("text")
 		    	//Adjust the placement of text on the X-AXIS for displaying the title
-		    	.attr("dx", function (d) {
-		    		switch (d.type.toString()) {
-		    			case "Dataset":		return 25;
-		    			case "Table":		return 20;
-		    			case "JoinTable":	return 20;
-		    			default:			return 15;
-		    		}
-		    	})
+		    	.attr("dx", getNodeSize)
 		    	.attr("dy", ".35em")
 		        .text(function (d) { return d.name; })
 			
 			//Need to populate the select form
 			populateForm();
 			
-			var state = false;
-		    var last = null;
-		    var current = null;
-		    node.on("click", function(n) {
-		        //Return color of nodes back to normal
-		        svg.selectAll(".node").style("fill", function(d) { return d.colr; });
-		        
-		        var getOptionsDiv = document.getElementById("displayOptions");
-		        while (getOptionsDiv.hasChildNodes()) { 
-		            getOptionsDiv.removeChild(getOptionsDiv.lastChild);
-		        }
-		        
-		        //Get Represents property from currently selected node
-		        currRepresents = n.properties.represents;
-		        
-		        var info = [n.name, n.type[0], n.properties.represents, n.properties.columntype, n.properties.semanticrelation];
-		        cells = document.getElementsByClassName("infocell");
-		        console.log(cells);
-		        console.log(info);
-		        cells[0].innerHTML = n.name;
-		        cells[1].innerHTML = n.type[0];
-		        cells[2].innerHTML = n.properties.represents;
-		        cells[3].innerHTML = n.properties.columntype;
-		        cells[4].innerHTML = n.properties.semanticrelation;
 
-		        //Add data to meta info div
-		        // var metainf = "";
-		        // metainf = metainf.concat("Title: ", n.name, "<br/>Label: ", n.type, "<br/>Represents: ", n.properties.represents, 
-		        // "<br/>Column Type: ", n.properties.columntype, "<br/>Semantic Relation: ", n.properties.semanticrelation);
-		        // console.log(metainf);
-		        // d3.select("#metainfo")
-		        //     .html(metainf);
-		        
-		        last = current;
-		        current = d3.select(this);
-		        current.style('fill', 'red');
-		        last.style('fill', function(d) { return d.colr; });
+		    node.on("click", nodeOnClick);
 		    
-		        getTitle = n.properties.title;
-		        getRepresents = n.properties.represents;
-		        getColumnType = n.properties.columntype;
-		        getSemanticRelation = n.properties.semanticrelation;
-		
-		        function createButton(label, functionCall) {
-		            var btn = document.createElement("BUTTON"); //Create the button element
-		            var title = document.createTextNode(label); //Create the button label, and add it to the button
-		            btn.className = "btn btn-default btn-block"
-		            btn.appendChild(title);
-		            btn.onclick = functionCall; //Call function when button is clicked
-		            document.getElementById("displayOptions").appendChild(btn); //Add button to the 'displayOptions' div inside the console
-		        }
-		        
-		        //Dynamically create button for finding related Titles, Represents, Column Types, Relations
-		        if (getTitle !== undefined)            { createButton("Find Related Titles", findTitle); }
-		        if (getRepresents !== undefined)       { createButton("Find Related Represents", findRep); }
-		        if (getColumnType !== undefined)       { createButton("Find Related Column Types", findColType); }
-		        if (getSemanticRelation !== undefined) { createButton("Find Related Semantic Relations", findSemRel); }
-		    });
-			
-			// force feed algo ticks
-		    force.on("tick", function() {
-		        node.attr("cx", function(d) { return d.x = Math.max(radius, Math.min(width - radius, d.x)); })
-		        .attr("cy", function(d) { return d.y = Math.max(radius, Math.min(height - radius, d.y)); });
-		        
-		        link.attr("x1", function(d) { return d.source.x; })
-		            .attr("y1", function(d) { return d.source.y; })
-		            .attr("x2", function(d) { return d.target.x; })
-		            .attr("y2", function(d) { return d.target.y; });
-		
-		        node.attr("cx", function(d) { return d.x; })
-		            .attr("cy", function(d) { return d.y; });
-		        
-		        node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
-		    });
-				
 		});
     
 }
@@ -286,6 +217,79 @@ function search() {
     }
 }
 
+function nodeOnClick(n) {
+    //Return color of nodes back to normal
+    svg.selectAll(".node").style("fill", function(d) { return d.colr; });
+    
+    var getOptionsDiv = document.getElementById("displayOptions");
+    while (getOptionsDiv.hasChildNodes()) { 
+        getOptionsDiv.removeChild(getOptionsDiv.lastChild);
+    }
+    
+    //Get Represents property from currently selected node
+    currRepresents = n.properties.represents;
+    
+    var info = [n.name, n.type, n.properties.represents, n.properties.columntype, n.properties.semanticrelation];
+    cells = document.getElementsByClassName("infocell");
+    console.log(cells);
+    console.log(info);
+    cells[0].innerHTML = n.name;
+    cells[1].innerHTML = n.type;
+    cells[2].innerHTML = n.properties.represents;
+    cells[3].innerHTML = n.properties.columntype;
+    cells[4].innerHTML = n.properties.semanticrelation;
+
+    //Add data to meta info div
+    // var metainf = "";
+    // metainf = metainf.concat("Title: ", n.name, "<br/>Label: ", n.type, "<br/>Represents: ", n.properties.represents, 
+    // "<br/>Column Type: ", n.properties.columntype, "<br/>Semantic Relation: ", n.properties.semanticrelation);
+    // console.log(metainf);
+    // d3.select("#metainfo")
+    //     .html(metainf);
+    
+    last = current;
+    current = d3.select(this);
+    current.style('fill', 'red');
+    last.style('fill', function(d) { return d.colr; });
+
+    getTitle = n.properties.title;
+    getRepresents = n.properties.represents;
+    getColumnType = n.properties.columntype;
+    getSemanticRelation = n.properties.semanticrelation;
+
+    function createButton(label, functionCall) {
+        var btn = document.createElement("BUTTON"); //Create the button element
+        var title = document.createTextNode(label); //Create the button label, and add it to the button
+        btn.className = "btn btn-default btn-block"
+        btn.appendChild(title);
+        btn.onclick = functionCall; //Call function when button is clicked
+        document.getElementById("displayOptions").appendChild(btn); //Add button to the 'displayOptions' div inside the console
+    }
+    
+    //Dynamically create button for finding related Titles, Represents, Column Types, Relations
+    if (getTitle !== undefined)            { createButton("Find Related Titles", findTitle); }
+    if (getRepresents !== undefined)       { createButton("Find Related Represents", findRep); }
+    if (getColumnType !== undefined)       { createButton("Find Related Column Types", findColType); }
+    if (getSemanticRelation !== undefined) { createButton("Find Related Semantic Relations", findSemRel); }
+}
+
+// force feed algo ticks
+function tick() {
+    node.attr("cx", function(d) { return d.x = Math.max(radius, Math.min(width - radius, d.x)); })
+    .attr("cy", function(d) { return d.y = Math.max(radius, Math.min(height - radius, d.y)); });
+    
+    link.attr("x1", function(d) { return d.source.x; })
+        .attr("y1", function(d) { return d.source.y; })
+        .attr("x2", function(d) { return d.target.x; })
+        .attr("y2", function(d) { return d.target.y; });
+
+    node.attr("cx", function(d) { return d.x; })
+        .attr("cy", function(d) { return d.y; });
+    
+    node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });	
+}
+
+
 // function for handling zoom event
 function zoomed() {
     container.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
@@ -305,6 +309,15 @@ function dragended(d) {
     d3.select(this).classed("dragging", false);
 }
 
+function getNodeSize(d) {
+	switch (d.type.toString()) {
+		case "Dataset":		return 25;
+		case "Table":		return 20;
+		case "JoinTable":	return 20;
+		default:			return 15;
+	}
+}
+
 function match(prop, propVal, color) {
     //svg.selectAll(".node").style("fill", function(d) { return d.colr; });
     //Filter through all nodes to find matches, color them appropriately
@@ -318,6 +331,8 @@ function match(prop, propVal, color) {
 				if(error) return;
 				
 				console.log(data.resultingNodes);
+				
+				
 				
 			});
 	

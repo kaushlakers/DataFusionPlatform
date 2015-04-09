@@ -1,5 +1,6 @@
 package dataFusionPlatform.server;
 import static org.neo4j.helpers.collection.MapUtil.map;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -7,7 +8,9 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
 import com.google.gson.JsonElement;
+
 import dataFusionPlatform.cypher.*;
 
 /*
@@ -68,22 +71,23 @@ public class DFService
 		
 		// limit tells the neo4j server the max length of the response
 		Iterator<Map<String,Object>> result = cypher.query(
-    			"start n=node(" + datasetID + ") match (n)<-[:BELONGS_TO*]-(p)<-[:BELONGS_TO]-(c) " +
-    			"return n as dataset, labels(n) as datasetType, p.title as parentName, labels(p) as parentType, ID(p) as parentId, p as parent, c.title as childName, labels(c) as childType, ID(c) as childId, c as child", 
+    			"start n=node(" + datasetID + ") match (n)<-[:BELONGS_TO*]-(p)<-[:BELONGS_TO]-(c) "
+    			+ "return n as dataset, labels(n)[0] as datasetType, ID(n) as datasetId, n.title as datasetName, p.title as parentName, labels(p)[0] as parentType, ID(p) as parentId, p as parent, c.title as childName, labels(c)[0] as childType, ID(c) as childId, c as child",
     			map("1",limit));
+		
+		
         
     	 List nodes = new ArrayList();
          List rels= new ArrayList();
          
          int i = 0;
          //Iterate through each row of the resulting cypher query
-         //result is essentially a collection of rows in a table of data returned by the query
          while (result.hasNext()) 
          {
          	
          	//Row has a dataset, a table, and a collection of columns
          	Map<String, Object> row = result.next();
-         	Map<String, Object> datasetNode = map("datasetNode", row.get("dataset"), "type", row.get("datasetType"));
+         	Map<String, Object> datasetNode = map("id", row.get("datasetId"), "name", row.get("datasetName"), "type", row.get("datasetType"), "properties", row.get("dataset"));
          	
          	//Dont need dtarget (Justin 4/5/15)
          	//int dtarget = i;
