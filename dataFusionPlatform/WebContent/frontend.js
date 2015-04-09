@@ -37,11 +37,12 @@ var container = svg.append("g");
 
 console.log("Before entering route");
 
-
+// these hold the raw data
 var graphNodes = force.nodes();
 var graphLinks = force.links();
-var nodeContainers = svg.selectAll(".node");
-var linkContainers = svg.selectAll(".link");
+// these will hold the graphical elements
+var nodeContainer;
+var linkContainer;
 
 var state = false;
 var last = null;
@@ -113,14 +114,16 @@ function getDataSet() {
 			console.log(dataset.nodes);
 			console.log(dataset.links);
 			
+			// initialize data with query results
+			force.nodes(dataset.nodes).links(dataset.links).start();
+			
+			// repopulate the data
 			graphNodes = force.nodes();
 			graphLinks = force.links();
-			
-			force.nodes(graphNodes).links(graphLinks).start();
 
 			console.log("after force check");
 			
-		    var link = container.append("g")
+		    linkContainer = container.append("g")
 		    	.selectAll(".link")
 		        .data(graphLinks).enter()
 		        .append("line")
@@ -131,7 +134,7 @@ function getDataSet() {
 		    //Each node creates a "g" element container and appends:
 		   	//	1: SVG Circle
 		   	//	2: Text displaying title of node
-		    var node = container.append("g")
+		    nodeContainer = container.append("g")
 		    	.selectAll(".node")
 		    	.data(graphNodes)
 		    	.enter().append("g")
@@ -140,12 +143,12 @@ function getDataSet() {
 		    	.call(drag);
 		    
 		    //Add a SVG circle element to the node container	
-		    node.append("circle")
+		    nodeContainer.append("circle")
 		    	//Dynamically adjust the size of circles depending on its type
 		    	.attr("r", getNodeSize)
 		    	
 		    //Add a Title element to display nodes title container
-		    node.append("text")
+		    nodeContainer.append("text")
 		    	//Adjust the placement of text on the X-AXIS for displaying the title
 		    	.attr("dx", getNodeSize)
 		    	.attr("dy", ".35em")
@@ -155,7 +158,7 @@ function getDataSet() {
 			populateForm();
 			
 
-		    node.on("click", nodeOnClick);
+		    nodeContainer.on("click", nodeOnClick);
 		    
 		});
     
@@ -275,18 +278,18 @@ function nodeOnClick(n) {
 
 // force feed algo ticks
 function tick() {
-    node.attr("cx", function(d) { return d.x = Math.max(radius, Math.min(width - radius, d.x)); })
+    nodeContainer.attr("cx", function(d) { return d.x = Math.max(radius, Math.min(width - radius, d.x)); })
     .attr("cy", function(d) { return d.y = Math.max(radius, Math.min(height - radius, d.y)); });
     
-    link.attr("x1", function(d) { return d.source.x; })
+    linkContainer.attr("x1", function(d) { return d.source.x; })
         .attr("y1", function(d) { return d.source.y; })
         .attr("x2", function(d) { return d.target.x; })
         .attr("y2", function(d) { return d.target.y; });
 
-    node.attr("cx", function(d) { return d.x; })
+    nodeContainer.attr("cx", function(d) { return d.x; })
         .attr("cy", function(d) { return d.y; });
     
-    node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });	
+    nodeContainer.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });	
 }
 
 
@@ -327,15 +330,49 @@ function match(prop, propVal, color) {
     //.style('fill', color);
 	
 	d3.json("/ty/matchProperty/" + prop + "/" + propVal, function(error, data)
-			{
-				if(error) return;
-				
-				console.log(data.resultingNodes);
-				
-				
-				
+		{
+			if(error) return;
+			
+			console.log(data.resultingNodes);
+			
+			data.resultingNodes.forEach(function(node) {
+			    graphNodes.push(node);
 			});
-	
+			
+			// update the data sourced by the graphical containers
+			linkContainer = linkContainer.data(graphLinks);
+			nodeContainer = nodeContainer.data(graphNodes);
+			
+			// any new data must be entered into its new graphical container
+			linkContainer.enter()
+				.append("line")
+				.attr("class", "link");
+			
+			nodeContainer.enter()
+				.append("g")
+				.attr("class", function (d) { return "node "+ d.type.toString(); })
+				.style("fill", function(d) {return d.colr; })
+				.call(drag);
+	    
+			//Add a SVG circle element to the node container	
+			nodeContainer.append("circle")
+	    	//Dynamically adjust the size of circles depending on its type
+	    		.attr("r", getNodeSize)
+	    	
+	    	//Add a Title element to display nodes title container
+	    	nodeContainer.append("text")
+	    	//Adjust the placement of text on the X-AXIS for displaying the title
+	    		.attr("dx", getNodeSize)
+	    		.attr("dy", ".35em")
+	    		.text(function (d) { return d.name; })
+
+	    	// add on click function to nodes
+	    	nodeContainer.on("click", nodeOnClick);
+				
+			// begin simulation with updated data
+			force.start();			
+		});
+
 	
 	
 }
