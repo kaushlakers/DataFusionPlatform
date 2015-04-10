@@ -51,8 +51,33 @@
 
 <!-- Third Form -->
 <form id="findMatches" method="POST">
-<div id="displayOptions"></div>
-<input type="button" class="btn btn-default" id="backToSecondForm" onclick="goBackToForm2()" value="Back"/>
+	<fieldset>
+		<legend class="title">Explore different matching properties!</legend>
+		<div id="displayOptions" display:table ></div>
+		<input type="button" class="btn btn-default" id="backToSecondForm" onclick="goBackToForm2()" value="Back"/>
+	</fieldset>
+</form>
+
+<!-- Fourth Form -->
+<form id="createEdges" method="POST>
+	<fieldset>
+		<legend class="title">Modify the graph!</legend>
+		<table>
+			<tr>
+				<td> Node 1 </td>
+				<td> <input type="radio" name="node1"> Show Node </td>
+				<td> <input type="radio" name="node1"> Add Edge </td>
+				<td> <input type="radio" name="node1"> Remove Node </td>
+			</tr>
+			<tr>
+				<td> Node 2 </td>
+				<td> <input type="radio" name="node2"> Show Node </td>
+				<td> <input type="radio" name="node2"> Add Edge </td>
+				<td> <input type="radio" name="node2"> Remove Node </td>
+			</tr>
+		</table>	
+		<input type="button" class="btn btn-default" id="backToThirdForm" onclick="goBackToForm3()" value="Back"/>
+	</fieldset>
 </form>
 
 
@@ -91,8 +116,6 @@
 
 <div id="graph">
 </div>
-
-
 
 
 <style type="text/css">

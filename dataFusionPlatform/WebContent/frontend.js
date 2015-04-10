@@ -3,9 +3,11 @@ var margin = {top: -5, right: -5, bottom: -5, left: -5};
 var width = 1200 - margin.left - margin.right, height = 800 - margin.top - margin.bottom;
 
 
-//Initially set the 2nd and 3rd form to hidden
+//Initially set the 2nd, 3rd, and 4th form to hidden
 document.getElementById("pickNode").style.display="none";
 document.getElementById("findMatches").style.display="none";
+document.getElementById("createEdges").style.display="none";
+
 
 var force = d3.layout.force()
     .charge(-500)
@@ -208,8 +210,7 @@ function goBackToForm1() {
 	}
 }
 
-//Function to change from the third form back
-//to the second form
+//Go from 3rd form to 2nd form
 function goBackToForm2() {
 
 	//Get the form and hide the display
@@ -225,6 +226,17 @@ function goBackToForm2() {
 	
 	//Go back to showing the 2nd form
 	document.getElementById("pickNode").style.display="block";
+}
+
+//Go from 4th form to 3rd form
+function goBackToForm3() {
+
+	//Hide the current form [4th form for creating edges]
+	document.getElementById("createEdges").style.display="none";
+	
+	//Go back to showing the 3rd form
+	document.getElementById("findMatches").style.display="block";
+	
 }
 
 //After clicking on a node it will fill the metadata console with the information.
@@ -310,14 +322,24 @@ function tick() {
   nodeContainer.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });	
 }
 
-//Function to dynamically create buttons
+//Function to dynamically create buttons and add them to the 3rd form
 function createButton(label, functionCall) {
-    var btn = document.createElement("BUTTON"); //Create the button element
-    var title = document.createTextNode(label); //Create the button label, and add it to the button
-    btn.className = "btn btn-default btn-block"
+	//Create the button element
+    var btn = document.createElement("BUTTON"); 
+    //Create the button label, and add it to the button
+    var title = document.createTextNode(label); 
+    
+    //create break
+    var br = document.createElement("br");
+    
+    btn.className = "btn btn-default";
     btn.appendChild(title);
-    btn.onclick = functionCall; //Call function when button is clicked
-    document.getElementById("displayOptions").appendChild(btn); //Add button to the 'displayOptions' div inside the console
+    
+    //Set method for finding nodes on button click
+    btn.onclick = functionCall; 
+    //Add button to the 'displayOptions' div inside the console
+    document.getElementById("displayOptions").appendChild(btn);
+    document.getElementById("displayOptions").appendChild(br)
 	btn.setAttribute("type", "button");	
 
 }
@@ -353,6 +375,21 @@ function getNodeSize(d) {
 function match(prop, propVal, color) {
 
 	console.log("inside match function");
+	
+	//Hide the 3rd form and show the 4th form
+	//Get the form and hide the display
+	var form = document.getElementById("findMatches");
+	form.style.display="none";
+	
+	//Remove all the buttons from the div
+	var getDiv = form.firstChild;
+	
+	while (getDiv.firstChild) {
+    	getDiv.removeChild(getDiv.firstChild);
+	}
+	
+	//Go back to showing the 2nd form
+	document.getElementById("createEdges").style.display="block";
 	
 
     //svg.selectAll(".node").style("fill", function(d) { return d.colr; });
