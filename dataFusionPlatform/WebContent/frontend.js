@@ -157,7 +157,7 @@ function getDataSet() {
 			//Need to populate the select form
 			populateForm();
 
-			//Go to "getNode" function
+			//Add on click function to nodes
 			nodeContainer.on("click", getNode);
 
 		});
@@ -233,6 +233,10 @@ function goBackToForm2() {
 //into the 3rd form when it is pressed.
 function getNode(n) {
 
+	console.log("Inside getNode");
+	console.log("n inside getNode is:");
+	console.log(n);
+
 	//last = current;
 
     //current = d3.select(this);
@@ -255,13 +259,14 @@ function getNode(n) {
 }
 
 function nodeOnClick(n) {
-
+	
 	//Hide the 2nd Form and Show the 3rd Form
 	document.getElementById("pickNode").style.display="none";
 	document.getElementById("findMatches").style.display="block";
 
-	//console.log("n in nodeOnClick is");
-	//console.log(n)
+	console.log("inside nodeOnClick");
+	console.log("n in nodeOnClick is");
+	console.log(n)
     //Return color of nodes back to normal
     svg.selectAll(".node").style("fill", function(d) { return d.colr; });
     
@@ -361,25 +366,25 @@ function match(prop, propVal, color) {
 		{
 			if(error) return;
 			console.log("Inside /matchProperty/");
-			console.log(data.resultingNodes);
+			//console.log(data.resultingNodes);
 			//console.log(uniqueNodes.indexOf(544));
-			console.log("uniqueNodes:");
-			console.log(uniqueNodes)
+			//console.log("uniqueNodes:");
+			//console.log(uniqueNodes)
 			data.resultingNodes.forEach(function(node) {
 				
 				var nodeId = node.id;
-				console.log("nodeId:");
-				console.log(nodeId);
+				//console.log("nodeId:");
+				//console.log(nodeId);
 			    var nodeIndex = parseInt(uniqueNodes.indexOf(nodeId));
-			    console.log("nodeIndex:");
-			    console.log(nodeIndex);
+			    //console.log("nodeIndex:");
+			    //console.log(nodeIndex);
 			    if (nodeIndex == -1)
 			    {
 			    	uniqueNodes.push(nodeId);
 					graphNodes.push(node);
-					console.log(uniqueNodes);
-			    	console.log("node added");
-			    	console.log(node);
+					//console.log(uniqueNodes);
+			    	//console.log("node added");
+			    	//console.log(node);
 			    }
 			});
 			
@@ -415,7 +420,7 @@ function match(prop, propVal, color) {
 	    		.text(function (d) { return d.name; })
 
 	    	// add on click function to nodes
-	    	nodeContainer.on("click", nodeOnClick);
+	    	nodeContainer.on("click", getNode);
 				
 			// begin simulation with updated data
 			force.start();		
