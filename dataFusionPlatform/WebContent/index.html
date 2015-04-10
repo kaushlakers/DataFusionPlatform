@@ -44,13 +44,17 @@
 		<select name="FavWebSite" size="5">
 		</select>
 		<br><br>
-		<input type="button" class="btn btn-default" onclick="goBack()" value="Back"/>
-		<input type="button" class="btn btn-default" onclick="getNode()" value="Submit"/>
+		<input type="button" class="btn btn-default" onclick="goBackToForm1()" value="Back"/>
+		<input type="button" class="btn btn-default" id="getNode" value="Get Possible Matches"/>
 	</fieldset>
 </form>
 
-
+<!-- Third Form -->
+<form id="findMatches" method="POST">
 <div id="displayOptions"></div>
+<input type="button" class="btn btn-default" id="backToSecondForm" onclick="goBackToForm2()" value="Back"/>
+</form>
+
 
 	<!-- Table for node metadata output -->
 	<div>
@@ -87,6 +91,8 @@
 
 <div id="graph">
 </div>
+
+
 
 
 <style type="text/css">

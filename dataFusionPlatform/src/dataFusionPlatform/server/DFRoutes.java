@@ -28,15 +28,7 @@ public class DFRoutes implements SparkApplication{
 	@Override
 	public void init() 
 	{
-		// no longer used, keeping it in case we need it but it will probably wind up being deleted 
-		get("/graph", new Route() {
-            public Object handle(Request request, Response response) {
-            	int limit = request.queryParams("limit") != null ? Integer.valueOf(request.queryParams("limit")) : 100;
-                
-            	return gson.toJson(service.graph(limit));
-               
-            }
-        });
+
 		
 		// handles a get request to the route /datasets
 		// it is initially requested when the webpage loads in order to give the user a list of datasets to start from
