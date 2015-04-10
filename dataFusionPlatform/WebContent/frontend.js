@@ -171,8 +171,23 @@ function populateForm() {
 						.filter(function(d) { return d.type == nodeType })
 						.style('fill', 'blue');
 	
-	//console.log("columnNodes is:" + columnNodes);
-	//console.log(columnNodes[0]);
+
+	console.log("columnNodes is:" + columnNodes);
+	console.log(columnNodes[0]);
+
+	/*
+	 * Find all of the svg "g" elements in columnNodes and dynamically create
+	 * 	option tags in the select element of the form, and give them the text
+	 * 	from the column nodes.
+	 */
+	var column = columnNodes.selectAll("g");
+	var i = 0;
+	while (i<column.length) {
+		console.log(column[i].parentNode.textContent);
+		var option = new Option(column[i].parentNode.textContent, i);
+		document.getElementById("nodeSelections").appendChild(option);
+		i++;
+	}
 	
 
 }
@@ -184,6 +199,13 @@ function goBackToForm1() {
 	d3.select("svg").remove();
 	document.getElementById("pickNode").style.display="none";
 	document.getElementById("getDataForm").style.display="block";
+	/*
+	 * Find select element in DOM and remove all the options that were created by the populateForm() method
+	 */
+	var selectElement = document.getElementById("nodeSelections")
+	while (selectElement.firstChild) {
+		selectElement.removeChild(selectElement.firstChild);
+	}
 }
 
 //Function to change from the third form back
