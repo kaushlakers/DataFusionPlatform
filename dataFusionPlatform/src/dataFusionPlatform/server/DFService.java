@@ -163,51 +163,5 @@ public class DFService
 		return map("resultingNodes", resultingNodes);
 	}
 	
-	
-	// no longer used, probably going to be deleted
-	public Map<String, Object> graph(int limit) {
-		
-		// limit tells the neo4j server the max length of the response
-		Iterator<Map<String,Object>> result = cypher.query(
-    			"match (c)-[:BELONGS_TO]->(p) " +
-    			"return c.title as childName, labels(c) as childType, ID(c) as childId, c as child, p.title as parentName, labels(p) as parentType, ID(p) as parentId, p as parent ", 
-    			map("1",limit));
-        
-    	 List nodes = new ArrayList();
-         List rels= new ArrayList();
-         
-         int i = 0;
-         //Iterate through each row of the resulting cypher query
-         //result is essentially a collection of rows in a table of data returned by the query
-         while (result.hasNext()) 
-         {
-         	
-         	//Row has a dataset, a table, and a collection of columns
-         	Map<String, Object> row = result.next();
-     
-         	//Add the child node if it is not already there
-         	Map<String, Object> childNode = map("id", row.get("childId"), "name", row.get("childName"), "type", row.get("childType"), "properties", row.get("child"));
-         	int source = nodes.indexOf(childNode);
-            if (source == -1) 
-            {
-                nodes.add(childNode);
-                source = i++;
-            }
-         	
-         	//Add the parent node if it is not already there
-         	Map<String, Object> parentNode = map("id", row.get("parentId"), "name", row.get("parentName"), "type", row.get("parentType"), "properties", row.get("parent"));
-         	int target = nodes.indexOf(parentNode);
-            if (target == -1) 
-            {
-                nodes.add(parentNode);
-                target = i++;
-            }
-            // source and target are indices of their respective nodes in the nodes list
-         	rels.add(map("source", source, "target", target));
-         	
-         }
-         return map("nodes", nodes, "links", rels);
-		
-	}
 }
 
