@@ -241,6 +241,12 @@ function goBackToForm3() {
 	//Go back to showing the 3rd form
 	document.getElementById("findMatches").style.display="block";
 	
+	//Remove rows from table
+	var table = document.getElementById("createEdgesTable")
+	while (table.rows.length > 0) {
+		table.deleteRow();
+	}
+	
 }
 
 //After clicking on a node it will fill the metadata console with the information.
