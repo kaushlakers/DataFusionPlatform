@@ -449,6 +449,68 @@ function match(prop, propVal, color, n) {
 			console.log("newNodes is:");
 			console.log(newNodes);
 			
+			//get HTML Table to add rows in
+			var edgeTable = document.getElementById("createEdgesTable");
+			
+			var row = edgeTable.insertRow();
+			var td = document.createElement('td');
+			row.appendChild(td);
+			
+			td = document.createElement('td');
+			var text = document.createTextNode("Display Node&nbsp;");
+			td.appendChild(text);
+			row.appendChild(td);
+			
+			td = document.createElement('td');
+			text = document.createTextNode("Create Edge&nbsp;");
+			td.appendChild(text);
+			row.appendChild(td);
+			
+			td = document.createElement('td');
+			text = document.createTextNode("Delete Node");
+			td.appendChild(text);
+			row.appendChild(td);
+			
+			//Create a table row for each node
+			for (var i in newNodes) {
+				var row = edgeTable.insertRow();
+				
+				//Show name of the node
+				var td = document.createElement('td');
+				var text = document.createTextNode(newNodes[i].name + "&nbsp;");
+				td.appendChild(text);
+				row.appendChild(td);
+				
+				//Choice for showing node
+				var td2 = document.createElement('td');
+				var radioButton1 = document.createElement('input');
+				radioButton1.type = "radio";
+				radioButton1.name = i;
+				radioButton1.value = "showNode";
+				td2.appendChild(radioButton1);
+				row.appendChild(td2);
+				
+				//Choice for creating edge 
+				var td3 = document.createElement('td');
+				var radioButton2 = document.createElement('input');
+				radioButton2.type = "radio";
+				radioButton2.name = i;
+				radioButton2.value = "createEdge";
+				td3.appendChild(radioButton2);
+				row.appendChild(td3);
+
+				//Choice for deleting node 
+				var td4 = document.createElement('td');
+				var radioButton3 = document.createElement('input');
+				radioButton3.type = "radio";
+				radioButton3.name = i;
+				radioButton3.value = "removeNode";
+				td4.appendChild(radioButton3);
+				row.appendChild(td4);
+				
+			
+			}
+			
 			//edge is an object to take the form that d3 accepts for creating edges
 			//{source: "source node" target: "target node"}
 			var edge = {};
