@@ -49,6 +49,9 @@ var uniqueLinks = [];
 var nodeContainer;
 var linkContainer;
 
+//Hold data on the node for which we find additional matches for
+var nodeForMatches;
+
 var state = false;
 var last = null;
 var current = null;
@@ -101,10 +104,11 @@ function getDataSet() {
 		{
 			if(error) return;
 			
-			//console.log("Dataset value inside getDataset is:" + dataset);
+			console.log("Dataset value inside getDataset is:" + dataset);
 			//console.log(dataset);
 			//console.log(dataset.nodes);
-			//console.log(dataset.links);
+			console.log("Dataset links:");
+			console.log(dataset.links);
 			
 			uniqueNodes = []; 
 	 		uniqueLinks = []; 
@@ -249,6 +253,10 @@ function getNode(n) {
 	console.log("n inside getNode is:");
 	console.log(n);
 
+	//Assign the node to the global variable nodeForMatches
+	//Its index is needed to create new edges to the dataset
+	nodeForMatches = n;
+	
 	//last = current;
 
     //current = d3.select(this);
@@ -277,8 +285,7 @@ function nodeOnClick(n) {
 	document.getElementById("findMatches").style.display="block";
 
 	console.log("inside nodeOnClick");
-	console.log("n in nodeOnClick is");
-	console.log(n)
+
     //Return color of nodes back to normal
     svg.selectAll(".node").style("fill", function(d) { return d.colr; });
     
@@ -335,7 +342,7 @@ function createButton(label, functionCall) {
     btn.className = "btn btn-default";
     btn.appendChild(title);
     
-    //Set method for finding nodes on button click
+
     btn.onclick = functionCall; 
     //Add button to the 'displayOptions' div inside the console
     document.getElementById("displayOptions").appendChild(btn);
@@ -372,9 +379,11 @@ function getNodeSize(d) {
 	}
 }
 
-function match(prop, propVal, color) {
+function match(prop, propVal, color, n) {
 
 	console.log("inside match function");
+	console.log("n is:");
+	console.log(n);
 	
 	//Hide the 3rd form and show the 4th form
 	//Get the form and hide the display
@@ -402,8 +411,19 @@ function match(prop, propVal, color) {
 	d3.json("/Justin/matchProperty/" + prop + "/" + propVal, function(error, data)
 		{
 			if(error) return;
+			
+			//create array to hold the new nodes
+			var newNodes = [];
+			
 			console.log("Inside /matchProperty/");
-			//console.log(data.resultingNodes);
+			console.log("Data is:");
+			console.log(data);
+			console.log("Inside /matchProperty/ n is:");
+			console.log(n);
+			
+			console.log("Graph Links is:");
+			console.log(graphLinks);
+			
 			//console.log(uniqueNodes.indexOf(544));
 			//console.log("uniqueNodes:");
 			//console.log(uniqueNodes)
@@ -417,6 +437,7 @@ function match(prop, propVal, color) {
 			    //console.log(nodeIndex);
 			    if (nodeIndex == -1)
 			    {
+			    	newNodes.push(node);
 			    	uniqueNodes.push(nodeId);
 					graphNodes.push(node);
 					//console.log(uniqueNodes);
@@ -425,6 +446,25 @@ function match(prop, propVal, color) {
 			    }
 			});
 			
+			console.log("newNodes is:");
+			console.log(newNodes);
+			
+			//edge is an object to take the form that d3 accepts for creating edges
+			//{source: "source node" target: "target node"}
+			var edge = {};
+			
+			//n is the node that the matching started with
+			//and will be the source
+			var source = n;
+			
+			//create a new edge for each new node
+			for (var i in newNodes) {
+				edge = {source:source, target:newNodes[i]};
+				graphLinks.push(edge);
+			}
+			
+			console.log("graphLinks after loop is:");
+			console.log(graphLinks);
 			
 			// update the data sourced by the graphical containers
 			linkContainer = linkContainer.data(graphLinks);
@@ -470,8 +510,8 @@ function match(prop, propVal, color) {
 	
 }
 
-function findTitle()   { match("title", getTitle, "yellow"); }
-function findRep()     { match("represents", getRepresents, "blue"); }
-function findColType() { match("columntype", getColumnType, "green"); }
-function findSemRel()  { match("semanticrelation", getSemanticRelation, "orange"); }
+function findTitle()   { match("title", getTitle, "yellow", nodeForMatches); }
+function findRep()     { match("represents", getRepresents, "blue", nodeForMatches); }
+function findColType() { match("columntype", getColumnType, "green", nodeForMatches); }
+function findSemRel()  { match("semanticrelation", getSemanticRelation, "orange", nodeForMatches); }
 
