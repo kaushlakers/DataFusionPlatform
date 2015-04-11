@@ -524,20 +524,26 @@ function createTable(newNodes) {
 	//get HTML Table to add rows in
 	var edgeTable = document.getElementById("createEdgesTable");
 	
+	//Create row to insert column headers
+	
+	//First row element left blank [to align headers correctly]
 	var row = edgeTable.insertRow();
 	var td = document.createElement('td');
 	row.appendChild(td);
 	
+	//Second row element (First Column header)
 	td = document.createElement('td');
 	var text = document.createTextNode("Display Node&nbsp;");
 	td.appendChild(text);
 	row.appendChild(td);
 	
+	//Third row element (Second Column header)
 	td = document.createElement('td');
 	text = document.createTextNode("Create Edge&nbsp;");
 	td.appendChild(text);
 	row.appendChild(td);
 	
+	//Fourth row element (Third Column header)
 	td = document.createElement('td');
 	text = document.createTextNode("Delete Node");
 	td.appendChild(text);
