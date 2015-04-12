@@ -191,11 +191,18 @@ function populateForm() {
 	while (i<column.length) {
 		console.log(column[i].parentNode.textContent);
 		var option = new Option(column[i].parentNode.textContent, i);
+		option.node = column[i].parentNode;
 		document.getElementById("nodeSelections").appendChild(option);
+
+		// function to highlight corresponding node when option is clicked (not yet complete)
+		// -Brad
+		option.onclick = function() {
+			getNode(option.node);
+			console.log(option.node);
+		}
+		
 		i++;
 	}
-	
-
 }
 
 //Function to change from the second form back
@@ -270,10 +277,10 @@ function getNode(n) {
     //last.style('fill', function(d) { return d.colr; });
 	
 	//Update Console on the nodes information
-	var info = [n.name, n.type, n.properties.represents, n.properties.columntype, n.properties.semanticrelation];
+	// var info = [n.name, n.type, n.properties.represents, n.properties.columntype, n.properties.semanticrelation];
     cells = document.getElementsByClassName("infocell");
     console.log(cells);
-    console.log(info);
+    // console.log(info);
     cells[0].innerHTML = n.name;
     cells[1].innerHTML = n.type;
     cells[2].innerHTML = n.properties.represents;
