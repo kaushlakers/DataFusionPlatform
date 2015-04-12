@@ -455,36 +455,8 @@ function match(prop, propVal, color, n) {
 			console.log("newNodes is:");
 			console.log(newNodes);
 			
-			//call function to add rows to the frontend UI
-			createTable(newNodes);
-			
-			//edge is an object to take the form that d3 accepts for creating edges
-			//{source: "source node" target: "target node"}
-			var edge = {};
-			
-			//n is the node that the matching started with
-			//and will be the source
-			var source = n;
-			
-			//create a new edge for each new node
-			for (var i in newNodes) {
-				edge = {source:source, target:newNodes[i]};
-				graphLinks.push(edge);
-			}
-			
-			console.log("graphLinks after loop is:");
-			console.log(graphLinks);
-			
 			// update the data sourced by the graphical containers
-			linkContainer = linkContainer.data(graphLinks);
 			nodeContainer = nodeContainer.data(graphNodes);
-						
-			
-			// any new data must be entered into its new graphical container
-			linkContainer.enter()
-				.append("line")
-				.attr("class", "link");
-							
 			
 			nodeContainer.enter()
 				.append("g")
@@ -506,10 +478,66 @@ function match(prop, propVal, color, n) {
 	    		.text(function (d) { return d.name; })
 
 	    	// add on click function to nodes
-	    	nodeContainer.on("click", getNode);
+	    	nodeContainer.on("click", getNode);			
+			
+			// begin simulation with updated data
+			force.start();			
+			
+			//call function to add rows to the frontend UI
+			createTable(newNodes,n);
+			
+			//edge is an object to take the form that d3 accepts for creating edges
+			//{source: "source node" target: "target node"}
+			var edge = {};
+			
+			//n is the node that the matching started with
+			//and will be the source
+			var source = n;
+			
+			//create a new edge for each new node
+			//for (var i in newNodes) {
+			//	edge = {source:source, target:newNodes[i]};
+			//	graphLinks.push(edge);
+			//}
+			
+			//console.log("graphLinks after loop is:");
+			//console.log(graphLinks);
+			
+			// update the data sourced by the graphical containers
+			//linkContainer = linkContainer.data(graphLinks);
+			//nodeContainer = nodeContainer.data(graphNodes);
+						
+			
+			// any new data must be entered into its new graphical container
+			//linkContainer.enter()
+			//	.append("line")
+			//	.attr("class", "link");
+							
+			
+			//nodeContainer.enter()
+			//	.append("g")
+			//	.attr("class", function (d) { return "node "+ d.type.toString(); })
+			//	.style("fill", function(d) {return d.colr; })
+			//	.call(drag);
+	    
+	    	    
+			//Add a SVG circle element to the node container	
+			//nodeContainer.append("circle")
+	    	//Dynamically adjust the size of circles depending on its type
+	    	//	.attr("r", getNodeSize)
+	    	
+	    	//Add a Title element to display nodes title container
+	    	//nodeContainer.append("text")
+	    	//Adjust the placement of text on the X-AXIS for displaying the title
+	    	//	.attr("dx", getNodeSize)
+	    	//	.attr("dy", ".35em")
+	    	//	.text(function (d) { return d.name; })
+
+	    	// add on click function to nodes
+	    	//nodeContainer.on("click", getNode);
 				
 			// begin simulation with updated data
-			force.start();		
+			//force.start();		
 			
 
 				
@@ -519,7 +547,7 @@ function match(prop, propVal, color, n) {
 	
 }
 
-function createTable(newNodes) {
+function createTable(newNodes,n) {
 
 	//get HTML Table to add rows in
 	var edgeTable = document.getElementById("createEdgesTable");
@@ -552,6 +580,7 @@ function createTable(newNodes) {
 	//Create a table row for each node
 	for (var i in newNodes) {
 		var row = edgeTable.insertRow();
+		row.id = "node" + i;
 		
 		//Show name of the node
 		var td = document.createElement('td');
@@ -584,11 +613,45 @@ function createTable(newNodes) {
 		radioButton3.name = i;
 		radioButton3.value = "removeNode";
 		td4.appendChild(radioButton3);
-		row.appendChild(td4);
-		
-	
+		row.appendChild(td4);	
+							
 	}
+	//JQuery function for creating edges and removing nodes
+	$('tr[id^=node] input').on('change', function() {
+	
+    	var row = $(this).parents('tr:first').get(0);
+    	console.log('Node: '+ row.id+ ' value:' + this.value); 
+    	
+    	//Creates the edge when this radio button is chosen
+    	if (this.value == "createEdge") {
+    		var edge = {};
+    		var source = n;
+    		
+    		//Get target node based on the index in the table
+    		var getIndex = row.id;
+    		getIndex = getIndex.slice(-1);
+    		var target = newNodes[getIndex];
+
+			//Create edge and update graph
+    		edge = {source:source, target:target};
+			graphLinks.push(edge);
+			
+			// update the data sourced by the graphical containers
+			linkContainer = linkContainer.data(graphLinks);
+									
+			// any new data must be entered into its new graphical container
+			linkContainer.enter()
+				.append("line")
+				.attr("class", "link");
+    		
+    		// begin simulation with updated data
+			force.start();	
+			
+    	} 
+	});	
 }
+
+
 
 function findTitle()   { match("title", getTitle, "yellow", nodeForMatches); }
 function findRep()     { match("represents", getRepresents, "blue", nodeForMatches); }
