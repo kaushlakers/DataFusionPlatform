@@ -174,12 +174,7 @@ function getDataSet() {
 function populateForm() {
 	var nodeType = "Column"
 	var columnNodes = svg.selectAll(".node")
-						.filter(function(d) { return d.type == nodeType })
-						.style('fill', 'blue');
-	
-
-	console.log("columnNodes is:" + columnNodes);
-	console.log(columnNodes[0]);
+						.filter(function(d) { return d.type == nodeType });
 
 	/*
 	 * Find all of the svg "g" elements in columnNodes and dynamically create
@@ -189,20 +184,31 @@ function populateForm() {
 	var column = columnNodes.selectAll("g");
 	var i = 0;
 	while (i<column.length) {
-		console.log(column[i].parentNode.textContent);
-		var option = new Option(column[i].parentNode.textContent, i);
-		option.node = column[i].parentNode;
+		//console.log("here");
+		//console.log(column);
+		//console.log(column[i].data());
+		//console.log(column[i].parentNode.__data__);
+		console.log(column[i].parentNode.__data__.name);
+		var option = new Option(column[i].parentNode.__data__.name, column[i].parentNode.__data__.id);
 		document.getElementById("nodeSelections").appendChild(option);
-
-		// function to highlight corresponding node when option is clicked (not yet complete)
-		// -Brad
-		option.onclick = function() {
-			getNode(option.node);
-			console.log(option.node);
-		}
-		
+	
 		i++;
 	}
+	
+}
+
+function optionChange() {
+	var selectBox = document.getElementById("nodeSelections");
+	//console.log("before label call");
+	var selectedValue = selectBox.options[selectBox.selectedIndex].value;
+	console.log(selectedValue);
+	var test = svg.selectAll(".node")
+				.filter(function (d) { return d.id == selectedValue});
+	getNode(test[0][0].__data__);
+	//console.log(test);
+	//console.log(test.name);
+	//getNode(test);
+	
 }
 
 //Function to change from the second form back
@@ -270,11 +276,11 @@ function getNode(n) {
 	//Its index is needed to create new edges to the dataset
 	nodeForMatches = n;
 	
-	//last = current;
-
-    //current = d3.select(this);
-    //current.style('fill', 'red');
-    //last.style('fill', function(d) { return d.colr; });
+//	last = current;
+//
+//    current = d3.select(this);
+//    current.style('fill', 'red');
+//    last.style('fill', function(d) { return d.colr; });
 	
 	//Update Console on the nodes information
 	// var info = [n.name, n.type, n.properties.represents, n.properties.columntype, n.properties.semanticrelation];
