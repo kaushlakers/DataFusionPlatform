@@ -71,7 +71,7 @@ public class DFService
 		
 		// limit tells the neo4j server the max length of the response
 		Iterator<Map<String,Object>> result = cypher.query(
-    			"start n=node(" + datasetID + ") match (n)<-[:BELONGS_TO*]-(p)<-[:BELONGS_TO]-(c) "
+    			"start n=node(" + datasetID + ") match (n)<-[:BELONGS_TO]-(p)<-[:BELONGS_TO]-(c) "
     			+ "return n as dataset, labels(n)[0] as datasetType, ID(n) as datasetId, n.title as datasetName, p.title as parentName, labels(p)[0] as parentType, ID(p) as parentId, p as parent, c.title as childName, labels(c)[0] as childType, ID(c) as childId, c as child",
     			map("1",limit));
 		
@@ -146,8 +146,9 @@ public class DFService
 	{
 		// limit tells the neo4j server the max length of the response
 		Iterator<Map<String,Object>> result = cypher.query(
-				"match (n:Column) where n." + property + " = \"" + propertyValue + "\" return n.title as name, labels(n) as type, id(n) as id, n as node", 
+				"match (n:Column) where n." + property + " = \"" + propertyValue + "\" return n.title as name, labels(n)[0] as type, id(n) as id, n as node", 
 				map("1", limit));
+		
 		List<Map<String, Object>> resultingNodes = new ArrayList<Map<String, Object>>();
 		
 		//result is essentially a collection of rows in a table of data returned by the query
@@ -162,6 +163,56 @@ public class DFService
 		
 		return map("resultingNodes", resultingNodes);
 	}
+	
+
+	
+	
+	
+	public Map<String, Object> getTable(int nodeId, int limit)
+	{	
+		Iterator<Map<String,Object>> result = cypher.query(
+				"start n=node(" + nodeId + ") " +
+				"match (n)-->(p) " +
+				"with id(p) as pid " +
+				"match path=(n)-->(t)-->(d) " +
+				"where id(t) = pid " +
+				"unwind nodes(path) as r " +
+				"return distinct r.title as name, labels(r)[0] as type, id(r) as id, r as node",
+				map("1", limit));
+
+		List<Map<String, Object>> nodes = new ArrayList<Map<String, Object>>();
+		List<Map<String, Object>> links = new ArrayList<Map<String, Object>>();
+		// list of indices in the node array that are column nodes 
+		List<Integer> columnIndices = new ArrayList<>();
+		int datasetIndex = 0, tableIndex = 0;
+		int i = 0;
+		
+		while (result.hasNext())
+		{
+			Map<String, Object> row = result.next();
+			Map<String, Object> node = map("id", row.get("id"), "name", row.get("name"), "type", row.get("type"), "properties", row.get("node"));
+	     	String nodeType = (String) row.get("type");
+	     	
+			if (nodeType.equalsIgnoreCase("dataset")) { datasetIndex = i; }
+			else if (nodeType.equalsIgnoreCase("table") || nodeType.equalsIgnoreCase("jointable")) { tableIndex = i; }
+			else { columnIndices.add(i); }
+			nodes.add(node);
+			i++;
+		}
+		
+		links.add(map("source", tableIndex, "target", datasetIndex));
+		
+		for (int cIndex : columnIndices)
+		{
+			links.add(map("source", cIndex, "target", tableIndex));
+		}	
+		
+		return map("nodes", nodes, "links", links);	
+	}
+	
+	
+	
+	
 	
 }
 

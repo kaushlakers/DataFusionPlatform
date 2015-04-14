@@ -78,5 +78,25 @@ public class DFRoutes implements SparkApplication{
             }
         });
 		
+		//handles a request to the route /getTable/541 for example
+		// :nodeID is a parameter for any node that is a COLUMN
+		// this route will run a cypher query that will return the given column node's:
+		//		1. parent table node
+		//		2. grandparent dataset node
+		//		3. sibling column nodes
+		get("/getTable/:nodeID", new Route() {
+            public Object handle(Request request, Response response) {
+            	// limit defines a limit on the length of the response if it is not defined in the request
+            	int limit = request.queryParams("limit") != null ? Integer.valueOf(request.queryParams("limit")) : 100;
+            	
+            	int nID = Integer.parseInt(request.params(":nodeID"));
+                // The gson.toJson simply converts the given data to JSON format for sending it in an HTTP response.
+            	// Here we are calling the datasets method in the service object which will query neo4j for all the 
+            	// datasets in the database.
+            	return gson.toJson(service.getTable(nID, limit));
+               
+            }
+        }); 
+		
 	}
 }
