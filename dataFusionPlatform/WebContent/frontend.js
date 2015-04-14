@@ -335,7 +335,7 @@ function nodeOnClick(n) {
     
  
     //Dynamically create button for finding related Titles, Represents, Column Types, Relations
-    // if (getTitle !== undefined)            { createButton("Find Related Titles", findTitle); }
+    if (getTitle !== undefined)            { createButton("Find Related Titles", findTitle); }
     // if (getRepresents !== undefined)       { createButton("Find Related Represents", findRep); }
     if (getRepresents !== undefined)       { createButton("Find Related Entities", findRep); }
     // if (getColumnType !== undefined)       { createButton("Find Related Column Types", findColType); }
