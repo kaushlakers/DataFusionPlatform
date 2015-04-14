@@ -202,18 +202,23 @@ function populateForm() {
 	
 }
 
+//Function to handle when the user clicks on different option tags
+//	so that the same functionality occurs as when using the graph.
 function optionChange() {
-	var selectBox = document.getElementById("nodeSelections");
-	//console.log("before label call");
-	var selectedValue = selectBox.options[selectBox.selectedIndex].value;
-	console.log(selectedValue);
-	var test = svg.selectAll(".node")
-				.filter(function (d) { return d.id == selectedValue});
-	getNode(test[0][0].__data__);
-	//console.log(test);
-	//console.log(test.name);
-	//getNode(test);
 	
+	//Get the select tag in the html
+	var selectBox = document.getElementById("nodeSelections");
+	
+	//get the current value of the option selected
+	var selectedValue = selectBox.options[selectBox.selectedIndex].value;
+	
+	//Based upon the value, select the corresponding node and call getNode() on it
+	var optionNode = svg.selectAll(".node")
+				.filter(function (d) { return d.id == selectedValue});
+	
+	getNode(optionNode[0][0].__data__);
+	//console.log(test);
+			
 }
 
 //Function to change from the second form back
@@ -330,10 +335,12 @@ function nodeOnClick(n) {
     
  
     //Dynamically create button for finding related Titles, Represents, Column Types, Relations
-    if (getTitle !== undefined)            { createButton("Find Related Titles", findTitle); }
-    if (getRepresents !== undefined)       { createButton("Find Related Represents", findRep); }
-    if (getColumnType !== undefined)       { createButton("Find Related Column Types", findColType); }
-    if (getSemanticRelation !== undefined) { createButton("Find Related Semantic Relations", findSemRel); }
+    // if (getTitle !== undefined)            { createButton("Find Related Titles", findTitle); }
+    // if (getRepresents !== undefined)       { createButton("Find Related Represents", findRep); }
+    if (getRepresents !== undefined)       { createButton("Find Related Entities", findRep); }
+    // if (getColumnType !== undefined)       { createButton("Find Related Column Types", findColType); }
+    // if (getSemanticRelation !== undefined) { createButton("Find Related Semantic Relations", findSemRel); }
+    if (getSemanticRelation !== undefined) { createButton("Find Related Attributes", findSemRel); }
 
 }
 
