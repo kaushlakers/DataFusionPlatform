@@ -52,6 +52,9 @@ var linkContainer;
 //Hold data on the node for which we find additional matches for
 var nodeForMatches;
 
+//Temp array for holding new nodes that could be added to a dataset
+var newNodes = [];
+
 var state = false;
 var last = null;
 var current = null;
@@ -265,6 +268,16 @@ function goBackToForm3() {
 		table.deleteRow();
 	}
 	
+	console.log("Unique nodes is:");
+	console.log(uniqueNodes);
+	//Remove any nodes that could of been added from the set of unique nodes
+	for (var node in newNodes){
+		console.log("node is:");
+		uniqueNodes.pop(newNodes[node].id);
+	}
+	
+	console.log("Unique nodes after removal is:");
+	console.log(uniqueNodes);
 }
 
 //After clicking on a node it will fill the metadata console with the information.
@@ -437,7 +450,7 @@ function match(prop, propVal, color, n) {
 			if(error) return;
 			
 			//create array to hold the new nodes
-			var newNodes = [];
+			newNodes = [];
 			
 			console.log("Inside /matchProperty/");
 			console.log("Data is:");
@@ -472,6 +485,9 @@ function match(prop, propVal, color, n) {
 			
 			console.log("newNodes is:");
 			console.log(newNodes);
+			
+			//Update the cancel button so it has the list of new nodes it can remove
+			var backButton = document.getElementById("backToThirdForm").onclick
 			
 			// update the data sourced by the graphical containers
 			nodeContainer = nodeContainer.data(graphNodes);
@@ -543,7 +559,7 @@ function createTable(newNodes,n) {
 	//Create a table row for each node
 	for (var i in newNodes) {
 		var row = edgeTable.insertRow();
-		row.id = "node" + i;
+		row.id = "node" + newNodes[i].id;
 		
 		//Show name of the node
 		var td = document.createElement('td');
@@ -588,7 +604,7 @@ function createTable(newNodes,n) {
     	
     	//Get target node based on the index in the table
     	var getIndex = row.id;
-    	getIndex = getIndex.slice(-1);
+    	getIndex = getIndex.substring(3);
     	var nodeToModify = newNodes[getIndex];
     	
     	//Creates the edge when this radio button is chosen
