@@ -112,11 +112,11 @@ function getDataSet() {
 		{
 			if(error) return;
 			
-			console.log("Dataset value inside getDataset is:" + dataset);
+			//console.log("Dataset value inside getDataset is:" + dataset);
 			//console.log(dataset);
 			//console.log(dataset.nodes);
-			console.log("Dataset links:");
-			console.log(dataset.links);
+			//console.log("Dataset links:");
+			//console.log(dataset.links);
 			
 			uniqueNodes = []; 
 	 		uniqueLinks = []; 
@@ -196,7 +196,7 @@ function populateForm() {
 		//console.log(column);
 		//console.log(column[i].data());
 		//console.log(column[i].parentNode.__data__);
-		console.log(column[i].parentNode.__data__.name);
+		//console.log(column[i].parentNode.__data__.name);
 		var option = new Option(column[i].parentNode.__data__.name, column[i].parentNode.__data__.id);
 		document.getElementById("nodeSelections").appendChild(option);
 	
@@ -308,7 +308,7 @@ function getNode(n) {
 	//Update Console on the nodes information
 	// var info = [n.name, n.type, n.properties.represents, n.properties.columntype, n.properties.semanticrelation];
     cells = document.getElementsByClassName("infocell");
-    console.log(cells);
+    //console.log(cells);
     // console.log(info);
     cells[0].innerHTML = n.name;
     cells[1].innerHTML = n.type;
@@ -326,7 +326,7 @@ function nodeOnClick(n) {
 	document.getElementById("pickNode").style.display="none";
 	document.getElementById("findMatches").style.display="block";
 
-	console.log("inside nodeOnClick");
+	//console.log("inside nodeOnClick");
 
     //Return color of nodes back to normal
     svg.selectAll(".node").style("fill", function(d) { return d.colr; });
@@ -456,16 +456,17 @@ function match(prop, propVal, color, n) {
     //create array to hold the new nodes
 	var newNodes = [];
     var newNodeIDs = [];
+    
+    //Used to get the node that connects to the original dataset
+    var connectNode = {};
 
 	d3.json("/Justin/matchProperty/" + prop + "/" + propVal, function(error, data)
 		{
 			if(error) return;
 			
-
 			//create array to hold the new nodes
 			newNodes = [];
-
-			
+		
 			console.log("Inside /matchProperty/");
 			console.log("Data is:");
 			console.log(data);
@@ -486,6 +487,7 @@ function match(prop, propVal, color, n) {
 				    }
 				});
 			
+
 			// for each node that is matched in the query, get its respective table and update the graph
 			newNodeIDs.forEach(function (newId)
 				{
@@ -493,11 +495,20 @@ function match(prop, propVal, color, n) {
 							{
 								if (error) return;
 								
+								console.log("tableData is:");
+								console.log(tableData);
 								var indexOffset = graphNodes.length;
 								
 								tableData.nodes.forEach(function (tNode)
 									{
 										var nId = tNode.id;
+										
+										//If the node from the table matches the new node
+										//for creating the dashed line, assign it to connectNode
+										if (nId == newId) {
+											connectNode = tNode;
+										}
+										
 										var nIndex = parseInt(uniqueNodes.indexOf(nId));
 										
 									    if (nIndex == -1)
@@ -515,6 +526,9 @@ function match(prop, propVal, color, n) {
 										edge.target += indexOffset;
 										graphLinks.push(edge);
 									});
+									
+								console.log("newId is:");
+								console.log(newId);
 								
 								// update the data sourced by the graphical containers
 								linkContainer = linkContainer.data(graphLinks);
@@ -532,8 +546,7 @@ function match(prop, propVal, color, n) {
 									.attr("class", function (d) { return "node "+ d.type.toString(); })
 									.style("fill", function(d) {return d.colr; })
 									.call(drag);
-						    
-						    	    
+						    					    	    
 								//Add a SVG circle element to the node container	
 								nodeContainer.append("circle")
 						    	//Dynamically adjust the size of circles depending on its type
@@ -551,17 +564,26 @@ function match(prop, propVal, color, n) {
 								
 								console.log("table links:");
 								console.log(tableData.links);
+
+								//Create the dashed edges to connect different datasets
+								var dashedEdge = {source: n, target: connectNode};
+								graphLinks.push(dashedEdge);
 								
-								
+								// update the data sourced by the graphical containers
+								linkContainer = linkContainer.data(graphLinks);
+														
+								// any new data must be entered into its new graphical container
+								linkContainer.enter()
+									.append("line")
+									.style("stroke-dasharray", ("3, 3"))
+									.attr("class", "link");
+											
 								// begin simulation with updated data
-								force.start();			
+								force.start();
 								
 							});
 				});
-			
-			console.log("newNodes is:");
-			console.log(newNodes);
-			
+				
 			//Update the cancel button so it has the list of new nodes it can remove
 			var backButton = document.getElementById("backToThirdForm").onclick
 			
@@ -639,7 +661,7 @@ function createTable(newNodes,n) {
 		row.id = "node"+newNodes[i].id;
 
 		
-		console.log("row id : " +row.id);
+		//console.log("row id : " +row.id);
 		//Show name of the node
 		var td = document.createElement('td');
 		var text = document.createTextNode(newNodes[i].name + "&nbsp;");
@@ -674,9 +696,7 @@ function createTable(newNodes,n) {
 		row.appendChild(td4);	
 							
 	}
-	
-	console.log('before jquery#################');
-	
+		
 	//JQuery function for creating edges and removing nodes
 	$('tr[id^=node] input').on('change', function() {
 	
