@@ -150,7 +150,7 @@ function getDataSet() {
 		    	.data(graphNodes)
 		    	.enter().append("g")
 		    	.attr("class", function (d) { return "node "+ d.type.toString(); })
-		    	.style("fill", function(d) {return d.colr; })
+		    	//.style("fill", function(d) {return d.colr; })
 		    	.call(drag);
 		    
 		    //Add a SVG circle element to the node container	
@@ -285,12 +285,11 @@ function getNode(n) {
 	//Assign the node to the global variable nodeForMatches
 	//Its index is needed to create new edges to the dataset
 	nodeForMatches = n;
-	
-//	last = current;
-//
-//    current = d3.select(this);
-//    current.style('fill', 'red');
-//    last.style('fill', function(d) { return d.colr; });
+	last = current;
+
+    current = d3.select(this);
+    current.style('fill', 'red');
+    last.style('fill', null);
 	
 	//Update Console on the nodes information
 	// var info = [n.name, n.type, n.properties.represents, n.properties.columntype, n.properties.semanticrelation];
@@ -316,7 +315,7 @@ function nodeOnClick(n) {
 	console.log("inside nodeOnClick");
 
     //Return color of nodes back to normal
-    svg.selectAll(".node").style("fill", function(d) { return d.colr; });
+    svg.selectAll(".node").style("fill", null);
     
     var getOptionsDiv = document.getElementById("displayOptions");
     if (getOptionsDiv.children.length) {
@@ -514,7 +513,7 @@ function match(prop, propVal, color, n) {
 								nodeContainer.enter()
 									.append("g")
 									.attr("class", function (d) { return "node "+ d.type.toString(); })
-									.style("fill", function(d) {return d.colr; })
+									//.style("fill", function(d) {return d.colr; })
 									.call(drag);
 						    
 						    	    
@@ -552,7 +551,7 @@ function match(prop, propVal, color, n) {
 			nodeContainer.enter()
 				.append("g")
 				.attr("class", function (d) { return "node "+ d.type.toString(); })
-				.style("fill", function(d) {return d.colr; })
+				//.style("fill", function(d) {return d.colr; })
 				.call(drag);
 	    
 	    	    
@@ -712,7 +711,7 @@ function createTable(newNodes,n) {
 			nodeContainer.enter()
 				.append("g")
 				.attr("class", function (d) { return "node "+ d.type.toString(); })
-				.style("fill", function(d) {return d.colr; })
+				//.style("fill", function(d) {return d.colr; })
 				.call(drag);
 	    
 	    	    
