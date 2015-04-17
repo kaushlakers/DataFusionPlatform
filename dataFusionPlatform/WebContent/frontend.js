@@ -57,12 +57,15 @@ var queryNodes = [];
 //Hold data on the node for which we find additional matches for
 var nodeForMatches;
 
+//Temp array for holding new nodes that could be added to a dataset
+var newNodes = [];
+
 var state = false;
 var last = null;
 var current = null;
 
 
-d3.json("/ty/datasets", function(error, data)
+d3.json("/Justin/datasets", function(error, data)
 		{
 			if(error) return;
 						
@@ -105,15 +108,15 @@ function getDataSet() {
     //log("datasetID inside getDataSets function:" + datasetID); 
     
     //Call the route to dynamically add the dataset to the webapp
-    d3.json("/ty/getDataset/" + datasetID, function(error, dataset)
+    d3.json("/Justin/getDataset/" + datasetID, function(error, dataset)
 		{
 			if(error) return;
 			
-			console.log("Dataset value inside getDataset is:" + dataset);
+			//console.log("Dataset value inside getDataset is:" + dataset);
 			//console.log(dataset);
 			//console.log(dataset.nodes);
-			console.log("Dataset links:");
-			console.log(dataset.links);
+			//console.log("Dataset links:");
+			//console.log(dataset.links);
 			
 			uniqueNodes = []; 
 	 		uniqueLinks = []; 
@@ -193,7 +196,7 @@ function populateForm() {
 		//console.log(column);
 		//console.log(column[i].data());
 		//console.log(column[i].parentNode.__data__);
-		console.log(column[i].parentNode.__data__.name);
+		//console.log(column[i].parentNode.__data__.name);
 		var option = new Option(column[i].parentNode.__data__.name, column[i].parentNode.__data__.id);
 		document.getElementById("nodeSelections").appendChild(option);
 	
@@ -270,6 +273,16 @@ function goBackToForm3() {
 		table.deleteRow();
 	}
 	
+	console.log("Unique nodes is:");
+	console.log(uniqueNodes);
+	//Remove any nodes that could of been added from the set of unique nodes
+	for (var node in newNodes){
+		console.log("node is:");
+		uniqueNodes.pop(newNodes[node].id);
+	}
+	
+	console.log("Unique nodes after removal is:");
+	console.log(uniqueNodes);
 }
 
 //After clicking on a node it will fill the metadata console with the information.
@@ -294,7 +307,7 @@ function getNode(n) {
 	//Update Console on the nodes information
 	// var info = [n.name, n.type, n.properties.represents, n.properties.columntype, n.properties.semanticrelation];
     cells = document.getElementsByClassName("infocell");
-    console.log(cells);
+    //console.log(cells);
     // console.log(info);
     cells[0].innerHTML = n.name;
     cells[1].innerHTML = n.type;
@@ -312,7 +325,7 @@ function nodeOnClick(n) {
 	document.getElementById("pickNode").style.display="none";
 	document.getElementById("findMatches").style.display="block";
 
-	console.log("inside nodeOnClick");
+	//console.log("inside nodeOnClick");
 
     //Return color of nodes back to normal
     svg.selectAll(".node").style("fill", null);
@@ -442,13 +455,17 @@ function match(prop, propVal, color, n) {
     //create array to hold the new nodes
 	var newNodes = [];
     var newNodeIDs = [];
+    
+    //Used to get the node that connects to the original dataset
+    var connectNode = {};
 
-	d3.json("/ty/matchProperty/" + prop + "/" + propVal, function(error, data)
+	d3.json("/Justin/matchProperty/" + prop + "/" + propVal, function(error, data)
 		{
 			if(error) return;
 			
-
-			
+			//create array to hold the new nodes
+			newNodes = [];
+		
 			console.log("Inside /matchProperty/");
 			console.log("Data is:");
 			console.log(data);
@@ -469,18 +486,28 @@ function match(prop, propVal, color, n) {
 				    }
 				});
 			
+
 			// for each node that is matched in the query, get its respective table and update the graph
 			newNodeIDs.forEach(function (newId)
 				{
-					d3.json("/ty/getTable/" + newId, function(error, tableData)
+					d3.json("/Justin/getTable/" + newId, function(error, tableData)
 							{
 								if (error) return;
 								
+								console.log("tableData is:");
+								console.log(tableData);
 								var indexOffset = graphNodes.length;
 								
 								tableData.nodes.forEach(function (tNode)
 									{
 										var nId = tNode.id;
+										
+										//If the node from the table matches the new node
+										//for creating the dashed line, assign it to connectNode
+										if (nId == newId) {
+											connectNode = tNode;
+										}
+										
 										var nIndex = parseInt(uniqueNodes.indexOf(nId));
 										
 									    if (nIndex == -1)
@@ -498,6 +525,9 @@ function match(prop, propVal, color, n) {
 										edge.target += indexOffset;
 										graphLinks.push(edge);
 									});
+									
+								console.log("newId is:");
+								console.log(newId);
 								
 								// update the data sourced by the graphical containers
 								linkContainer = linkContainer.data(graphLinks);
@@ -515,8 +545,7 @@ function match(prop, propVal, color, n) {
 									.attr("class", function (d) { return "node "+ d.type.toString(); })
 									//.style("fill", function(d) {return d.colr; })
 									.call(drag);
-						    
-						    	    
+						    					    	    
 								//Add a SVG circle element to the node container	
 								nodeContainer.append("circle")
 						    	//Dynamically adjust the size of circles depending on its type
@@ -534,16 +563,28 @@ function match(prop, propVal, color, n) {
 								
 								console.log("table links:");
 								console.log(tableData.links);
+
+								//Create the dashed edges to connect different datasets
+								var dashedEdge = {source: n, target: connectNode};
+								graphLinks.push(dashedEdge);
 								
-								
+								// update the data sourced by the graphical containers
+								linkContainer = linkContainer.data(graphLinks);
+														
+								// any new data must be entered into its new graphical container
+								linkContainer.enter()
+									.append("line")
+									.style("stroke-dasharray", ("3, 3"))
+									.attr("class", "link");
+											
 								// begin simulation with updated data
-								force.start();			
+								force.start();
 								
 							});
 				});
-			
-			console.log("newNodes is:");
-			console.log(newNodes);
+				
+			//Update the cancel button so it has the list of new nodes it can remove
+			var backButton = document.getElementById("backToThirdForm").onclick
 			
 			// update the data sourced by the graphical containers
 			nodeContainer = nodeContainer.data(graphNodes);
@@ -615,9 +656,11 @@ function createTable(newNodes,n) {
 	//Create a table row for each node
 	for (var i in newNodes) {
 		var row = edgeTable.insertRow();
+
 		row.id = "node"+newNodes[i].id;
+
 		
-		console.log("row id : " +row.id);
+		//console.log("row id : " +row.id);
 		//Show name of the node
 		var td = document.createElement('td');
 		var text = document.createTextNode(newNodes[i].name + "&nbsp;");
@@ -652,9 +695,7 @@ function createTable(newNodes,n) {
 		row.appendChild(td4);	
 							
 	}
-	
-	console.log('before jquery#################');
-	
+		
 	//JQuery function for creating edges and removing nodes
 	$('tr[id^=node] input').on('change', function() {
 	
@@ -664,6 +705,7 @@ function createTable(newNodes,n) {
     	console.log("INSIDE JQUERY *************************");
     	//Get target node based on the index in the table
     	var getIndex = row.id;
+
     	getIndex = parseInt(getIndex.substring(4));
     	//var nodeToModify = newNodes[getIndex];
     	
@@ -734,8 +776,6 @@ function createTable(newNodes,n) {
     	}
 	});	
 }
-
-
 
 function findTitle()   { match("title", getTitle, "yellow", nodeForMatches); }
 function findRep()     { match("represents", getRepresents, "blue", nodeForMatches); }
