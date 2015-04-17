@@ -1,3 +1,5 @@
+
+
 var radius = 20, rTable = 30, rDataset = 40;
 var margin = {top: -5, right: -5, bottom: -5, left: -5};
 var width = 1200 - margin.left - margin.right, height = 800 - margin.top - margin.bottom;
@@ -48,6 +50,9 @@ var uniqueLinks = [];
 // these will hold the graphical elements
 var nodeContainer;
 var linkContainer;
+
+
+var queryNodes = [];
 
 //Hold data on the node for which we find additional matches for
 var nodeForMatches;
@@ -344,9 +349,11 @@ function nodeOnClick(n) {
  
     //Dynamically create button for finding related Titles, Represents, Column Types, Relations
     if (getTitle !== undefined)            { createButton("Find Related Titles", findTitle); }
-    if (getRepresents !== undefined)       { createButton("Find Related Represents", findRep); }
-    if (getColumnType !== undefined)       { createButton("Find Related Column Types", findColType); }
-    if (getSemanticRelation !== undefined) { createButton("Find Related Semantic Relations", findSemRel); }
+    // if (getRepresents !== undefined)       { createButton("Find Related Represents", findRep); }
+    if (getRepresents !== undefined)       { createButton("Find Related Entities", findRep); }
+    // if (getColumnType !== undefined)       { createButton("Find Related Column Types", findColType); }
+    // if (getSemanticRelation !== undefined) { createButton("Find Related Semantic Relations", findSemRel); }
+    if (getSemanticRelation !== undefined) { createButton("Find Related Attributes", findSemRel); }
 
 }
 
@@ -422,6 +429,8 @@ function match(prop, propVal, color, n) {
 	console.log("n is:");
 	console.log(n);
 	
+	queryNodes = [];
+	
 	//Hide the 3rd form and show the 4th form
 	//Get the form and hide the display
 	var form = document.getElementById("findMatches");
@@ -444,13 +453,18 @@ function match(prop, propVal, color, n) {
     //.transition()
     //.filter(function(d) { return d.properties[att] == match; })
     //.style('fill', color);
+    //create array to hold the new nodes
+	var newNodes = [];
+    var newNodeIDs = [];
 
 	d3.json("/Justin/matchProperty/" + prop + "/" + propVal, function(error, data)
 		{
 			if(error) return;
 			
+
 			//create array to hold the new nodes
 			newNodes = [];
+
 			
 			console.log("Inside /matchProperty/");
 			console.log("Data is:");
@@ -461,27 +475,89 @@ function match(prop, propVal, color, n) {
 			console.log("Graph Links is:");
 			console.log(graphLinks);
 			
-			//console.log(uniqueNodes.indexOf(544));
-			//console.log("uniqueNodes:");
-			//console.log(uniqueNodes)
-			data.resultingNodes.forEach(function(node) {
+			data.resultingNodes.forEach(function(node) 
+				{
+					var nodeId = node.id;
+				    var nodeIndex = parseInt(uniqueNodes.indexOf(nodeId));
+				    if (nodeIndex == -1)
+				    {
+				    	newNodes.push(node);
+				    	newNodeIDs.push(nodeId);
+				    }
+				});
+			
+			// for each node that is matched in the query, get its respective table and update the graph
+			newNodeIDs.forEach(function (newId)
+				{
+					d3.json("/Justin/getTable/" + newId, function(error, tableData)
+							{
+								if (error) return;
+								
+								var indexOffset = graphNodes.length;
+								
+								tableData.nodes.forEach(function (tNode)
+									{
+										var nId = tNode.id;
+										var nIndex = parseInt(uniqueNodes.indexOf(nId));
+										
+									    if (nIndex == -1)
+									    {
+									    	uniqueNodes.push(nId);
+											graphNodes.push(tNode);
+									    }
+									});
+								
+								// must change the relationship indices to reflect the indices that the nodes assume
+								// when placed into graphNodes. This is because 
+								tableData.links.forEach(function (edge)
+									{
+										edge.source += indexOffset;
+										edge.target += indexOffset;
+										graphLinks.push(edge);
+									});
+								
+								// update the data sourced by the graphical containers
+								linkContainer = linkContainer.data(graphLinks);
+														
+								// any new data must be entered into its new graphical container
+								linkContainer.enter()
+									.append("line")
+									.attr("class", "link");
+								
+								// update the data sourced by the graphical containers
+								nodeContainer = nodeContainer.data(graphNodes);
+								
+								nodeContainer.enter()
+									.append("g")
+									.attr("class", function (d) { return "node "+ d.type.toString(); })
+									.style("fill", function(d) {return d.colr; })
+									.call(drag);
+						    
+						    	    
+								//Add a SVG circle element to the node container	
+								nodeContainer.append("circle")
+						    	//Dynamically adjust the size of circles depending on its type
+						    		.attr("r", getNodeSize)
+						    	
+						    	//Add a Title element to display nodes title container
+						    	nodeContainer.append("text")
+						    	//Adjust the placement of text on the X-AXIS for displaying the title
+						    		.attr("dx", getNodeSize)
+						    		.attr("dy", ".35em")
+						    		.text(function (d) { return d.name; })
 				
-				var nodeId = node.id;
-				//console.log("nodeId:");
-				//console.log(nodeId);
-			    var nodeIndex = parseInt(uniqueNodes.indexOf(nodeId));
-			    //console.log("nodeIndex:");
-			    //console.log(nodeIndex);
-			    if (nodeIndex == -1)
-			    {
-			    	newNodes.push(node);
-			    	uniqueNodes.push(nodeId);
-					graphNodes.push(node);
-					//console.log(uniqueNodes);
-			    	//console.log("node added");
-			    	//console.log(node);
-			    }
-			});
+						    	// add on click function to nodes
+						    	nodeContainer.on("click", getNode);			
+								
+								console.log("table links:");
+								console.log(tableData.links);
+								
+								
+								// begin simulation with updated data
+								force.start();			
+								
+							});
+				});
 			
 			console.log("newNodes is:");
 			console.log(newNodes);
@@ -518,7 +594,7 @@ function match(prop, propVal, color, n) {
 			force.start();			
 			
 			//call function to add rows to the frontend UI
-			createTable(newNodes,n);
+			createTable(newNodes, n);
 			
 		});
 
@@ -559,8 +635,11 @@ function createTable(newNodes,n) {
 	//Create a table row for each node
 	for (var i in newNodes) {
 		var row = edgeTable.insertRow();
-		row.id = "node" + newNodes[i].id;
+
+		row.id = "node"+newNodes[i].id;
+
 		
+		console.log("row id : " +row.id);
 		//Show name of the node
 		var td = document.createElement('td');
 		var text = document.createTextNode(newNodes[i].name + "&nbsp;");
@@ -595,17 +674,23 @@ function createTable(newNodes,n) {
 		row.appendChild(td4);	
 							
 	}
+	
+	console.log('before jquery#################');
+	
 	//JQuery function for creating edges and removing nodes
 	$('tr[id^=node] input').on('change', function() {
 	
     	var row = $(this).parents('tr:first').get(0);
     	console.log('Node: '+ row.id+ ' value:' + this.value); 
     	
-    	
+    	console.log("INSIDE JQUERY *************************");
     	//Get target node based on the index in the table
     	var getIndex = row.id;
-    	getIndex = getIndex.substring(3);
-    	var nodeToModify = newNodes[getIndex];
+
+    	getIndex = parseInt(getIndex.substring(4));
+    	//var nodeToModify = newNodes[getIndex];
+    	
+    	var nodeToModify = uniqueNodes.indexOf(getIndex);
     	
     	//Creates the edge when this radio button is chosen
     	if (this.value == "createEdge") {
@@ -679,4 +764,3 @@ function findTitle()   { match("title", getTitle, "yellow", nodeForMatches); }
 function findRep()     { match("represents", getRepresents, "blue", nodeForMatches); }
 function findColType() { match("columntype", getColumnType, "green", nodeForMatches); }
 function findSemRel()  { match("semanticrelation", getSemanticRelation, "orange", nodeForMatches); }
-

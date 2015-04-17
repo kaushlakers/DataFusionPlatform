@@ -48,6 +48,7 @@ div {
 }
 
 #console {
+	/*text-align: center;*/
 	position: relative;
 	background-color: #333333;
 	width: 29%;
