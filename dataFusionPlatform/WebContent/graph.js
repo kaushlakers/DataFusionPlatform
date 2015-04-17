@@ -180,6 +180,8 @@ function search() {
     }
 }
 
+
+
 // function for handling zoom event
 function zoomed() {
     container.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");

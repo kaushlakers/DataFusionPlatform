@@ -758,8 +758,6 @@ function createTable(newNodes,n) {
 	});	
 }
 
-
-
 function findTitle()   { match("title", getTitle, "yellow", nodeForMatches); }
 function findRep()     { match("represents", getRepresents, "blue", nodeForMatches); }
 function findColType() { match("columntype", getColumnType, "green", nodeForMatches); }
