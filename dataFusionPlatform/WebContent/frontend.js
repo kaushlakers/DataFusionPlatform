@@ -576,7 +576,8 @@ function match(prop, propVal, color, n) {
 								linkContainer.enter()
 									.append("line")
 									.style("stroke-dasharray", ("3, 3"))
-									.attr("class", "link");
+									.attr("class", "link")
+									.on("click", clickLine);
 											
 								// begin simulation with updated data
 								force.start();
@@ -776,6 +777,16 @@ function createTable(newNodes,n) {
     	
     	}
 	});	
+}
+
+//Function for changing dashed edges to a continuous edge
+function clickLine() {
+	console.log("inside clickLine");
+   	d3.select(this).transition()
+   	 .style("stroke-linecap", "butt")
+     .duration(750)
+     .style("stroke", "lightsteelblue")
+     .style("stroke-dasharray", "3,0");
 }
 
 function findTitle()   { match("title", getTitle, "yellow", nodeForMatches); }
