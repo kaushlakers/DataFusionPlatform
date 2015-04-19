@@ -497,6 +497,9 @@ function match(prop, propVal, color, n) {
 								console.log("tableData is:");
 								console.log(tableData);
 								var indexOffset = graphNodes.length;
+								var datasetDupIndex = 1000;
+								var datasetIndex = 1000;
+								var i = 0;
 								
 								tableData.nodes.forEach(function (tNode)
 									{
@@ -510,21 +513,59 @@ function match(prop, propVal, color, n) {
 										
 										var nIndex = parseInt(uniqueNodes.indexOf(nId));
 										
+										/*
+										 * Check if the index is already in uniqueNodes, and also if it is then check if
+										 * 	its a dataset node so that the correct links can be made
+										 */										
 									    if (nIndex == -1)
 									    {
 									    	uniqueNodes.push(nId);
 											graphNodes.push(tNode);
+									    } else if (tNode.type == "Dataset") {
+									    	datasetDupIndex = $.inArray(nId, uniqueNodes);
+									    	datasetIndex = i;
+									    	console.log("Marques made it! What! What!");
+											console.log(datasetDupIndex);
+											console.log(datasetIndex);																		
 									    }
+									    
+									    i++;
 									});
 								
+								var j = 0;
 								// must change the relationship indices to reflect the indices that the nodes assume
 								// when placed into graphNodes. This is because 
 								tableData.links.forEach(function (edge)
-									{
+								{
+									/*
+									 * Check if the target edge/source is after the dataset duplicate, because if it is then 
+									 * 	it needs to be decremented
+									 */
+									if (edge.target>datasetIndex) {
+										edge.target -= 1;
+									} 
+									if (edge.source>datasetIndex) {
+										edge.source -= 1;
+									}
+									
+									/*
+									 * Check if any of the source or targets are the datasetIndex node and in which case you
+									 * 	need to make it equal to the dataset node that already exists in uniqueNodes
+									 */
+									if (edge.source == datasetIndex) {
+										edge.source = datasetDupIndex;
+										edge.target += indexOffset;
+									} else if (edge.target == datasetIndex) {
+										edge.target = datasetDupIndex;
+										edge.source += indexOffset;
+									} else {
 										edge.source += indexOffset;
 										edge.target += indexOffset;
-										graphLinks.push(edge);
-									});
+									}
+									
+									//Add the link to the global list of links
+									graphLinks.push(edge);
+								});
 									
 								console.log("newId is:");
 								console.log(newId);
@@ -575,7 +616,8 @@ function match(prop, propVal, color, n) {
 								linkContainer.enter()
 									.append("line")
 									.style("stroke-dasharray", ("3, 3"))
-									.attr("class", "link");
+									.attr("class", "link")
+									.on("click", clickLine);
 											
 								// begin simulation with updated data
 								force.start();
@@ -775,6 +817,16 @@ function createTable(newNodes,n) {
     	
     	}
 	});	
+}
+
+//Function for changing dashed edges to a continuous edge
+function clickLine() {
+	console.log("inside clickLine");
+   	d3.select(this).transition()
+   	 .style("stroke-linecap", "butt")
+     .duration(750)
+     .style("stroke", "lightsteelblue")
+     .style("stroke-dasharray", "3,0");
 }
 
 function findTitle()   { match("title", getTitle, "yellow", nodeForMatches); }
