@@ -2,6 +2,7 @@
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+
 import dataFusionPlatform.server.DFService;
 import dataFusionPlatform.utility.*;
 import spark.servlet.SparkApplication;
@@ -57,6 +58,15 @@ public class DFRoutes implements SparkApplication{
             	// Here we are calling the getDataset method in the service object which will query neo4j for the 
             	// table and column nodes and edges of a dataset with the given ID.
             	return gson.toJson(service.getDataset(dID, limit));
+               
+            }
+        });
+		
+		get("/getTableIdForNode/:nodeID", new Route() {
+            public Object handle(Request request, Response response) {
+            	int limit = request.queryParams("limit") != null ? Integer.valueOf(request.queryParams("limit")) : 100;
+                int nID = Integer.parseInt(request.params(":nodeID"));
+            	return gson.toJson(service.getTableIdForNode(nID, limit));
                
             }
         });

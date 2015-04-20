@@ -211,8 +211,25 @@ public class DFService
 	}
 	
 	
+
+	public Map<String, Object> getTableIdForNode(int nId, int limit) {
+		
+		Iterator<Map<String,Object>> result = cypher.query(
+				"start n=node(" + nId + ") " +
+				"match (n)-->(p) " +
+				"return id(p) as tableID",
+				map("1", limit));
 	
-	
+		Map<String, Object> row = null;
+		
+		while (result.hasNext())
+		{
+			row = result.next();
+		}
+		
+		return map("idForTable", row.get("tableID"));
+	}
+		
 	
 }
 
