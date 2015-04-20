@@ -829,6 +829,34 @@ function clickLine() {
      .style("stroke-dasharray", "3,0");
 }
 
+// function for exporting all shown graph columns
+function dataExport() {
+	var csvString = [];
+
+	var nodeType = "Column"
+	var columnNodes = svg.selectAll(".node")
+						.filter(function(d) { return d.type == nodeType });
+
+	/*
+	 * Find all of the svg "g" elements in columnNodes and dynamically create
+	 * 	option tags in the select element of the form, and give them the text
+	 * 	from the column nodes.
+	 */
+	var column = columnNodes.selectAll("g");
+	for (var i = 0; i < column.length; i++) {
+		var option = new Option(column[i].parentNode.__data__.name, column[i].parentNode.__data__.id);
+		csvString.push(option.innerHTML);
+	}
+
+	// format csv file output
+	var a         = document.createElement('a');
+	a.href        = 'data:attachment/csv,' + csvString;
+	a.target      = '_blank';
+	a.download    = 'DataFusion.csv';
+	document.body.appendChild(a);
+	a.click();
+}
+
 function findTitle()   { match("title", getTitle, "yellow", nodeForMatches); }
 function findRep()     { match("represents", getRepresents, "blue", nodeForMatches); }
 function findColType() { match("columntype", getColumnType, "green", nodeForMatches); }
