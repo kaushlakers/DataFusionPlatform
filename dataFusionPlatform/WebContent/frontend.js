@@ -680,13 +680,13 @@ function createTable(newNodes,n) {
 	
 	//Second row element (First Column header)
 	td = document.createElement('td');
-	var text = document.createTextNode("Display Node&nbsp;");
+	var text = document.createTextNode("Display Node");
 	td.appendChild(text);
 	row.appendChild(td);
 	
 	//Third row element (Second Column header)
 	td = document.createElement('td');
-	text = document.createTextNode("Create Edge&nbsp;");
+	text = document.createTextNode("Create Edge");
 	td.appendChild(text);
 	row.appendChild(td);
 	
@@ -706,7 +706,7 @@ function createTable(newNodes,n) {
 		//console.log("row id : " +row.id);
 		//Show name of the node
 		var td = document.createElement('td');
-		var text = document.createTextNode(newNodes[i].name + "&nbsp;");
+		var text = document.createTextNode(newNodes[i].name);
 		td.appendChild(text);
 		row.appendChild(td);
 		
