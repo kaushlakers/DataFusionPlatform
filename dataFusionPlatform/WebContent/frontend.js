@@ -545,20 +545,22 @@ function match(prop, propVal, color, n) {
 									    i++;
 									});
 								
-								var j = 0;
 								// must change the relationship indices to reflect the indices that the nodes assume
 								// when placed into graphNodes. This is because 
 								tableData.links.forEach(function (edge)
 								{
+										
+									var sourceDecrement = false;	
+									var targetDecrement = false;
 									/*
 									 * Check if the target edge/source is after the dataset duplicate, because if it is then 
 									 * 	it needs to be decremented
 									 */
 									if (edge.target>datasetIndex) {
-										edge.target -= 1;
+										targetDecrement = true;
 									} 
 									if (edge.source>datasetIndex) {
-										edge.source -= 1;
+										sourceDecrement = true;
 									}
 									
 									/*
@@ -574,6 +576,16 @@ function match(prop, propVal, color, n) {
 									} else {
 										edge.source += indexOffset;
 										edge.target += indexOffset;
+									}
+									
+									/*
+									 * Checks if the booleans have been changed and if so then it decrements
+									 */
+									if (targetDecrement) {
+										edge.target -= 1;
+									} 
+									if (sourceDecrement) {
+										edge.source -= 1;
 									}
 									
 									//Add the link to the global list of links
