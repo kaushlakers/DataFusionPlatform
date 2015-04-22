@@ -214,8 +214,7 @@ function populateForm() {
 	var i = 0;
 	while (i<column.length) {
 		var option = new Option(column[i].parentNode.__data__.name, column[i].parentNode.__data__.id);
-		document.getElementById("nodeSelections").appendChild(option);
-	
+		document.getElementById("nodeSelections").appendChild(option);	
 		i++;
 	}
 	
@@ -236,11 +235,13 @@ function optionChange() {
 	var optionNode = svg.selectAll(".node")
 				.filter(function (d) { return d.id == selectedValue});
 	
+	//Keep track of the last and currently clicked on node, and highlight them accordingly
 	last = current;
 	current = optionNode;
 	current.style('fill', 'red');
 	if(last) {last.style('fill', null);}
 	
+	//Call getNode with data of currently clicked on node
 	getNode(optionNode[0][0].__data__);
 			
 }
@@ -320,8 +321,12 @@ function getNode(n) {
 	//Its index is needed to create new edges to the dataset
 	nodeForMatches = n;
 	
-	if (Object.prototype.toString.call(d3.select(this)[0][0]) == "[object SVGGElement]") {
-		console.log("here"); 
+	/*
+	 * Need to check if the current element passed into getNode function is an SVG element and if it is then keep track of
+	 * 	the last and currently clicked on node, and highlight them accordingly. If it is not a SVG element then this will have
+	 * 	already been done.
+	 */
+	if (Object.prototype.toString.call(d3.select(this)[0][0]) == "[object SVGGElement]") { 
 		last = current;
 		current = d3.select(this);
 		current.style('fill', 'red');
@@ -552,16 +557,12 @@ function match(prop, propVal, color, n) {
 										 * Check if the index is already in uniqueNodes, and also if it is then check if
 										 * 	its a dataset node so that the correct links can be made
 										 */										
-									    if (nIndex == -1)
-									    {
+									    if (nIndex == -1) {
 									    	uniqueNodes.push(nId);
 											graphNodes.push(tNode);
 									    } else if (tNode.type == "Dataset") {
 									    	datasetDupIndex = $.inArray(nId, uniqueNodes);
-									    	datasetIndex = i;
-									    	console.log("Marques made it! What! What!");
-											console.log(datasetDupIndex);
-											console.log(datasetIndex);																		
+									    	datasetIndex = i;																		
 									    }
 									    
 									    i++;
