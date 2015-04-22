@@ -172,7 +172,7 @@ function getDataSet() {
 			
 			//Need to populate the select form
 			populateForm();
-
+		    
 			//Add on click function to nodes
 			nodeContainer.on("click", getNode);
 
@@ -194,11 +194,6 @@ function populateForm() {
 	var column = columnNodes.selectAll("g");
 	var i = 0;
 	while (i<column.length) {
-		//console.log("here");
-		//console.log(column);
-		//console.log(column[i].data());
-		//console.log(column[i].parentNode.__data__);
-		//console.log(column[i].parentNode.__data__.name);
 		var option = new Option(column[i].parentNode.__data__.name, column[i].parentNode.__data__.id);
 		document.getElementById("nodeSelections").appendChild(option);
 	
@@ -211,6 +206,7 @@ function populateForm() {
 //	so that the same functionality occurs as when using the graph.
 function optionChange() {
 	
+	//debugger;
 	//Get the select tag in the html
 	var selectBox = document.getElementById("nodeSelections");
 	
@@ -221,8 +217,12 @@ function optionChange() {
 	var optionNode = svg.selectAll(".node")
 				.filter(function (d) { return d.id == selectedValue});
 	
+	last = current;
+	current = optionNode;
+	current.style('fill', 'red');
+	if(last) {last.style('fill', null);}
+	
 	getNode(optionNode[0][0].__data__);
-	//console.log(test);
 			
 }
 
@@ -300,11 +300,14 @@ function getNode(n) {
 	//Assign the node to the global variable nodeForMatches
 	//Its index is needed to create new edges to the dataset
 	nodeForMatches = n;
-	last = current;
-
-    current = d3.select(this);
-    current.style('fill', 'red');
-    if(last) {last.style('fill', null);}
+	
+	if (Object.prototype.toString.call(d3.select(this)[0][0]) == "[object SVGGElement]") {
+		console.log("here"); 
+		last = current;
+		current = d3.select(this);
+		current.style('fill', 'red');
+		if(last) {last.style('fill', null);}
+	}
 	
 	//Update Console on the nodes information
 	// var info = [n.name, n.type, n.properties.represents, n.properties.columntype, n.properties.semanticrelation];
