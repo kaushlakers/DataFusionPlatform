@@ -68,13 +68,32 @@ var last = null;
 var current = null;
 
 
-d3.json("/ty/datasets", function(error, data)
+d3.json("/Justin/datasets", function(error, data)
 		{
-			if(error) return;
-						
+			//Get the Form to insert radio buttons for chosing a dataset		
+			var form1 = document.getElementById("fieldSet");
+
+			//Retrieve the datasets from Neo4j
+			dSets = data.datasets;
+			
+			//Create a radio button for each dataset to display 
+			for (var d in dSets) {
+				var name = dSets[d].datasetNode.title;
+				var id = dSets[d].id;
+				var radioInput = document.createElement('input');
+				radioInput.setAttribute('type', 'radio');
+				radioInput.setAttribute('name', 'dataSet');
+				radioInput.setAttribute('value', id);
+				radioInput.setAttribute('class', 'list');
+				
+				//Add button to the form
+				form1.appendChild(radioInput);
+				form1.appendChild(document.createTextNode(name));
+				form1.appendChild(document.createElement('br'));
+
+			}						
 		});
 
-//console.log("outside of /dataset");
 		
 // this ID should be set via user input
 var datasetID;
@@ -111,7 +130,7 @@ function getDataSet() {
     //log("datasetID inside getDataSets function:" + datasetID); 
     
     //Call the route to dynamically add the dataset to the webapp
-    d3.json("/ty/getDataset/" + datasetID, function(error, dataset)
+    d3.json("/Justin/getDataset/" + datasetID, function(error, dataset)
 		{
 			if(error) return;
 			
@@ -464,7 +483,7 @@ function match(prop, propVal, color, n) {
     //Used to get the node that connects to the original dataset
     var connectNode = {};
 
-	d3.json("/ty/matchProperty/" + prop + "/" + propVal, function(error, data)
+	d3.json("/Justin/matchProperty/" + prop + "/" + propVal, function(error, data)
 		{
 			if(error) return;
 			
@@ -495,7 +514,7 @@ function match(prop, propVal, color, n) {
 			// for each node that is matched in the query, get its respective table and update the graph
 			newNodeIDs.forEach(function (newId)
 				{
-					d3.json("/ty/getTable/" + newId, function(error, tableData)
+					d3.json("/Justin/getTable/" + newId, function(error, tableData)
 							{
 								if (error) return;
 								
@@ -718,13 +737,13 @@ function createTable(newNodes,n) {
 	
 	//Second row element (First Column header)
 	td = document.createElement('td');
-	var text = document.createTextNode("Display Node&nbsp;");
+	var text = document.createTextNode("Display Node");
 	td.appendChild(text);
 	row.appendChild(td);
 	
 	//Third row element (Second Column header)
 	td = document.createElement('td');
-	text = document.createTextNode("Create Edge&nbsp;");
+	text = document.createTextNode("Create Edge");
 	td.appendChild(text);
 	row.appendChild(td);
 	
@@ -744,7 +763,7 @@ function createTable(newNodes,n) {
 		//console.log("row id : " +row.id);
 		//Show name of the node
 		var td = document.createElement('td');
-		var text = document.createTextNode(newNodes[i].name + "&nbsp;");
+		var text = document.createTextNode(newNodes[i].name);
 		td.appendChild(text);
 		row.appendChild(td);
 		
@@ -833,7 +852,7 @@ function createTable(newNodes,n) {
 
     		// get id of matched node's parent table node
     		
-    		d3.json("/ty/getTableIdForNode/" + nodeToRemove.id, function(error, tableData)
+    		d3.json("/Justin/getTableIdForNode/" + nodeToRemove.id, function(error, tableData)
     				{	
     					
     					debugger;	
