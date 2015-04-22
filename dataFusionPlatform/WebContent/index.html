@@ -12,29 +12,15 @@
 <body>
 
 <div id="console">
-<!--
-<form method="post" onsubmit="search(); return false">
-<input type="checkbox" class="check" name="title">title<br>
-<input type="checkbox" class="check" name="represents">represents<br>
-<input type="checkbox" class="check" name="columntype">column type<br>
-<input type="checkbox" class="check" name="semanticrelation">semantic relation<br>
-<input id="searchbox" type="text" placeholder="Search..." required>
-<button type="button" onclick="search()">Search</button>
-</form>
--->
 
 <!-- First Form -->
 <form id="getDataForm" method="POST">
-	<fieldset>
+	<fieldset id="fieldSet" class>
 		<legend class="title">Choose a data set!</legend>
-		<input type="radio" name="dataSet" value="546" class="list">Drug Dataset
-		<br>
-		<input type="radio" name="dataSet" value="536" class="list">Disease Dataset
-		<br>
-		<input type="radio" name="dataSet" value="555" class="list">Gene Dataset
-		<br><br>
-		<input type="button" onclick="getDataSet()" class="btn btn-default" value="Submit"/>
+
 	</fieldset>
+    <input type="button" id="form1Button" onclick="getDataSet()" class="btn btn-default" value="Submit"/>
+	
 </form> 
 
 <!-- Second Form -->

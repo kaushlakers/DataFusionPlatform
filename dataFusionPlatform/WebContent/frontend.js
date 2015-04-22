@@ -70,11 +70,30 @@ var current = null;
 
 d3.json("/Justin/datasets", function(error, data)
 		{
-			if(error) return;
-						
+			//Get the Form to insert radio buttons for chosing a dataset		
+			var form1 = document.getElementById("fieldSet");
+
+			//Retrieve the datasets from Neo4j
+			dSets = data.datasets;
+			
+			//Create a radio button for each dataset to display 
+			for (var d in dSets) {
+				var name = dSets[d].datasetNode.title;
+				var id = dSets[d].id;
+				var radioInput = document.createElement('input');
+				radioInput.setAttribute('type', 'radio');
+				radioInput.setAttribute('name', 'dataSet');
+				radioInput.setAttribute('value', id);
+				radioInput.setAttribute('class', 'list');
+				
+				//Add button to the form
+				form1.appendChild(radioInput);
+				form1.appendChild(document.createTextNode(name));
+				form1.appendChild(document.createElement('br'));
+
+			}						
 		});
 
-//console.log("outside of /dataset");
 		
 // this ID should be set via user input
 var datasetID;
