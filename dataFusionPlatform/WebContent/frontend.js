@@ -68,7 +68,7 @@ var last = null;
 var current = null;
 
 
-d3.json("/Justin/datasets", function(error, data)
+d3.json("/ty/datasets", function(error, data)
 		{
 			//Get the Form to insert radio buttons for chosing a dataset		
 			var form1 = document.getElementById("fieldSet");
@@ -130,7 +130,7 @@ function getDataSet() {
     //log("datasetID inside getDataSets function:" + datasetID); 
     
     //Call the route to dynamically add the dataset to the webapp
-    d3.json("/Justin/getDataset/" + datasetID, function(error, dataset)
+    d3.json("/ty/getDataset/" + datasetID, function(error, dataset)
 		{
 			if(error) return;
 			
@@ -191,7 +191,7 @@ function getDataSet() {
 			
 			//Need to populate the select form
 			populateForm();
-
+		    
 			//Add on click function to nodes
 			nodeContainer.on("click", getNode);
 
@@ -213,14 +213,8 @@ function populateForm() {
 	var column = columnNodes.selectAll("g");
 	var i = 0;
 	while (i<column.length) {
-		//console.log("here");
-		//console.log(column);
-		//console.log(column[i].data());
-		//console.log(column[i].parentNode.__data__);
-		//console.log(column[i].parentNode.__data__.name);
 		var option = new Option(column[i].parentNode.__data__.name, column[i].parentNode.__data__.id);
-		document.getElementById("nodeSelections").appendChild(option);
-	
+		document.getElementById("nodeSelections").appendChild(option);	
 		i++;
 	}
 	
@@ -230,6 +224,7 @@ function populateForm() {
 //	so that the same functionality occurs as when using the graph.
 function optionChange() {
 	
+	//debugger;
 	//Get the select tag in the html
 	var selectBox = document.getElementById("nodeSelections");
 	
@@ -240,8 +235,14 @@ function optionChange() {
 	var optionNode = svg.selectAll(".node")
 				.filter(function (d) { return d.id == selectedValue});
 	
+	//Keep track of the last and currently clicked on node, and highlight them accordingly
+	last = current;
+	current = optionNode;
+	current.style('fill', 'rebeccapurple');
+	if(last) {last.style('fill', null);}
+	
+	//Call getNode with data of currently clicked on node
 	getNode(optionNode[0][0].__data__);
-	//console.log(test);
 			
 }
 
@@ -319,11 +320,18 @@ function getNode(n) {
 	//Assign the node to the global variable nodeForMatches
 	//Its index is needed to create new edges to the dataset
 	nodeForMatches = n;
-	last = current;
-
-    current = d3.select(this);
-    current.style('fill', 'red');
-    if(last) {last.style('fill', null);}
+	
+	/*
+	 * Need to check if the current element passed into getNode function is an SVG element and if it is then keep track of
+	 * 	the last and currently clicked on node, and highlight them accordingly. If it is not a SVG element then this will have
+	 * 	already been done.
+	 */
+	if (Object.prototype.toString.call(d3.select(this)[0][0]) == "[object SVGGElement]") { 
+		last = current;
+		current = d3.select(this);
+		current.style('fill', 'rebeccapurple');
+		if(last) {last.style('fill', null);}
+	}
 	
 	//Update Console on the nodes information
 	// var info = [n.name, n.type, n.properties.represents, n.properties.columntype, n.properties.semanticrelation];
@@ -468,13 +476,6 @@ function match(prop, propVal, color, n) {
 	//Go back to showing the 2nd form
 	document.getElementById("createEdges").style.display="block";
 	
-
-    //svg.selectAll(".node").style("fill", function(d) { return d.colr; });
-    //Filter through all nodes to find matches, color them appropriately
-    //svg.selectAll(".node")
-    //.transition()
-    //.filter(function(d) { return d.properties[att] == match; })
-    //.style('fill', color);
     //create array to hold the new nodes
 	var newNodes = [];
     var newNodeIDs = [];
@@ -482,7 +483,7 @@ function match(prop, propVal, color, n) {
     //Used to get the node that connects to the original dataset
     var connectNode = {};
 
-	d3.json("/Justin/matchProperty/" + prop + "/" + propVal, function(error, data)
+	d3.json("/ty/matchProperty/" + prop + "/" + propVal, function(error, data)
 		{
 			if(error) return;
 			
@@ -513,7 +514,7 @@ function match(prop, propVal, color, n) {
 			// for each node that is matched in the query, get its respective table and update the graph
 			newNodeIDs.forEach(function (newId)
 				{
-					d3.json("/Justin/getTable/" + newId, function(error, tableData)
+					d3.json("/ty/getTable/" + newId, function(error, tableData)
 							{
 								if (error) return;
 								
@@ -551,16 +552,12 @@ function match(prop, propVal, color, n) {
 										 * Check if the index is already in uniqueNodes, and also if it is then check if
 										 * 	its a dataset node so that the correct links can be made
 										 */										
-									    if (nIndex == -1)
-									    {
+									    if (nIndex == -1) {
 									    	uniqueNodes.push(nId);
 											graphNodes.push(tNode);
 									    } else if (tNode.type == "Dataset") {
 									    	datasetDupIndex = $.inArray(nId, uniqueNodes);
-									    	datasetIndex = i;
-									    	console.log("Marques made it! What! What!");
-											console.log(datasetDupIndex);
-											console.log(datasetIndex);																		
+									    	datasetIndex = i;																		
 									    }
 									    
 									    i++;
@@ -613,44 +610,9 @@ function match(prop, propVal, color, n) {
 									graphLinks.push(edge);
 								});
 									
-								console.log("newId is:");
-								console.log(newId);
+								// refresh the graphical display
+								refreshGraph();
 								
-								// update the data sourced by the graphical containers
-								linkContainer = linkContainer.data(graphLinks);
-														
-								// any new data must be entered into its new graphical container
-								linkContainer.enter()
-									.append("line")
-									.attr("class", "link");
-								
-								// update the data sourced by the graphical containers
-								nodeContainer = nodeContainer.data(graphNodes);
-								
-								var newnew = nodeContainer.enter()
-									.append("g")
-									.attr("class", function (d) { return "node "+ d.type.toString(); })
-									//.style("fill", function(d) {return d.colr; })
-									.call(drag);
-						    					    	    
-								//Add a SVG circle element to the node container	
-								newnew.append("circle")
-						    	//Dynamically adjust the size of circles depending on its type
-						    		.attr("r", getNodeSize)
-						    	
-						    	//Add a Title element to display nodes title container
-						    	newnew.append("text")
-						    	//Adjust the placement of text on the X-AXIS for displaying the title
-						    		.attr("dx", getNodeSize)
-						    		.attr("dy", ".35em")
-						    		.text(function (d) { return d.name; })
-				
-						    	// add on click function to nodes
-						    	nodeContainer.on("click", getNode);			
-								
-								console.log("table links:");
-								console.log(tableData.links);
-
 								//Create the dashed edges to connect different datasets
 								var dashedEdge = {source: n, target: connectNode};
 								graphLinks.push(dashedEdge);
@@ -659,10 +621,7 @@ function match(prop, propVal, color, n) {
 								tableLSize++;
 								tableInfo[tableNodeId] = indexOffset + "/" + tableNSize + "/" + linkOffset + "/" + tableLSize;
 								
-								
-								
-								
-								
+						
 								// update the data sourced by the graphical containers
 								linkContainer = linkContainer.data(graphLinks);
 														
@@ -682,37 +641,6 @@ function match(prop, propVal, color, n) {
 			//Update the cancel button so it has the list of new nodes it can remove
 			var backButton = document.getElementById("backToThirdForm").onclick
 			
-			
-			
-			/*
-			// update the data sourced by the graphical containers
-			nodeContainer = nodeContainer.data(graphNodes);
-			
-			nodeContainer.enter()
-				.append("g")
-				.attr("class", function (d) { return "node "+ d.type.toString(); })
-				//.style("fill", function(d) {return d.colr; })
-				.call(drag);
-	    
-	    	    
-			//Add a SVG circle element to the node container	
-			nodeContainer.append("circle")
-	    	//Dynamically adjust the size of circles depending on its type
-	    		.attr("r", getNodeSize)
-	    	
-	    	//Add a Title element to display nodes title container
-	    	nodeContainer.append("text")
-	    	//Adjust the placement of text on the X-AXIS for displaying the title
-	    		.attr("dx", getNodeSize)
-	    		.attr("dy", ".35em")
-	    		.text(function (d) { return d.name; })
-
-	    	// add on click function to nodes
-	    	nodeContainer.on("click", getNode);			
-			
-			// begin simulation with updated data
-			force.start();			
-			*/
 			//call function to add rows to the frontend UI
 			createTable(newNodes, n);
 			
@@ -834,7 +762,8 @@ function createTable(newNodes,n) {
 			force.start();	
 			
 		//Remove the node from the graph	
-    	} else if (this.value == "removeNode") {
+    	} else if (this.value == "removeNode") 
+    	{
     	
 			console.log("GRAPHINFO BEFORE REMOVAL");
 			console.log(tableInfo);
@@ -853,141 +782,54 @@ function createTable(newNodes,n) {
 
     		// get id of matched node's parent table node
     		
-    		d3.json("/Justin/getTableIdForNode/" + nodeToRemove.id, function(error, tableData)
-    				{	
+    		d3.json("/ty/getTableIdForNode/" + nodeToRemove.id, function(error, tableData)
+    			{	
     					
-    					debugger;	
-    			
-		        		// find the index of the first node belonging to that table in graphNodes
-		        		var tableId = tableData.idForTable;
-		        		
-		        		
-		        		var data = tableInfo[tableId]
-		        		
-		        		var tableMetaData = data.split("/");
-		        		
-		        		// structure of tableMetaData --- indexOffset + "/" + tableNSize + "/" + linkOffset + "/" + tableLSize;
-		        		var nodeStart = tableMetaData[0];
-		        		var numberOfNodes = tableMetaData[1];
-		        		var linkStart =  tableMetaData[2];
-		        		var numberOfLinks = tableMetaData[3];
-
-
-		        		// delete x nodes after the first node where x is the number of nodes belonging to that table
-		        		
-		        		// repeat last two steps for edges in graphLinks
-		        		uniqueNodes.splice(nodeStart, numberOfNodes);
-		        		graphNodes.splice(nodeStart, numberOfNodes);
-		        		graphLinks.splice(linkStart, numberOfLinks);
-		        		
-		        		
-		        		
-		        		
-						console.log(graphNodes);
-						console.log(graphNodes.length);
-						console.log(graphLinks);
-						console.log(graphLinks.length);
-		        		console.log("CONTAINERS");
-		        		// refresh graph
-						linkContainer = linkContainer.data(graphLinks);
-
-						// update the data sourced by the graphical containers
-						nodeContainer = nodeContainer.data(graphNodes);
-						
-						console.log(nodeContainer);
-						console.log(linkContainer);
-						
-						// any new data must be entered into its new graphical container
-						linkContainer.enter()
-							.append("line")
-							.attr("class", "link");
-						
-						
-
-						var newnew = nodeContainer.enter()
-							.append("g")
-							.attr("class", function (d) { return "node "+ d.type.toString(); })
-							//.style("fill", function(d) {return d.colr; })
-							.call(drag);
-				    					    	    
-						//Add a SVG circle element to the node container	
-						newnew.append("circle")
-				    	//Dynamically adjust the size of circles depending on its type
-				    		.attr("r", getNodeSize);
-				    	
-				    	//Add a Title element to display nodes title container
-				    	newnew.append("text")
-				    	//Adjust the placement of text on the X-AXIS for displaying the title
-				    		.attr("dx", getNodeSize)
-				    		.attr("dy", ".35em")
-				    		.text(function (d) { return d.name; });
-		
-				    	// add on click function to nodes
-				    	newnew.on("click", getNode);		
-				    	
-
-						linkContainer.exit().remove();
-						
-
-				    	nodeContainer.exit().remove();
-				    	
-				    	console.log("AFTER GRAPH UPDATE");
-				    	
-				    	console.log(nodeContainer);
-						console.log(linkContainer);
+	    			debugger;	
 					
-						force.start();
+	        		// find the index of the first node belonging to that table in graphNodes
+	        		var tableId = tableData.idForTable;
+	        		
+	        		
+	        		var data = tableInfo[tableId]
+	        		
+	        		var tableMetaData = data.split("/");
+	        		
+	        		// structure of tableMetaData --- indexOffset + "/" + tableNSize + "/" + linkOffset + "/" + tableLSize;
+	        		var nodeStart = tableMetaData[0];
+	        		var numberOfNodes = tableMetaData[1];
+	        		var linkStart =  tableMetaData[2];
+	        		var numberOfLinks = tableMetaData[3];
+	
+					delete tableInfo[tableId];
+	        		// delete x nodes after the first node where x is the number of nodes belonging to that table
+	        		
+	        		// repeat last two steps for edges in graphLinks
+	        		uniqueNodes.splice(nodeStart, numberOfNodes);
+	        		graphNodes.splice(nodeStart, numberOfNodes);
+	        		//nodeContainer[0].splice(nodeStart, numberOfNodes);
+	        		graphLinks.splice(linkStart, numberOfLinks);
+	        		//linkContainer[0].splice(linkStart, numberOfLinks);
+	        		
+	        		// update tableInfo to reflect any index changes if a table was removed from anywhere but the end of graphNodes
+	
+	        		Object.keys(tableInfo).forEach(function(key) 
+	        			{
+	        				var tmp1 = null;
+	        				var tmp2 = null;
+	        				var flag;
+	        			 	var t = tableInfo[key];
+	    					tData = t.split("/");
+	    					if (parseInt(tData[0]) > parseInt(nodeStart)) { tmp1 = parseInt(tData[0]) - parseInt(numberOfNodes); flag = 1;}
+	    					if (parseInt(tData[2]) > parseInt(linkStart)) { tmp2 = parseInt(tData[2]) - parseInt(numberOfLinks); }
+	    					
+	    					if(flag) {tableInfo[key] = tmp1 + "/" + tData[1] + "/" + tmp2 + "/"  + tData[3];}
+						}); 
+	        		
+	        		// update the graphical display
+	    			refreshGraph();
 		    			
-    				})
-
-    		// this method relies on the fact that nodes and edges for tables are added in continuous chunks to graphNodes and graphLinks
-    		
-    		// given matched node that is to be deleted along with its other table nodes
-    		
-    	/*
-    		//var nodeToRemove = nodeToModify;
-    		graphNodes.pop(nodeToRemove);
-    		var nodeId = nodeToRemove.id;
-    		uniqueNodes.pop(nodeId);
-    		
-    		console.log("nodeContainer before the update");
-    		console.log(nodeContainer);
-    		// update the data sourced by the graphical containers
-			nodeContainer = nodeContainer.data(graphNodes);
-
-    		console.log("nodeContainer after the update");
-    		console.log(nodeContainer);	
-			
-    		
-    		
-    		// update graphical display
-    		
-    		
-			nodeContainer.enter()
-				.append("g")
-				.attr("class", function (d) { return "node "+ d.type.toString(); })
-				//.style("fill", function(d) {return d.colr; })
-				.call(drag);
-	    
-	    	    
-			//Add a SVG circle element to the node container	
-			nodeContainer.append("circle")
-	    	//Dynamically adjust the size of circles depending on its type
-	    		.attr("r", getNodeSize)
-	    	
-	    	//Add a Title element to display nodes title container
-	    	nodeContainer.append("text")
-	    	//Adjust the placement of text on the X-AXIS for displaying the title
-	    		.attr("dx", getNodeSize)
-	    		.attr("dy", ".35em")
-	    		.text(function (d) { return d.name; })
-
-	    	// add on click function to nodes
-	    	nodeContainer.on("click", getNode);		
-			force.start();
-			
-			*/
-    	
+    			});
     	}
 	});	
 }
@@ -1028,6 +870,61 @@ function dataExport() {
 	a.download    = 'DataFusion.csv';
 	document.body.appendChild(a);
 	a.click();
+}
+
+// this method begins by clearing the current graphical display and creates a new one with
+// whatever data is included in graphLinks and graphNodes at the time of the call
+// it happens so fast that the graph does not disappear
+function refreshGraph() 
+{
+	
+	d3.select("svg").remove();
+	
+    svg = d3.select("#graph")
+    .append("svg")
+    .attr("width", "100%")
+    .attr("height", "100%")
+    .attr("pointer-events", "all")
+    .attr("transform", "translate(" + margin.left + "," + margin.right + ")")
+    .call(zoom);
+
+    container = svg.append("g");
+	
+    linkContainer = container.append("g")
+    	.selectAll(".link")
+        .data(graphLinks).enter()
+        .append("line")
+        .attr("class", "link");
+
+    //Modified D3 nodes on 3/27/15 By Justin 
+    //Nodes are now a container that contains a circle graphic and its title
+    //Each node creates a "g" element container and appends:
+   	//	1: SVG Circle
+   	//	2: Text displaying title of node
+    nodeContainer = container.append("g")
+    	.selectAll(".node")
+    	.data(graphNodes)
+    	.enter().append("g")
+    	.attr("class", function (d) { return "node "+ d.type.toString(); })
+    	.call(drag);
+    
+    //Add a SVG circle element to the node container	
+    nodeContainer.append("circle")
+    	//Dynamically adjust the size of circles depending on its type
+    	.attr("r", getNodeSize);
+    	
+    //Add a Title element to display nodes title container
+    nodeContainer.append("text")
+    	//Adjust the placement of text on the X-AXIS for displaying the title
+    	.attr("dx", getNodeSize)
+    	.attr("dy", ".35em")
+        .text(function (d) { return d.name; });
+        
+
+	//Add on click function to nodes
+	nodeContainer.on("click", getNode);
+        
+    force.start();
 }
 
 function findTitle()   { match("title", getTitle, "yellow", nodeForMatches); }
