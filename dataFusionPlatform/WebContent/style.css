@@ -6,6 +6,11 @@ html, body {
 	overflow-x:hidden;
 	color: white;
 }
+table, th, td {
+    border: 1px solid black;
+    color: black;
+    background-color: white;
+}
 
 legend {
 	color: white;
@@ -72,15 +77,16 @@ div {
 
 #console {
 	/* backgrounds for all possible browsers */
-	background: #bb0000;
-	background: -moz-linear-gradient(left, #bb0000 0%, #dd0000 50%, #bb0000 100%);
-	background: -webkit-gradient(linear, left top, right top, color-stop(0%,#bb0000), color-stop(50%,#dd0000), color-stop(100%,#bb0000));
-	background: -webkit-linear-gradient(left, #bb0000 0%,#dd0000 50%,#bb0000 100%);
-	background: -o-linear-gradient(left, #bb0000 0%,#dd0000 50%,#bb0000 100%);
-	background: -ms-linear-gradient(left, #bb0000 0%,#dd0000 50%,#bb0000 100%);
-	background: linear-gradient(to right, #bb0000 0%,#dd0000 50%,#bb0000 100%);
-	filter: progid: DXImageTransform.Microsoft.gradient( startColorstr='#bb0000', endColorstr='#bb0000',GradientType=1 );
-	text-align: center;
+	background: #90CAF9;
+	background: -moz-linear-gradient(left, #90CAF9 0%, #90CAF9 50%, #90CAF9 100%);
+	background: -webkit-gradient(linear, left top, right top, color-stop(0%,#90CAF9), color-stop(50%,#90CAF9), color-stop(100%,#90CAF9));
+	background: -webkit-linear-gradient(left, #BBDEFB 0%,#90CAF9 50%,#90CAF9 100%);
+	background: -o-linear-gradient(left, #90CAF9 0%,#90CAF9 50%,#90CAF9 100%);
+	background: -ms-linear-gradient(left, #90CAF9 0%,#90CAF9 50%,#90CAF9 100%);
+	background: linear-gradient(to right, #90CAF9 0%,#90CAF9 50%,#90CAF9 100%);
+	filter: progid: DXImageTransform.Microsoft.gradient( startColorstr='#90CAF9', endColorstr='#90CAF9',GradientType=1 );
+	text-align: left;
+	padding-left: 25px;
 	position: relative;
 	width: 30%;
 	float: left;
@@ -89,6 +95,24 @@ div {
 .infocell {
 	font-family: font"Lucida Console", Monaco, monospace;
 	color: black;
+}
+
+.matchButtons {
+	width: 35%;
+	-webkit-box-shadow:rgba(0,0,0,0.98) 0 1px 0 0;
+	-moz-box-shadow:rgba(0,0,0,0.98) 0 1px 0 0;
+	box-shadow:rgba(0,0,0,0.98) 0 1px 0 0;
+	background-color:#EEE;
+	border-radius:0;
+	-webkit-border-radius:0;
+	-moz-border-radius:0;
+	border:1px solid #999;
+	color:#666;
+	font-family:'Lucida Grande',Tahoma,Verdana,Arial,Sans-serif;
+	font-size:11px;
+	font-weight:700;
+	padding:2px 6px;
+	height:28px
 }
 
 /*button {

@@ -19,6 +19,7 @@
 		<legend class="title">Choose a data set!</legend>
 
 	</fieldset>
+	<br>
     <input type="button" id="form1Button" onclick="getDataSet()" class="btn btn-default" value="Submit"/>
 	
 </form> 
@@ -46,11 +47,12 @@
 </form>
 
 <!-- Fourth Form -->
-<form id="createEdges" method="POST>
+<form id="createEdges" method="POST">
 	<fieldset>
 		<legend class="title">Modify the graph!</legend>
-		<table id="createEdgesTable">
-		</table>	
+		<table cellpadding="15" id="createEdgesTable">
+		</table>
+		<br>	
 		<input type="button" class="btn btn-default" id="backToThirdForm" onclick="goBackToForm3()" value="Back"/>
 	</fieldset>
 </form>
@@ -58,27 +60,27 @@
 
 	<!-- Table for node metadata output -->
 	<div>
-		<table class="table table-bordered table-hover" id="metainfo">
+		<table id="metainfo">
 		  <thead></thead>
 		  <tbody>
 		    <tr>
-		      <td><code>.title</code></td>
+		      <td><code>Title:</code></td>
 		      <td class="infocell"></td>
 		    </tr>
 		    <tr>
-		      <td><code>.label</code></td>
+		      <td><code>Label:</code></td>
 		      <td class="infocell"></td>
 		    </tr>
 		    <tr>
-		      <td><code>.represents</code></td>
+		      <td><code>Represents:</code></td>
 		      <td class="infocell"></td>
 		    </tr>
 		    <tr>
-		      <td><code>.columntype</code></td>
+		      <td><code>Columntype:</code></td>
 		      <td class="infocell"></td>
 		    </tr>
 		    <tr>
-		      <td><code>.semanticrelation</code></td>
+		      <td><code>Semanticrelation:</code></td>
 		      <td class="infocell"></td>
 		    </tr>
 		  </tbody>
