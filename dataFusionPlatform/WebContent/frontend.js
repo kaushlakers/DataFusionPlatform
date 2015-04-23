@@ -68,7 +68,7 @@ var last = null;
 var current = null;
 
 
-d3.json("/ty/datasets", function(error, data)
+d3.json("/Justin/datasets", function(error, data)
 		{
 			//Get the Form to insert radio buttons for chosing a dataset		
 			var form1 = document.getElementById("fieldSet");
@@ -130,7 +130,7 @@ function getDataSet() {
     //log("datasetID inside getDataSets function:" + datasetID); 
     
     //Call the route to dynamically add the dataset to the webapp
-    d3.json("/ty/getDataset/" + datasetID, function(error, dataset)
+    d3.json("/Justin/getDataset/" + datasetID, function(error, dataset)
 		{
 			if(error) return;
 			
@@ -483,7 +483,7 @@ function match(prop, propVal, color, n) {
     //Used to get the node that connects to the original dataset
     var connectNode = {};
 
-	d3.json("/ty/matchProperty/" + prop + "/" + propVal, function(error, data)
+	d3.json("/Justin/matchProperty/" + prop + "/" + propVal, function(error, data)
 		{
 			if(error) return;
 			
@@ -514,7 +514,7 @@ function match(prop, propVal, color, n) {
 			// for each node that is matched in the query, get its respective table and update the graph
 			newNodeIDs.forEach(function (newId)
 				{
-					d3.json("/ty/getTable/" + newId, function(error, tableData)
+					d3.json("/Justin/getTable/" + newId, function(error, tableData)
 							{
 								if (error) return;
 								
@@ -782,7 +782,7 @@ function createTable(newNodes,n) {
 
     		// get id of matched node's parent table node
     		
-    		d3.json("/ty/getTableIdForNode/" + nodeToRemove.id, function(error, tableData)
+    		d3.json("/Justin/getTableIdForNode/" + nodeToRemove.id, function(error, tableData)
     			{	
     					
 	    			debugger;	
