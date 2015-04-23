@@ -88,7 +88,7 @@ d3.json("/Justin/datasets", function(error, data)
 				
 				//Add button to the form
 				form1.appendChild(radioInput);
-				form1.appendChild(document.createTextNode(name));
+				form1.appendChild(document.createTextNode(" " + name));
 				form1.appendChild(document.createElement('br'));
 
 			}						
@@ -403,7 +403,9 @@ function createButton(label, functionCall) {
     //create break
     var br = document.createElement("br");
     
+    //btn.className = "btn btn-default";
     btn.className = "btn btn-default";
+    btn.style.width = "200px";
     btn.appendChild(title);
     
 
@@ -730,13 +732,15 @@ function createTable(newNodes,n) {
 	//First row element left blank [to align headers correctly]
 	var row = edgeTable.insertRow();
 	var td = document.createElement('td');
+	text = document.createTextNode("Connecting Nodes");
+	td.appendChild(text);	
 	row.appendChild(td);
 	
 	//Second row element (First Column header)
-	td = document.createElement('td');
-	var text = document.createTextNode("Display Node");
-	td.appendChild(text);
-	row.appendChild(td);
+	//td = document.createElement('td');
+	//var text = document.createTextNode("Display Node");
+	//td.appendChild(text);
+	//eow.appendChild(td);
 	
 	//Third row element (Second Column header)
 	td = document.createElement('td');
@@ -765,13 +769,13 @@ function createTable(newNodes,n) {
 		row.appendChild(td);
 		
 		//Choice for showing node
-		var td2 = document.createElement('td');
-		var radioButton1 = document.createElement('input');
-		radioButton1.type = "radio";
-		radioButton1.name = i;
-		radioButton1.value = "showNode";
-		td2.appendChild(radioButton1);
-		row.appendChild(td2);
+		//var td2 = document.createElement('td');
+		//var radioButton1 = document.createElement('input');
+		//radioButton1.type = "radio";
+		//radioButton1.name = i;
+		//radioButton1.value = "showNode";
+		//td2.appendChild(radioButton1);
+		//row.appendChild(td2);
 		
 		//Choice for creating edge 
 		var td3 = document.createElement('td');
