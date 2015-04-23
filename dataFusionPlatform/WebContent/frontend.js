@@ -63,6 +63,9 @@ var nodeForMatches;
 //Temp array for holding new nodes that could be added to a dataset
 var newNodes = [];
 
+// this will hold the info for each edge that joins two nodes
+var csvString = [];
+
 var state = false;
 var last = null;
 var current = null;
@@ -507,7 +510,21 @@ function match(prop, propVal, n) {
 				    {
 				    	newNodes.push(node);
 				    	newNodeIDs.push(nodeId);
-				    }
+				    }else
+			    	{
+				    	var dashedEdge = {source: nodeIndex, target: n, matchedOn:prop, propValue: propVal};
+						graphLinks.push(dashedEdge);
+						linkContainer = linkContainer.data(graphLinks);
+						
+						// any new data must be entered into its new graphical container
+						linkContainer.enter()
+							.append("line")
+							.style("stroke-dasharray", ("3, 3"))
+							.attr("class", "link")
+							.on("click", clickLine);
+						
+						force.start();
+			    	}
 				});
 			
 
@@ -612,9 +629,9 @@ function match(prop, propVal, n) {
 									
 								// refresh the graphical display
 								refreshGraph();
-								
+
 								//Create the dashed edges to connect different datasets
-								var dashedEdge = {source: connectNode, target: n};
+								var dashedEdge = {source: connectNode, target: n, matchedOn: prop, propValue: propVal};
 								graphLinks.push(dashedEdge);
 								
 								// increment edge count since dashed edge was added
@@ -825,6 +842,28 @@ function createTable(newNodes,n) {
 
 //Function for changing dashed edges to a continuous edge
 function clickLine() {
+	
+	debugger;
+	console.log(this);
+	console.log(this.__data__);
+	
+	var linkInfo = this.__data__;
+	
+	var src = linkInfo.source.name;
+	var tgt = linkInfo.target.name;
+	
+	
+	
+	var saveInfo = "Node:" + src + "_Node:" + tgt + "_" + this.__data__.matchedOn + ":" + this.__data__.propValue +  "_Date:" + timeStamp();
+	
+	// use this csv line in order to make it possible to split the resulting string by "_"
+	// var saveInfo = src + "_" + tgt + "_" + this.__data__.matchedOn + "_" + this.__data__.propValue +  "_" + timeStamp(); 
+	
+	console.log(src);
+	console.log(tgt);
+	
+	csvString.push(saveInfo);
+	
 	console.log("inside clickLine");
    	d3.select(this).transition()
    	 .style("stroke-linecap", "butt")
@@ -835,22 +874,6 @@ function clickLine() {
 
 // function for exporting all shown graph columns
 function dataExport() {
-	var csvString = [];
-
-	var nodeType = "Column"
-	var columnNodes = svg.selectAll(".node")
-						.filter(function(d) { return d.type == nodeType });
-
-	/*
-	 * Find all of the svg "g" elements in columnNodes and dynamically create
-	 * 	option tags in the select element of the form, and give them the text
-	 * 	from the column nodes.
-	 */
-	var column = columnNodes.selectAll("g");
-	for (var i = 0; i < column.length; i++) {
-		var option = new Option(column[i].parentNode.__data__.name, column[i].parentNode.__data__.id);
-		csvString.push(option.innerHTML);
-	}
 
 	// format csv file output
 	var a         = document.createElement('a');
@@ -914,6 +937,37 @@ function refreshGraph()
 	nodeContainer.on("click", getNode);
         
     force.start();
+}
+
+
+function timeStamp() {
+	// Create a date object with the current time
+	  var now = new Date();
+	 
+	// Create an array with the current month, day and time
+	  var date = [ now.getMonth() + 1, now.getDate(), now.getFullYear() ];
+	 
+	// Create an array with the current hour, minute and second
+	  var time = [ now.getHours(), now.getMinutes(), now.getSeconds() ];
+	 
+	// Determine AM or PM suffix based on the hour
+	  var suffix = ( time[0] < 12 ) ? "AM" : "PM";
+	 
+	// Convert hour from military time
+	  time[0] = ( time[0] < 12 ) ? time[0] : time[0] - 12;
+	 
+	// If hour is 0, set it to 12
+	  time[0] = time[0] || 12;
+	 
+	// If seconds and minutes are less than 10, add a zero
+	  for ( var i = 1; i < 3; i++ ) {
+	    if ( time[i] < 10 ) {
+	      time[i] = "0" + time[i];
+	    }
+	  }
+	 
+	// Return the formatted string
+	  return date.join("/") + "-" + time.join(":") + " " + suffix;
 }
 
 function findTitle()   { match("title", getTitle, nodeForMatches); }
