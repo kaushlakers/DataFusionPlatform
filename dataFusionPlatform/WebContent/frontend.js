@@ -68,7 +68,7 @@ var last = null;
 var current = null;
 
 
-d3.json("/Justin/datasets", function(error, data)
+d3.json("/marques/datasets", function(error, data)
 		{
 			//Get the Form to insert radio buttons for chosing a dataset		
 			var form1 = document.getElementById("fieldSet");
@@ -130,7 +130,7 @@ function getDataSet() {
     //log("datasetID inside getDataSets function:" + datasetID); 
     
     //Call the route to dynamically add the dataset to the webapp
-    d3.json("/Justin/getDataset/" + datasetID, function(error, dataset)
+    d3.json("/marques/getDataset/" + datasetID, function(error, dataset)
 		{
 			if(error) return;
 			
@@ -165,7 +165,7 @@ function getDataSet() {
 		        .append("line")
 		        .attr("class", "link");
 		
-		    //Modified D3 nodes on 3/27/15 By Justin 
+		    //Modified D3 nodes on 3/27/15 By marques 
 		    //Nodes are now a container that contains a circle graphic and its title
 		    //Each node creates a "g" element container and appends:
 		   	//	1: SVG Circle
@@ -483,7 +483,7 @@ function match(prop, propVal, color, n) {
     //Used to get the node that connects to the original dataset
     var connectNode = {};
 
-	d3.json("/Justin/matchProperty/" + prop + "/" + propVal, function(error, data)
+	d3.json("/marques/matchProperty/" + prop + "/" + propVal, function(error, data)
 		{
 			if(error) return;
 			
@@ -514,7 +514,7 @@ function match(prop, propVal, color, n) {
 			// for each node that is matched in the query, get its respective table and update the graph
 			newNodeIDs.forEach(function (newId)
 				{
-					d3.json("/Justin/getTable/" + newId, function(error, tableData)
+					d3.json("/marques/getTable/" + newId, function(error, tableData)
 							{
 								if (error) return;
 								
@@ -614,7 +614,7 @@ function match(prop, propVal, color, n) {
 								refreshGraph();
 								
 								//Create the dashed edges to connect different datasets
-								var dashedEdge = {source: n, target: connectNode};
+								var dashedEdge = {source: connectNode, target: n};
 								graphLinks.push(dashedEdge);
 								
 								// increment edge count since dashed edge was added
@@ -740,27 +740,17 @@ function createTable(newNodes,n) {
     	
     	var nodeToModify = uniqueNodes.indexOf(getIndex);
     	
-    	//Creates the edge when this radio button is chosen
+    	//Changed styling of the edge when this radio button is chosen
     	if (this.value == "createEdge") {
-    		var edge = {};
-    		var source = n;
-    		var target = nodeToModify;
-
-			//Create edge and update graph
-    		edge = {source:source, target:target};
-			graphLinks.push(edge);
-			
-			// update the data sourced by the graphical containers
-			linkContainer = linkContainer.data(graphLinks);
-									
-			// any new data must be entered into its new graphical container
-			linkContainer.enter()
-				.append("line")
-				.attr("class", "link");
     		
-    		// begin simulation with updated data
-			force.start();	
-			
+    		var dashedLink = svg.selectAll(".link").filter(function (d) { return d.target == n});
+  
+    		dashedLink.transition()
+    	   	 .style("stroke-linecap", "butt")
+    	     .duration(750)
+    	     .style("stroke", "lightsteelblue")
+    	     .style("stroke-dasharray", "3,0");
+												
 		//Remove the node from the graph	
     	} else if (this.value == "removeNode") 
     	{
@@ -782,7 +772,7 @@ function createTable(newNodes,n) {
 
     		// get id of matched node's parent table node
     		
-    		d3.json("/Justin/getTableIdForNode/" + nodeToRemove.id, function(error, tableData)
+    		d3.json("/marques/getTableIdForNode/" + nodeToRemove.id, function(error, tableData)
     			{	
     					
 	    			debugger;	
@@ -896,7 +886,7 @@ function refreshGraph()
         .append("line")
         .attr("class", "link");
 
-    //Modified D3 nodes on 3/27/15 By Justin 
+    //Modified D3 nodes on 3/27/15 By marques 
     //Nodes are now a container that contains a circle graphic and its title
     //Each node creates a "g" element container and appends:
    	//	1: SVG Circle
