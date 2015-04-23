@@ -451,7 +451,7 @@ function getNodeSize(d) {
 	}
 }
 
-function match(prop, propVal, color, n) {
+function match(prop, propVal, n) {
 
 	console.log("inside match function");
 	console.log("n is:");
@@ -923,7 +923,7 @@ function refreshGraph()
     force.start();
 }
 
-function findTitle()   { match("title", getTitle, "yellow", nodeForMatches); }
-function findRep()     { match("represents", getRepresents, "blue", nodeForMatches); }
-function findColType() { match("columntype", getColumnType, "green", nodeForMatches); }
-function findSemRel()  { match("semanticrelation", getSemanticRelation, "orange", nodeForMatches); }
+function findTitle()   { match("title", getTitle, nodeForMatches); }
+function findRep()     { match("represents", getRepresents, nodeForMatches); }
+function findColType() { match("columntype", getColumnType, nodeForMatches); }
+function findSemRel()  { match("semanticrelation", getSemanticRelation, nodeForMatches); }
