@@ -759,8 +759,16 @@ function createTable(newNodes,n) {
     	
     	//Changed styling of the edge when this radio button is chosen
     	if (this.value == "createEdge") {
+    		var dashedLink = svg.selectAll(".link").filter(function (d) { return (d.target == n) && (d.source == graphNodes[nodeToModify]);});
+    		var src = dashedLink[0][0].__data__.source.name;
+    		var tgt = dashedLink[0][0].__data__.target.name;
+    		var saveInfo = "Node:" + src + "_Node:" + tgt + "_" + dashedLink[0][0].__data__.matchedOn + ":" + dashedLink[0][0].__data__.propValue +  "_Date:" + timeStamp();
     		
-    		var dashedLink = svg.selectAll(".link").filter(function (d) { return d.target == n});
+    		// use this csv line in order to make it possible to split the resulting string by "_"
+    		// var saveInfo = src + "_" + tgt + "_" + this.__data__.matchedOn + "_" + this.__data__.propValue +  "_" + timeStamp(); 
+    		
+    		csvString.push(saveInfo);
+  
   
     		dashedLink.transition()
     	   	 .style("stroke-linecap", "butt")
