@@ -63,6 +63,9 @@ var nodeForMatches;
 //Temp array for holding new nodes that could be added to a dataset
 var newNodes = [];
 
+//array for creating dashed edges
+var connectNodes = [];
+
 // this will hold the info for each edge that joins two nodes
 var csvString = [];
 
@@ -527,6 +530,7 @@ function match(prop, propVal, n) {
 			    	}
 				});
 			
+			var newCounter = 0;
 
 			// for each node that is matched in the query, get its respective table and update the graph
 			newNodeIDs.forEach(function (newId)
@@ -535,6 +539,7 @@ function match(prop, propVal, n) {
 							{
 								if (error) return;
 								
+								newCounter += 1;
 								console.log("tableData is:");
 								console.log(tableData);
 								var indexOffset = graphNodes.length;
@@ -555,6 +560,7 @@ function match(prop, propVal, n) {
 										//for creating the dashed line, assign it to connectNode
 										if (nId == newId) {
 											connectNode = tNode;
+											connectNodes.push(connectNode);
 										}
 										
 										if (tNode.type == "Table" || tNode.type == "JoinTable")
@@ -629,14 +635,24 @@ function match(prop, propVal, n) {
 									
 								// refresh the graphical display
 								refreshGraph();
-
-								//Create the dashed edges to connect different datasets
-								var dashedEdge = {source: connectNode, target: n, matchedOn: prop, propValue: propVal};
-								graphLinks.push(dashedEdge);
+								
+								
+								if (newCounter == newNodeIDs.length)
+								{
+									for (var nodeCounter in connectNodes)
+									{
+										var connectNode = connectNodes[nodeCounter];
+										var dashedEdge = {source: connectNode, target: n, matchedOn:prop, propValue: propVal};
+										graphLinks.push(dashedEdge);
+									}
+									
+								}
+								
 								
 								// increment edge count since dashed edge was added
 								tableLSize++;
 								tableInfo[tableNodeId] = indexOffset + "/" + tableNSize + "/" + linkOffset + "/" + tableLSize;
+								
 								
 						
 								// update the data sourced by the graphical containers
