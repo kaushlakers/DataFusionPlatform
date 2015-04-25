@@ -528,7 +528,7 @@ function match(prop, propVal, n) {
 				    	newNodeIDs.push(nodeId);
 				    }else
 			    	{
-				    	var dashedEdge = {source: nodeIndex, target: n, matchedOn:prop, propValue: propVal};
+				    	var dashedEdge = {source: nodeIndex, target: n, id: "dash", matchedOn: prop, propValue: propVal};
 						graphLinks.push(dashedEdge);
 						linkContainer = linkContainer.data(graphLinks);
 						
