@@ -70,12 +70,18 @@ var newNodes = [];
 //Array for holding dashed edge objects
 var listOfNodeMatches = [];
 
+//array for creating dashed edges
+var connectNodes = [];
+
+// this will hold the info for each edge that joins two nodes
+var csvString = [];
+
 var state = false;
 var last = null;
 var current = null;
 
 
-d3.json("/Justin/datasets", function(error, data)
+d3.json("/ty/datasets", function(error, data)
 		{
 			//Get the Form to insert radio buttons for chosing a dataset		
 			var form1 = document.getElementById("fieldSet");
@@ -136,8 +142,8 @@ function getDataSet() {
     datasetID = checkedData;
     //log("datasetID inside getDataSets function:" + datasetID); 
     
-    //Call the route to dynamically add the dataset to the webapp
-    d3.json("/Justin/getDataset/" + datasetID, function(error, dataset)
+    //Call the route to dynamically add the dataset to the 
+    d3.json("/ty/getDataset/" + datasetID, function(error, dataset)
 		{
 			if(error) return;
 			
@@ -176,7 +182,7 @@ function getDataSet() {
 		        .attr("id", "line")
 		        .attr("class", "link");
 		
-		    //Modified D3 nodes on 3/27/15 By Justin 
+		    //Modified D3 nodes on 3/27/15 By marques 
 		    //Nodes are now a container that contains a circle graphic and its title
 		    //Each node creates a "g" element container and appends:
 		   	//	1: SVG Circle
@@ -249,7 +255,7 @@ function optionChange() {
 	//Keep track of the last and currently clicked on node, and highlight them accordingly
 	last = current;
 	current = optionNode;
-	current.style('fill', 'rebeccapurple');
+	current.style('fill', '#851e5e');
 	if(last) {last.style('fill', null);}
 	
 	//Call getNode with data of currently clicked on node
@@ -340,7 +346,7 @@ function getNode(n) {
 	if (Object.prototype.toString.call(d3.select(this)[0][0]) == "[object SVGGElement]") { 
 		last = current;
 		current = d3.select(this);
-		current.style('fill', 'rebeccapurple');
+		current.style('fill', '#851e5e');
 		if(last) {last.style('fill', null);}
 	}
 	
@@ -466,7 +472,7 @@ function getNodeSize(d) {
 	}
 }
 
-function match(prop, propVal, color, n) {
+function match(prop, propVal, n) {
 
 	//console.log("inside match function");
 	//console.log("n is:");
@@ -496,7 +502,7 @@ function match(prop, propVal, color, n) {
     //Used to get the node that connects to the original dataset
     var connectNode = {};
 
-	d3.json("/Justin/matchProperty/" + prop + "/" + propVal, function(error, data)
+	d3.json("/ty/matchProperty/" + prop + "/" + propVal, function(error, data)
 		{
 			if(error) return;
 			
@@ -520,7 +526,21 @@ function match(prop, propVal, color, n) {
 				    {
 				    	newNodes.push(node);
 				    	newNodeIDs.push(nodeId);
-				    }
+				    }else
+			    	{
+				    	var dashedEdge = {source: nodeIndex, target: n, matchedOn:prop, propValue: propVal};
+						graphLinks.push(dashedEdge);
+						linkContainer = linkContainer.data(graphLinks);
+						
+						// any new data must be entered into its new graphical container
+						linkContainer.enter()
+							.append("line")
+							.style("stroke-dasharray", ("3, 3"))
+							.attr("class", "link")
+							.on("click", clickLine);
+						
+						force.start();
+			    	}
 				});
 			
 			var newCounter = 0;
@@ -530,13 +550,15 @@ function match(prop, propVal, color, n) {
 			// for each node that is matched in the query, get its respective table and update the graph
 			newNodeIDs.forEach(function (newId)
 				{
-					d3.json("/Justin/getTable/" + newId, function(error, tableData)
+					d3.json("/ty/getTable/" + newId, function(error, tableData)
 							{
 								newCounter += 1;
 								//console.log("newCounter is:");
 								//console.log(newCounter);
 								if (error) return;
 								
+
+								//newCounter += 1;
 								//console.log("tableData is:");
 								//console.log(tableData);
 								var indexOffset = graphNodes.length;
@@ -559,11 +581,13 @@ function match(prop, propVal, color, n) {
 											
 											//console.log("INSIDE OF of tableDataRows logic");
 											connectNode = tNode;
+
 											//connectNodes.push(connectNode);
-											var dashedEdge = {source: n, target: connectNode, id: "dash"};
+											var dashedEdge = {source: connectNode, target: n, id: "dash", matchedOn: prop, propValue: propVal};
 											listOfNodeMatches.push(dashedEdge);
 											//console.log("connectNodes is");
 											//console.log(connectNodes);
+
 										}
 										
 										if (tNode.type == "Table" || tNode.type == "JoinTable")
@@ -644,10 +668,38 @@ function match(prop, propVal, color, n) {
 								// refresh the graphical display
 								refreshGraph();
 								
+								
+								//if (newCounter == newNodeIDs.length)
+								//{
+								//	for (var nodeCounter in connectNodes)
+								//	{
+								//		var connectNode = connectNodes[nodeCounter];
+								//		var dashedEdge = {source: connectNode, target: n, matchedOn:prop, propValue: propVal};
+								//		graphLinks.push(dashedEdge);
+								//	}
+								//	
+								//}
+								
+								
 								// increment edge count since dashed edge was added
 								tableLSize++;
 								tableInfo[tableNodeId] = indexOffset + "/" + tableNSize + "/" + linkOffset + "/" + tableLSize;
 
+								
+								
+						
+								// update the data sourced by the graphical containers
+								//linkContainer = linkContainer.data(graphLinks);
+														
+								// any new data must be entered into its new graphical container
+								//linkContainer.enter()
+								//	.append("line")
+								//	.style("stroke-dasharray", ("3, 3"))
+								//	.attr("class", "link")
+								//	.on("click", clickLine);
+											
+								// begin simulation with updated data
+								//force.start();
 								
 							});
 				});
@@ -753,27 +805,25 @@ function createTable(newNodes,n) {
     	
     	var nodeToModify = uniqueNodes.indexOf(getIndex);
     	
-    	//Creates the edge when this radio button is chosen
+    	//Changed styling of the edge when this radio button is chosen
     	if (this.value == "createEdge") {
-    		var edge = {};
-    		var source = n;
-    		var target = nodeToModify;
-
-			//Create edge and update graph
-    		edge = {source:source, target:target};
-			graphLinks.push(edge);
-			
-			// update the data sourced by the graphical containers
-			linkContainer = linkContainer.data(graphLinks);
-									
-			// any new data must be entered into its new graphical container
-			linkContainer.enter()
-				.append("line")
-				.attr("class", "link");
+    		var dashedLink = svg.selectAll(".link").filter(function (d) { return (d.target == n) && (d.source == graphNodes[nodeToModify]);});
+    		var src = dashedLink[0][0].__data__.source.name;
+    		var tgt = dashedLink[0][0].__data__.target.name;
+    		var saveInfo = "Node:" + src + "_Node:" + tgt + "_" + dashedLink[0][0].__data__.matchedOn + ":" + dashedLink[0][0].__data__.propValue +  "_Date:" + timeStamp();
     		
-    		// begin simulation with updated data
-			force.start();	
-			
+    		// use this csv line in order to make it possible to split the resulting string by "_"
+    		// var saveInfo = src + "_" + tgt + "_" + this.__data__.matchedOn + "_" + this.__data__.propValue +  "_" + timeStamp(); 
+    		
+    		csvString.push(saveInfo);
+  
+  
+    		dashedLink.transition()
+    	   	 .style("stroke-linecap", "butt")
+    	     .duration(750)
+    	     .style("stroke", "lightsteelblue")
+    	     .style("stroke-dasharray", "3,0");
+												
 		//Remove the node from the graph	
     	} else if (this.value == "removeNode") 
     	{
@@ -795,9 +845,8 @@ function createTable(newNodes,n) {
 
     		// get id of matched node's parent table node
     		
-    		d3.json("/Justin/getTableIdForNode/" + nodeToRemove.id, function(error, tableData)
-    			{	
-    					
+    		d3.json("/ty/getTableIdForNode/" + nodeToRemove.id, function(error, tableData)
+    		{
 	    			debugger;	
 					
 	        		// find the index of the first node belonging to that table in graphNodes
@@ -850,6 +899,28 @@ function createTable(newNodes,n) {
 
 //Function for changing dashed edges to a continuous edge
 function clickLine() {
+	
+	debugger;
+	console.log(this);
+	console.log(this.__data__);
+	
+	var linkInfo = this.__data__;
+	
+	var src = linkInfo.source.name;
+	var tgt = linkInfo.target.name;
+	
+	
+	
+	var saveInfo = "Node:" + src + "_Node:" + tgt + "_" + this.__data__.matchedOn + ":" + this.__data__.propValue +  "_Date:" + timeStamp();
+	
+	// use this csv line in order to make it possible to split the resulting string by "_"
+	// var saveInfo = src + "_" + tgt + "_" + this.__data__.matchedOn + "_" + this.__data__.propValue +  "_" + timeStamp(); 
+	
+	console.log(src);
+	console.log(tgt);
+	
+	csvString.push(saveInfo);
+	
 	console.log("inside clickLine");
    	d3.select(this).transition()
    	 .style("stroke-linecap", "butt")
@@ -860,22 +931,6 @@ function clickLine() {
 
 // function for exporting all shown graph columns
 function dataExport() {
-	var csvString = [];
-
-	var nodeType = "Column"
-	var columnNodes = svg.selectAll(".node")
-						.filter(function(d) { return d.type == nodeType });
-
-	/*
-	 * Find all of the svg "g" elements in columnNodes and dynamically create
-	 * 	option tags in the select element of the form, and give them the text
-	 * 	from the column nodes.
-	 */
-	var column = columnNodes.selectAll("g");
-	for (var i = 0; i < column.length; i++) {
-		var option = new Option(column[i].parentNode.__data__.name, column[i].parentNode.__data__.id);
-		csvString.push(option.innerHTML);
-	}
 
 	// format csv file output
 	var a         = document.createElement('a');
@@ -931,6 +986,12 @@ function refreshGraph()
 		.attr("class", "link")
 		.on("click", clickLine);
 		  
+   // linkContainer = container.append("g")
+   // 	.selectAll(".link")
+    //    .data(graphLinks).enter()
+    //    .append("line")
+    //    .attr("class", "link");
+
     //Nodes are now a container that contains a circle graphic and its title
     //Each node creates a "g" element container and appends:
    	//	1: SVG Circle
@@ -963,7 +1024,38 @@ function refreshGraph()
     
 }
 
-function findTitle()   { match("title", getTitle, "yellow", nodeForMatches); }
-function findRep()     { match("represents", getRepresents, "blue", nodeForMatches); }
-function findColType() { match("columntype", getColumnType, "green", nodeForMatches); }
-function findSemRel()  { match("semanticrelation", getSemanticRelation, "orange", nodeForMatches); }
+
+function timeStamp() {
+	// Create a date object with the current time
+	  var now = new Date();
+	 
+	// Create an array with the current month, day and time
+	  var date = [ now.getMonth() + 1, now.getDate(), now.getFullYear() ];
+	 
+	// Create an array with the current hour, minute and second
+	  var time = [ now.getHours(), now.getMinutes(), now.getSeconds() ];
+	 
+	// Determine AM or PM suffix based on the hour
+	  var suffix = ( time[0] < 12 ) ? "AM" : "PM";
+	 
+	// Convert hour from military time
+	  time[0] = ( time[0] < 12 ) ? time[0] : time[0] - 12;
+	 
+	// If hour is 0, set it to 12
+	  time[0] = time[0] || 12;
+	 
+	// If seconds and minutes are less than 10, add a zero
+	  for ( var i = 1; i < 3; i++ ) {
+	    if ( time[i] < 10 ) {
+	      time[i] = "0" + time[i];
+	    }
+	  }
+	 
+	// Return the formatted string
+	  return date.join("/") + "-" + time.join(":") + " " + suffix;
+}
+
+function findTitle()   { match("title", getTitle, nodeForMatches); }
+function findRep()     { match("represents", getRepresents, nodeForMatches); }
+function findColType() { match("columntype", getColumnType, nodeForMatches); }
+function findSemRel()  { match("semanticrelation", getSemanticRelation, nodeForMatches); }
