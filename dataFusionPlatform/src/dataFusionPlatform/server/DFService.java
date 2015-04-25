@@ -116,7 +116,7 @@ public class DFService
                 //the relation to a dataset node. Also use the counter dsource 
                 //not dtarget (Justin 4/5/15)
                 ptarget = i++;
-                rels.add(map("source", ptarget, "target", dsource));
+                rels.add(map("source", ptarget, "target", dsource, "id","line"));
                 
                // rels.add(map("source", ptarget, "target", dtarget));
                // ptarget = i++;
@@ -132,7 +132,7 @@ public class DFService
                 source = i++;
             }
             // source and target are indices of their respective nodes in the nodes list
-         	rels.add(map("source", source, "target", ptarget));
+         	rels.add(map("source", source, "target", ptarget, "id","line"));
          	
          }
          return map("nodes", nodes, "links", rels);
@@ -200,11 +200,11 @@ public class DFService
 			i++;
 		}
 		
-		links.add(map("source", tableIndex, "target", datasetIndex));
+		links.add(map("source", tableIndex, "target", datasetIndex, "id","line"));
 		
 		for (int cIndex : columnIndices)
 		{
-			links.add(map("source", cIndex, "target", tableIndex));
+			links.add(map("source", cIndex, "target", tableIndex, "id","line"));
 		}	
 		
 		return map("nodes", nodes, "links", links);	
