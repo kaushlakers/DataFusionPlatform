@@ -611,7 +611,8 @@ function match(prop, propVal, n) {
 											graphNodes.push(tNode);
 									    } else if (tNode.type == "Dataset") {
 									    	datasetDupIndex = $.inArray(nId, uniqueNodes);
-									    	datasetIndex = i;																		
+									    	datasetIndex = i;
+									    	tableNSize--;
 									    }
 									    
 									    i++;
@@ -905,6 +906,8 @@ function clickLine() {
      .duration(750)
      .style("stroke", "lightsteelblue")
      .style("stroke-dasharray", "3,0");
+   	
+   	this.__data__.id = "line";
 }
 
 // function for exporting all shown graph columns
