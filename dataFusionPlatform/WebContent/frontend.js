@@ -76,6 +76,10 @@ var connectNodes = [];
 // this will hold the info for each edge that joins two nodes
 var csvString = [];
 
+//this will be used in createTable() - the remove node part, and refreshGraph()
+//in refresh graph we will check to see if edges are about to be printed to this node, and prevent them from printing 
+var nodeToBeDeleted;
+
 var state = false;
 var last = null;
 var current = null;
@@ -526,7 +530,7 @@ function match(prop, propVal, n) {
 				    {
 				    	newNodes.push(node);
 				    	newNodeIDs.push(nodeId);
-				    }else
+				    }else if (node.id != n.id)
 			    	{
 				    	var dashedEdge = {source: nodeIndex, target: n, id: "dash", matchedOn: prop, propValue: propVal};
 						graphLinks.push(dashedEdge);
@@ -668,39 +672,9 @@ function match(prop, propVal, n) {
 								// refresh the graphical display
 								refreshGraph();
 								
-								
-								//if (newCounter == newNodeIDs.length)
-								//{
-								//	for (var nodeCounter in connectNodes)
-								//	{
-								//		var connectNode = connectNodes[nodeCounter];
-								//		var dashedEdge = {source: connectNode, target: n, matchedOn:prop, propValue: propVal};
-								//		graphLinks.push(dashedEdge);
-								//	}
-								//	
-								//}
-								
-								
 								// increment edge count since dashed edge was added
 								tableLSize++;
-								tableInfo[tableNodeId] = indexOffset + "/" + tableNSize + "/" + linkOffset + "/" + tableLSize;
-
-								
-								
-						
-								// update the data sourced by the graphical containers
-								//linkContainer = linkContainer.data(graphLinks);
-														
-								// any new data must be entered into its new graphical container
-								//linkContainer.enter()
-								//	.append("line")
-								//	.style("stroke-dasharray", ("3, 3"))
-								//	.attr("class", "link")
-								//	.on("click", clickLine);
-											
-								// begin simulation with updated data
-								//force.start();
-								
+								tableInfo[tableNodeId] = indexOffset + "/" + tableNSize + "/" + linkOffset + "/" + tableLSize;					
 							});
 				});
 									
@@ -823,6 +797,9 @@ function createTable(newNodes,n) {
     	     .duration(750)
     	     .style("stroke", "lightsteelblue")
     	     .style("stroke-dasharray", "3,0");
+    		
+    		// change links id so it is not redrawn as dashed
+    		dashedLink[0][0].__data__.id = "line";
 												
 		//Remove the node from the graph	
     	} else if (this.value == "removeNode") 
@@ -838,7 +815,9 @@ function createTable(newNodes,n) {
     		
     		console.log(nodeToRemove);
     		
-			
+    		// update nodeToBeDeleted value to reflect the node that is to be removed
+    		nodeToBeDeleted = nodeToRemove;
+    		
     		// this method relies on the fact that nodes and edges for tables are added in continuous chunks to graphNodes and graphLinks
     		
     		// given matched node that is to be deleted along with its other table nodes
@@ -853,7 +832,7 @@ function createTable(newNodes,n) {
 	        		var tableId = tableData.idForTable;
 	        		
 	        		
-	        		var data = tableInfo[tableId]
+	        		var data = tableInfo[tableId];
 	        		
 	        		var tableMetaData = data.split("/");
 	        		
@@ -889,7 +868,6 @@ function createTable(newNodes,n) {
 						}); 
 	        		
 	        		// update the graphical display
-	        		console.log("befor the graph refresh with 0");
 	    			refreshGraph();
 		    			
     			});
@@ -965,6 +943,9 @@ function refreshGraph()
 	//Add any connector [dashed] edges to the array of graph edges
 	//These edges connect different datasets
     for (var edge in listOfNodeMatches) {
+    	// if node was just deleted, remove all links that originate from it
+    	if (listOfNodeMatches[edge].source == nodeToBeDeleted){ delete listOfNodeMatches[edge]; continue; }
+    	// otherwise add links that were not already in the graph
     	if (graphLinks.indexOf(listOfNodeMatches[edge]) == -1) {
     		graphLinks.push(listOfNodeMatches[edge]);
     	
