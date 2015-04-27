@@ -274,6 +274,8 @@ function goBackToForm1() {
 	d3.select("svg").remove();
 	document.getElementById("pickNode").style.display="none";
 	document.getElementById("getDataForm").style.display="block";
+	
+	listOfNodeMatches = [];
 	/*
 	 * Find select element in DOM and remove all the options that were created by the populateForm() method
 	 */
