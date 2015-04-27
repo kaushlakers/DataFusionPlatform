@@ -281,6 +281,7 @@ function goBackToForm1() {
 	while (selectElement.firstChild) {
 		selectElement.removeChild(selectElement.firstChild);
 	}
+
 }
 
 //Go from 3rd form to 2nd form
