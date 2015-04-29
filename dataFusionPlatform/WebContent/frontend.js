@@ -1,51 +1,51 @@
-
-
+// set variables for node and svg sizes
 var radius = 20, rTable = 30, rDataset = 40;
 var margin = {top: -5, right: -5, bottom: -5, left: -5};
 var width = 1200 - margin.left - margin.right, height = 800 - margin.top - margin.bottom;
 
 
-//Initially set the 2nd, 3rd, and 4th form to hidden
+// initially set the 2nd, 3rd, and 4th form to hidden
 document.getElementById("pickNode").style.display="none";
 document.getElementById("findMatches").style.display="none";
 document.getElementById("createEdges").style.display="none";
 
-
+// set responsiveness of D3 graph
 var force = d3.layout.force()
-    .charge(-500)
-    .linkDistance(75)
-    .size([width, height])
-    .on("tick", tick);;
+	.charge(-500)
+	.linkDistance(75)
+	.size([width, height])
+	.on("tick", tick);
 //[width, height] [width + margin.left + margin.right, height + margin.top + margin.bottom]
 
-
-//Test zoom functionality
 // create the zoom listener
 var zoom = d3.behavior.zoom()
-    .scaleExtent([1, 15])
-    .on("zoom", zoomed);
+	.scaleExtent([1, 15])
+	.on("zoom", zoomed);
 
+// create graph drag functionality
 var drag = d3.behavior.drag()
-    .origin(function(d) { return d; })
-    .on("dragstart", dragstarted)
-    .on("drag", dragged)
-    .on("dragend", dragended);
+	.origin(function(d) { return d; })
+	.on("dragstart", dragstarted)
+	.on("drag", dragged)
+	.on("dragend", dragended);
 
+// fit svg to html #graph div
 var svg = d3.select("#graph")
-    .append("svg")
-    .attr("width", "100%")
-    .attr("height", "100%")
-    .attr("pointer-events", "all")
-    .attr("transform", "translate(" + margin.left + "," + margin.right + ")")
-    .call(zoom);
+	.append("svg")
+	.attr("width", "100%")
+	.attr("height", "100%")
+	.attr("pointer-events", "all")
+	.attr("transform", "translate(" + margin.left + "," + margin.right + ")")
+	.call(zoom);
 
+// add d3 nodes to svg
 var container = svg.append("g");
 
 
 // these hold the raw data
 var graphNodes = force.nodes();
 var graphLinks = force.links();
-//these will hold the unique ids of each node/link to enusre there are no doubles
+// these will hold the unique ids of each node/link to enusre there are no doubles
 var uniqueNodes = [];
 var uniqueLinks = [];
 // these will hold the graphical elements
@@ -53,24 +53,24 @@ var nodeContainer;
 var linkContainer;
 
 var newContainer;
-//this will be a map with keys - tableNodeId, values - metadata
+// this will be a map with keys - tableNodeId, values - metadata
 var tableInfo = [];
 
 var queryNodes = [];
 
-//Hold data on the node for which we find additional matches for
+// hold data on the node for which we find additional matches for
 var nodeForMatches;
 
-//Temp array for holding new nodes that could be added to a dataset
+// temp array for holding new nodes that could be added to a dataset
 var newNodes = [];
 
-//Array for creating dashed edges
-//var connectNodes = [];
+// array for creating dashed edges
+// var connectNodes = [];
 
-//Array for holding dashed edge objects
+// array for holding dashed edge objects
 var listOfNodeMatches = [];
 
-//array for creating dashed edges
+// array for creating dashed edges
 var connectNodes = [];
 
 // this will hold the info for each edge that joins two nodes
@@ -80,20 +80,21 @@ var csvString = [];
 //in refresh graph we will check to see if edges are about to be printed to this node, and prevent them from printing 
 var nodeToBeDeleted;
 
+// initialize
 var state = false;
 var last = null;
 var current = null;
 
-
+// function to create radio buttons for selecting initial graph
 d3.json("/ty/datasets", function(error, data)
 		{
-			//Get the Form to insert radio buttons for chosing a dataset		
+			// get the form to insert radio buttons for chosing a dataset		
 			var form1 = document.getElementById("fieldSet");
 
-			//Retrieve the datasets from Neo4j
+			// retrieve the datasets from Neo4j
 			dSets = data.datasets;
 			
-			//Create a radio button for each dataset to display 
+			// create a radio button for each dataset to display 
 			for (var d in dSets) {
 				var name = dSets[d].datasetNode.title;
 				var id = dSets[d].id;
@@ -103,7 +104,7 @@ d3.json("/ty/datasets", function(error, data)
 				radioInput.setAttribute('value', id);
 				radioInput.setAttribute('class', 'list');
 				
-				//Add button to the form
+				// add button to the form
 				form1.appendChild(radioInput);
 				form1.appendChild(document.createTextNode(" " + name));
 				form1.appendChild(document.createElement('br'));
@@ -115,48 +116,50 @@ d3.json("/ty/datasets", function(error, data)
 // this ID should be set via user input
 var datasetID;
 
-//Function takes the checked option from the user input form 
-//and saves it into the datasetID variable.
+// function takes the checked option from the user input form 
+// and saves it into the datasetID variable.
 function getDataSet() {
 
-	//Refresh the D3 Graph
+	// refresh the D3 Graph
 	d3.select("svg").remove();
 	
-	//Hide the first form
+	// hide the first form
 	document.getElementById("getDataForm").style.display="none";
 	
-	//Display the second form
+	// display the second form
 	document.getElementById("pickNode").style.display="block";
 		
-    svg = d3.select("#graph")
-    .append("svg")
-    .attr("width", "100%")
-    .attr("height", "100%")
-    .attr("pointer-events", "all")
-    .attr("transform", "translate(" + margin.left + "," + margin.right + ")")
-    .call(zoom);
+	svg = d3.select("#graph")
+	.append("svg")
+	.attr("width", "100%")
+	.attr("height", "100%")
+	.attr("pointer-events", "all")
+	.attr("transform", "translate(" + margin.left + "," + margin.right + ")")
+	.call(zoom);
 
-    container = svg.append("g");
+	container = svg.append("g");
 	
-	//Jquery function gets the "VALUE" field from each checked option in the form
-    var checkedData = $('input[name="dataSet"]:checked').map(function () {
-        return this.value; }).get();
-    
-    //console.log(checkedData);
-    datasetID = checkedData;
-    //log("datasetID inside getDataSets function:" + datasetID); 
-    
-    //Call the route to dynamically add the dataset to the 
-    d3.json("/ty/getDataset/" + datasetID, function(error, dataset)
+	// jQuery function gets the "VALUE" field from each checked option in the form
+	var checkedData = $('input[name="dataSet"]:checked').map(function () {
+		return this.value; }).get();
+	
+	//console.log(checkedData);
+	datasetID = checkedData;
+	//log("datasetID inside getDataSets function:" + datasetID); 
+	
+	// call the route to dynamically add the dataset to the 
+	d3.json("/ty/getDataset/" + datasetID, function(error, dataset)
 		{
 			if(error) return;
 			
+		// debug output 
 			//console.log("Dataset value inside getDataset is:" + dataset);
 			//console.log(dataset);
 			//console.log(dataset.nodes);
 			//console.log("Dataset links:");
 			//console.log(dataset.links);
 			
+		// clear arrays
 			uniqueNodes = []; 
 	 		uniqueLinks = []; 
 			
@@ -171,66 +174,63 @@ function getDataSet() {
 				// check if the node's id is already in the graph
 				// if it's not in there, add it to unique id list
 				var nodeId = node.id; 
-			    var nodeIndex = uniqueNodes.indexOf(nodeId); 
-			    if (nodeIndex == -1) 
-			    	uniqueNodes.push(nodeId); 
+				var nodeIndex = uniqueNodes.indexOf(nodeId); 
+				if (nodeIndex == -1) 
+					uniqueNodes.push(nodeId); 
 				});
 			
+		// debug output
 			//console.log("inside getDataSet");
 			//console.log("graphLinks is:");
 			//console.log(graphLinks);
-		    linkContainer = container.append("g")
-		    	.selectAll(".link")
-		        .data(graphLinks).enter()
-		        .append("line")
-		        .attr("id", "line")
-		        .attr("class", "link");
+			linkContainer = container.append("g")
+				.selectAll(".link")
+				.data(graphLinks).enter()
+				.append("line")
+				.attr("id", "line")
+				.attr("class", "link");
 		
-		    //Modified D3 nodes on 3/27/15 By marques 
-		    //Nodes are now a container that contains a circle graphic and its title
-		    //Each node creates a "g" element container and appends:
-		   	//	1: SVG Circle
-		   	//	2: Text displaying title of node
-		    nodeContainer = container.append("g")
-		    	.selectAll(".node")
-		    	.data(graphNodes)
-		    	.enter().append("g")
-		    	.attr("class", function (d) { return "node "+ d.type.toString(); })
-		    	.call(drag);
-		    
-		    //Add a SVG circle element to the node container	
-		    nodeContainer.append("circle")
-		    	//Dynamically adjust the size of circles depending on its type
-		    	.attr("r", getNodeSize)
-		    	
-		    //Add a Title element to display nodes title container
-		    nodeContainer.append("text")
-		    	//Adjust the placement of text on the X-AXIS for displaying the title
-		    	.attr("dx", getNodeSize)
-		    	.attr("dy", ".35em")
-		        .text(function (d) { return d.name; })
+			// nodes are now a container that contains a circle graphic and its title
+			// each node creates a "g" element container and appends:
+			 	//	1: SVG Circle
+			 	//	2: Text displaying title of node
+			nodeContainer = container.append("g")
+				.selectAll(".node")
+				.data(graphNodes)
+				.enter().append("g")
+				.attr("class", function (d) { return "node "+ d.type.toString(); })
+				.call(drag);
 			
-			//Need to populate the select form
+			// add a SVG circle element to the node container	
+			nodeContainer.append("circle")
+				// dynamically adjust the size of circles depending on its type
+				.attr("r", getNodeSize)
+				
+			// add a Title element to display nodes title container
+			nodeContainer.append("text")
+				//Adjust the placement of text on the X-AXIS for displaying the title
+				.attr("dx", getNodeSize)
+				.attr("dy", ".35em")
+				.text(function (d) { return d.name; })
+			
+			// need to populate the select form
 			populateForm();
-		    
-			//Add on click function to nodes
+			
+			// add on click function to nodes
 			nodeContainer.on("click", getNode);
-
 		});
-    
 }
 
-//Function finds the current column nodes and populates the selection form
+// function finds the current column nodes and populates the selection form
 function populateForm() {
 	var nodeType = "Column"
 	var columnNodes = svg.selectAll(".node")
 						.filter(function(d) { return d.type == nodeType });
 
-	/*
-	 * Find all of the svg "g" elements in columnNodes and dynamically create
-	 * 	option tags in the select element of the form, and give them the text
-	 * 	from the column nodes.
-	 */
+	
+	// find all of the svg "g" elements in columnNodes and dynamically create
+	// option tags in the select element of the form, and give them the text
+	// from the column nodes.
 	var column = columnNodes.selectAll("g");
 	var i = 0;
 	while (i<column.length) {
@@ -241,44 +241,42 @@ function populateForm() {
 	
 }
 
-//Function to handle when the user clicks on different option tags
-//	so that the same functionality occurs as when using the graph.
+// function to handle when the user clicks on different option tags
+// so that the same functionality occurs as when using the graph.
 function optionChange() {
 	
-	//debugger;
-	//Get the select tag in the html
+	// get the select tag in the html
 	var selectBox = document.getElementById("nodeSelections");
 	
-	//get the current value of the option selected
+	// get the current value of the option selected
 	var selectedValue = selectBox.options[selectBox.selectedIndex].value;
 	
-	//Based upon the value, select the corresponding node and call getNode() on it
+	// based upon the value, select the corresponding node and call getNode() on it
 	var optionNode = svg.selectAll(".node")
 				.filter(function (d) { return d.id == selectedValue});
 	
-	//Keep track of the last and currently clicked on node, and highlight them accordingly
+	// keep track of the last and currently clicked on node, and highlight them accordingly
 	last = current;
 	current = optionNode;
 	current.style('fill', '#851e5e');
 	if(last) {last.style('fill', null);}
 	
-	//Call getNode with data of currently clicked on node
+	// call getNode with data of currently clicked on node
 	getNode(optionNode[0][0].__data__);
 			
 }
 
-//Function to change from the second form back
-//to the first form
+// function to change from the second form back
+// to the first form
 function goBackToForm1() {
-	//Refresh the D3 Graph
+	// refresh the D3 Graph
 	d3.select("svg").remove();
 	document.getElementById("pickNode").style.display="none";
 	document.getElementById("getDataForm").style.display="block";
 	
 	listOfNodeMatches = [];
-	/*
-	 * Find select element in DOM and remove all the options that were created by the populateForm() method
-	 */
+	// find select element in DOM and remove all the options 
+  // that were created by the populateForm() method
 	var selectElement = document.getElementById("nodeSelections")
 	while (selectElement.firstChild) {
 		selectElement.removeChild(selectElement.firstChild);
@@ -286,34 +284,34 @@ function goBackToForm1() {
 
 }
 
-//Go from 3rd form to 2nd form
+// go from 3rd form to 2nd form
 function goBackToForm2() {
 
-	//Get the form and hide the display
+	// get the form and hide the display
 	var form = document.getElementById("findMatches");
 	form.style.display="none";
 	
-	//Remove all the buttons from the div
+	// remove all the buttons from the div
 	var getDiv = form.firstChild;
 	
 	while (getDiv.firstChild) {
-    	getDiv.removeChild(getDiv.firstChild);
+		getDiv.removeChild(getDiv.firstChild);
 	}
 	
-	//Go back to showing the 2nd form
+	// go back to showing the 2nd form
 	document.getElementById("pickNode").style.display="block";
 }
 
-//Go from 4th form to 3rd form
+// go from 4th form to 3rd form
 function goBackToForm3() {
 
-	//Hide the current form [4th form for creating edges]
+	// hide the current form [4th form for creating edges]
 	document.getElementById("createEdges").style.display="none";
 	
-	//Go back to showing the 3rd form
+	// go back to showing the 3rd form
 	document.getElementById("findMatches").style.display="block";
 	
-	//Remove rows from table
+	// remove rows from table
 	var table = document.getElementById("createEdgesTable")
 	while (table.rows.length > 0) {
 		table.deleteRow();
@@ -321,7 +319,7 @@ function goBackToForm3() {
 	
 	console.log("Unique nodes is:");
 	console.log(uniqueNodes);
-	//Remove any nodes that could of been added from the set of unique nodes
+	// remove any nodes that could have been added from the set of unique nodes
 	for (var node in newNodes){
 		console.log("node is:");
 		uniqueNodes.pop(newNodes[node].id);
@@ -331,25 +329,22 @@ function goBackToForm3() {
 	console.log(uniqueNodes);
 }
 
-//After clicking on a node it will fill the metadata console with the information.
-//Also it will color the node [still needs implemented]
-//This then dynamically updates the Find Matches button to transform the UI
-//into the 3rd form when it is pressed.
+// function to fill metadata console on node click, update Find Matches button
+// so it will transition into the 3rd form when it is clicked
 function getNode(n) {
 
+  // debug output
 	//console.log("Inside getNode");
 	//console.log("n inside getNode is:");
 	//console.log(n);
 
-	//Assign the node to the global variable nodeForMatches
-	//Its index is needed to create new edges to the dataset
+	// assign the node to the global variable nodeForMatches
+	// its index is needed to create new edges to the dataset
 	nodeForMatches = n;
 	
-	/*
-	 * Need to check if the current element passed into getNode function is an SVG element and if it is then keep track of
-	 * 	the last and currently clicked on node, and highlight them accordingly. If it is not a SVG element then this will have
-	 * 	already been done.
-	 */
+	 // need to check if the current element passed into getNode function is an SVG element and if it is then keep track of
+	 // the last and currently clicked on node, and highlight them accordingly. If it is not a SVG element then this will have
+	 // already been done.
 	if (Object.prototype.toString.call(d3.select(this)[0][0]) == "[object SVGGElement]") { 
 		last = current;
 		current = d3.select(this);
@@ -357,105 +352,107 @@ function getNode(n) {
 		if(last) {last.style('fill', null);}
 	}
 	
-	//Update Console on the nodes information
+	// update Console on the nodes information
 	// var info = [n.name, n.type, n.properties.represents, n.properties.columntype, n.properties.semanticrelation];
-    cells = document.getElementsByClassName("infocell");
-    //console.log(cells);
-    // console.log(info);
-    cells[0].innerHTML = n.name;
-    cells[1].innerHTML = n.type;
-    cells[2].innerHTML = n.properties.represents;
-    cells[3].innerHTML = n.properties.columntype;
-    cells[4].innerHTML = n.properties.semanticrelation;
-    
-    //Update the buttons onclick function
+	cells = document.getElementsByClassName("infocell");
+	// debug output
+	// console.log(cells);
+	// console.log(info);
+	cells[0].innerHTML = n.name;
+	cells[1].innerHTML = n.type;
+	cells[2].innerHTML = n.properties.represents;
+	cells[3].innerHTML = n.properties.columntype;
+	cells[4].innerHTML = n.properties.semanticrelation;
+	
+	// update the buttons onclick function
 	document.getElementById("getNode").onclick = function(){ nodeOnClick(n) };
 }
 
 function nodeOnClick(n) {
 	
-	//Hide the 2nd Form and Show the 3rd Form
+	// hide the 2nd Form and Show the 3rd Form
 	document.getElementById("pickNode").style.display="none";
 	document.getElementById("findMatches").style.display="block";
 
+  // debug output
 	//console.log("inside nodeOnClick");
 
-    //Return color of nodes back to normal
-    svg.selectAll(".node").style("fill", null);
-    
-    var getOptionsDiv = document.getElementById("displayOptions");
-    if (getOptionsDiv.children.length) {
-    	while (getOptionsDiv.hasChildNodes()) { 
-    	    getOptionsDiv.removeChild(getOptionsDiv.lastChild);
-    	}
-    }
-    
-    //Get Represents property from currently selected node
-    currRepresents = n.properties.represents;
-        
-    getTitle = n.properties.title;
-    getRepresents = n.properties.represents;
-    getColumnType = n.properties.columntype;
-    getSemanticRelation = n.properties.semanticrelation;
-    
+	// return color of nodes back to normal
+	svg.selectAll(".node").style("fill", null);
+	
+	var getOptionsDiv = document.getElementById("displayOptions");
+	if (getOptionsDiv.children.length) {
+		while (getOptionsDiv.hasChildNodes()) { 
+			getOptionsDiv.removeChild(getOptionsDiv.lastChild);
+		}
+	}
+	
+	// get properties from currently selected node
+	currRepresents = n.properties.represents;
+	getTitle = n.properties.title;
+	getRepresents = n.properties.represents;
+	getColumnType = n.properties.columntype;
+	getSemanticRelation = n.properties.semanticrelation;
+	
  
-    //Dynamically create button for finding related Titles, Represents, Column Types, Relations
-    if (getTitle !== undefined)            { createButton("Find Related Titles", findTitle); }
-    // if (getRepresents !== undefined)       { createButton("Find Related Represents", findRep); }
-    if (getRepresents !== undefined)       { createButton("Find Related Entities", findRep); }
-    // if (getColumnType !== undefined)       { createButton("Find Related Column Types", findColType); }
-    // if (getSemanticRelation !== undefined) { createButton("Find Related Semantic Relations", findSemRel); }
-    if (getSemanticRelation !== undefined) { createButton("Find Related Attributes", findSemRel); }
+	// dynamically create button for finding related Titles, Represents, Column Types, Relations
+	// Only Titles, Represents, and Relations are used, others have been commented out
+	if (getTitle !== undefined)			{ createButton("Find Related Titles", findTitle); }
+	// if (getRepresents !== undefined)		 { createButton("Find Related Represents", findRep); }
+	if (getRepresents !== undefined)		 { createButton("Find Related Entities", findRep); }
+	// if (getColumnType !== undefined)		 { createButton("Find Related Column Types", findColType); }
+	// if (getSemanticRelation !== undefined) { createButton("Find Related Semantic Relations", findSemRel); }
+	if (getSemanticRelation !== undefined) { createButton("Find Related Attributes", findSemRel); }
 
 }
 
-//force feed algo ticks
+// force feed algo ticks in D3
 function tick() {
   nodeContainer.attr("cx", function(d) { return d.x = Math.max(radius, Math.min(width - radius, d.x)); })
   .attr("cy", function(d) { return d.y = Math.max(radius, Math.min(height - radius, d.y)); });
   
   linkContainer.attr("x1", function(d) { return d.source.x; })
-      .attr("y1", function(d) { return d.source.y; })
-      .attr("x2", function(d) { return d.target.x; })
-      .attr("y2", function(d) { return d.target.y; });
-      
+		.attr("y1", function(d) { return d.source.y; })
+		.attr("x2", function(d) { return d.target.x; })
+		.attr("y2", function(d) { return d.target.y; });
+		
   nodeContainer.attr("cx", function(d) { return d.x; })
-      .attr("cy", function(d) { return d.y; });
+		.attr("cy", function(d) { return d.y; });
   
   nodeContainer.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });	
 }
 
 
 
-//Function to dynamically create buttons and add them to the 3rd form
+// function to dynamically create buttons and add them to the 3rd form
 function createButton(label, functionCall) {
-	//Create the button element
-    var btn = document.createElement("BUTTON"); 
-    //Create the button label, and add it to the button
-    var title = document.createTextNode(label); 
-    
-    //create break
-    var br = document.createElement("br");
-    
-    //btn.className = "btn btn-default";
-    btn.className = "btn btn-default";
-    btn.style.width = "200px";
-    btn.appendChild(title);
-    
+	// create the button element
+	var btn = document.createElement("BUTTON"); 
+	// create the button label, and add it to the button
+	var title = document.createTextNode(label); 
+	
+	// create break
+	var br = document.createElement("br");
+	
+	btn.className = "btn btn-default";
+	btn.style.width = "200px";
+	btn.appendChild(title);
+	
 
-    btn.onclick = functionCall; 
-    //Add button to the 'displayOptions' div inside the console
-    document.getElementById("displayOptions").appendChild(btn);
-    document.getElementById("displayOptions").appendChild(br)
+	btn.onclick = functionCall; 
+	// add button to the 'displayOptions' div inside the console
+	document.getElementById("displayOptions").appendChild(btn);
+	document.getElementById("displayOptions").appendChild(br)
 	btn.setAttribute("type", "button");	
 
 }
 
-//function for handling zoom event
+// function for handling zoom event
 function zoomed() {
   container.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
 }
 
+// the following three functions handle dragging the svg
 function dragstarted(d) {
   d3.event.sourceEvent.stopPropagation();
   d3.select(this).classed("dragging", true);
@@ -469,7 +466,9 @@ function dragged(d) {
 function dragended(d) {
   d3.select(this).classed("dragging", false);
 }
+// end of drag functions
 
+// function to resize nodes according to type
 function getNodeSize(d) {
 	switch (d.type.toString()) {
 		case "Dataset":		return 25;
@@ -479,218 +478,192 @@ function getNodeSize(d) {
 	}
 }
 
+// behemoth function to find node matches
 function match(prop, propVal, n) {
 
+	// debug output
 	//console.log("inside match function");
 	//console.log("n is:");
 	//console.log(n);
 	
+	// clear array
 	queryNodes = [];
 	
-	//Hide the 3rd form and show the 4th form
-	//Get the form and hide the display
+	// hide the 3rd form and show the 4th form
+	// get the form and hide the display
 	var form = document.getElementById("findMatches");
 	form.style.display="none";
 	
-	//Remove all the buttons from the div
+	// remove all buttons from the div
 	var getDiv = form.firstChild;
-	
 	while (getDiv.firstChild) {
-    	getDiv.removeChild(getDiv.firstChild);
+		getDiv.removeChild(getDiv.firstChild);
 	}
 	
-	//Go back to showing the 2nd form
+	// go back to the 2nd form
 	document.getElementById("createEdges").style.display="block";
 	
-    //create array to hold the new nodes
+	//create array to hold the new nodes
 	var newNodes = [];
-    var newNodeIDs = [];
-    
-    //Used to get the node that connects to the original dataset
-    var connectNode = {};
-
-	d3.json("/ty/matchProperty/" + prop + "/" + propVal, function(error, data)
-		{
-			if(error) return;
-			
-			//create array to hold the new nodes
-			newNodes = [];
-		
-			//console.log("Inside /matchProperty/");
-			//console.log("Data is:");
-			//console.log(data);
-			//console.log("Inside /matchProperty/ n is:");
-			//console.log(n);
-			
-			//console.log("Graph Links is:");
-			//console.log(graphLinks);
-			
-			data.resultingNodes.forEach(function(node) 
-				{
-					var nodeId = node.id;
-				    var nodeIndex = parseInt(uniqueNodes.indexOf(nodeId));
-				    if (nodeIndex == -1)
-				    {
-				    	newNodes.push(node);
-				    	newNodeIDs.push(nodeId);
-				    }else if (node.id != n.id)
-			    	{
-				    	var dashedEdge = {source: nodeIndex, target: n, id: "dash", matchedOn: prop, propValue: propVal};
-						graphLinks.push(dashedEdge);
-						linkContainer = linkContainer.data(graphLinks);
-						
-						// any new data must be entered into its new graphical container
-						linkContainer.enter()
-							.append("line")
-							.style("stroke-dasharray", ("3, 3"))
-							.attr("class", "link")
-							.on("click", clickLine);
-						
-						force.start();
-			    	}
-				});
-			
-			var newCounter = 0;
-
-			//console.log("newNodesIds is:");
-			//console.log(newNodeIDs);
-			// for each node that is matched in the query, get its respective table and update the graph
-			newNodeIDs.forEach(function (newId)
-				{
-					d3.json("/ty/getTable/" + newId, function(error, tableData)
-							{
-								newCounter += 1;
-								//console.log("newCounter is:");
-								//console.log(newCounter);
-								if (error) return;
-								
-
-								//newCounter += 1;
-								//console.log("tableData is:");
-								//console.log(tableData);
-								var indexOffset = graphNodes.length;
-								var linkOffset = graphLinks.length
-								var tableNodeIndex = 0;
-								var tableNodeId = 0;
-								var tableNSize = tableData.nodes.length;
-								var tableLSize = tableData.links.length;
-								var datasetDupIndex = 1000;
-								var datasetIndex = 1000;
-								var i = 0;
-								
-								tableData.nodes.forEach(function (tNode)
-									{
-										var nId = tNode.id;
-										
-										//If the node from the table matches the new node
-										//for creating the dashed line, assign it to connectNode
-										if (nId == newId) {
-											
-											//console.log("INSIDE OF of tableDataRows logic");
-											connectNode = tNode;
-
-											//connectNodes.push(connectNode);
-											var dashedEdge = {source: connectNode, target: n, id: "dash", matchedOn: prop, propValue: propVal};
-											listOfNodeMatches.push(dashedEdge);
-											//console.log("connectNodes is");
-											//console.log(connectNodes);
-
-										}
-										
-										if (tNode.type == "Table" || tNode.type == "JoinTable")
-										{
-											tableNodeIndex = graphNodes.length;
-											tableNodeId = tNode.id;
-										}
-										
-										var nIndex = parseInt(uniqueNodes.indexOf(nId));
-										
-										/*
-										 * Check if the index is already in uniqueNodes, and also if it is then check if
-										 * 	its a dataset node so that the correct links can be made
-										 */										
-									    if (nIndex == -1) {
-									    	uniqueNodes.push(nId);
-											graphNodes.push(tNode);
-									    } else if (tNode.type == "Dataset") {
-									    	datasetDupIndex = $.inArray(nId, uniqueNodes);
-									    	datasetIndex = i;
-									    	tableNSize--;
-									    }
-									    
-									    i++;
-									});
-								
-								// must change the relationship indices to reflect the indices that the nodes assume
-								// when placed into graphNodes. This is because 
-								
-								//console.log("tableData is:");
-								//console.log(tableData);
-								tableData.links.forEach(function (edge)
-								{
-										
-									var sourceDecrement = false;	
-									var targetDecrement = false;
-									/*
-									 * Check if the target edge/source is after the dataset duplicate, because if it is then 
-									 * 	it needs to be decremented
-									 */
-									if (edge.target>datasetIndex) {
-										targetDecrement = true;
-									} 
-									if (edge.source>datasetIndex) {
-										sourceDecrement = true;
-									}
-									
-									/*
-									 * Check if any of the source or targets are the datasetIndex node and in which case you
-									 * 	need to make it equal to the dataset node that already exists in uniqueNodes
-									 */
-									if (edge.source == datasetIndex) {
-										edge.source = datasetDupIndex;
-										edge.target += indexOffset;
-									} else if (edge.target == datasetIndex) {
-										edge.target = datasetDupIndex;
-										edge.source += indexOffset;
-									} else {
-										edge.source += indexOffset;
-										edge.target += indexOffset;
-									}
-									
-									/*
-									 * Checks if the booleans have been changed and if so then it decrements
-									 */
-									if (targetDecrement) {
-										edge.target -= 1;
-									} 
-									if (sourceDecrement) {
-										edge.source -= 1;
-									}
-																	
-									//Add the link to the global list of links
-									graphLinks.push(edge);
-
-									
-								});
-									
-								// refresh the graphical display
-								refreshGraph();
-								
-								// increment edge count since dashed edge was added
-								tableLSize++;
-								tableInfo[tableNodeId] = indexOffset + "/" + tableNSize + "/" + linkOffset + "/" + tableLSize;					
-							});
-				});
-									
-				
-			//Update the cancel button so it has the list of new nodes it can remove
-			var backButton = document.getElementById("backToThirdForm").onclick
-			
-			//call function to add rows to the frontend UI
-			createTable(newNodes, n);
-			
-		});
+	var newNodeIDs = [];
 	
+	// used to get the node that connects to the original dataset
+	var connectNode = {};
+
+	d3.json("/ty/matchProperty/" + prop + "/" + propVal, function(error, data) {
+		if(error) return;
+		
+		//create array to hold the new nodes
+		newNodes = [];
+		
+		// debug output
+		//console.log("Inside /matchProperty/");
+		//console.log("Data is:");
+		//console.log(data);
+		//console.log("Inside /matchProperty/ n is:");
+		//console.log(n);
+		//console.log("Graph Links is:");
+		//console.log(graphLinks);
+		
+		data.resultingNodes.forEach(function(node) {
+			var nodeId = node.id;
+			var nodeIndex = parseInt(uniqueNodes.indexOf(nodeId));
+			if (nodeIndex == -1) {
+				newNodes.push(node);
+				newNodeIDs.push(nodeId);
+			}
+			else if (node.id != n.id) {
+				var dashedEdge = {source: nodeIndex, target: n, id: "dash", matchedOn: prop, propValue: propVal};
+				graphLinks.push(dashedEdge);
+				linkContainer = linkContainer.data(graphLinks);
+				
+				// any new data must be entered into its new graphical container
+				linkContainer.enter()
+					.append("line")
+					.style("stroke-dasharray", ("3, 3"))
+					.attr("class", "link")
+					.on("click", clickLine);
+				
+				force.start();
+			}
+		});
+		
+		var newCounter = 0;
+
+		// debug output
+		//console.log("newNodesIds is:");
+		//console.log(newNodeIDs);
+	
+		// for each node that is matched in the query, get its respective table and update the graph
+		newNodeIDs.forEach(function (newId) {
+			d3.json("/ty/getTable/" + newId, function(error, tableData) {
+				newCounter += 1;
+
+				// debug output
+				//console.log("newCounter is:");
+				//console.log(newCounter);
+
+				if (error) return;
+				
+				// debug output
+				//console.log("tableData is:");
+				//console.log(tableData);
+				var indexOffset = graphNodes.length;
+				var linkOffset = graphLinks.length
+				var tableNodeIndex = 0;
+				var tableNodeId = 0;
+				var tableNSize = tableData.nodes.length;
+				var tableLSize = tableData.links.length;
+				var datasetDupIndex = 1000;
+				var datasetIndex = 1000;
+				var i = 0;
+				
+				tableData.nodes.forEach(function (tNode) {
+					var nId = tNode.id;
+					// if the node from the table matches the new node
+					// for creating the dashed line, assign it to connectNode
+					if (nId == newId) {
+					// debug output
+					//console.log("INSIDE OF of tableDataRows logic");
+					connectNode = tNode;
+					//connectNodes.push(connectNode);
+					var dashedEdge = {source: connectNode, target: n, id: "dash", matchedOn: prop, propValue: propVal};
+					listOfNodeMatches.push(dashedEdge);
+					// debug output
+					//console.log("connectNodes is");
+					//console.log(connectNodes);
+					}
+					if (tNode.type == "Table" || tNode.type == "JoinTable") {
+						tableNodeIndex = graphNodes.length;
+						tableNodeId = tNode.id;
+					}
+					var nIndex = parseInt(uniqueNodes.indexOf(nId));
+					
+					// check if the index is already in uniqueNodes, and also if it is then check if
+					//	its a dataset node so that the correct links can be made
+					if (nIndex == -1) {
+						uniqueNodes.push(nId);
+						graphNodes.push(tNode);
+					}
+					else if (tNode.type == "Dataset") {
+						datasetDupIndex = $.inArray(nId, uniqueNodes);
+						datasetIndex = i;
+						tableNSize--;
+					}
+					i++;
+				});
+						
+				// must change the relationship indices to reflect the 
+				// indices that the nodes assume when placed into graphNodes
+				
+				// debug output
+				//console.log("tableData is:");
+				//console.log(tableData);
+				tableData.links.forEach(function (edge) {
+					var sourceDecrement = false;	
+					var targetDecrement = false;
+					 // check if the target edge/source is after the dataset duplicate, because if it is then 
+					 //	it needs to be decremented
+					if (edge.target>datasetIndex) targetDecrement = true;
+					if (edge.source>datasetIndex) sourceDecrement = true;
+					
+					 // check if any of the source or targets are the datasetIndex node and in which case you
+					 //	need to make it equal to the dataset node that already exists in uniqueNodes
+					if (edge.source == datasetIndex) {
+						edge.source = datasetDupIndex;
+						edge.target += indexOffset;
+					}
+					else if (edge.target == datasetIndex) {
+						edge.target = datasetDupIndex;
+						edge.source += indexOffset;
+					}
+					else {
+						edge.source += indexOffset;
+						edge.target += indexOffset;
+					}
+					
+					// Checks if the booleans have been changed and if so then it decrements
+					if (targetDecrement) edge.target -= 1;
+					if (sourceDecrement) edge.source -= 1;
+													
+					//Add the link to the global list of links
+					graphLinks.push(edge);
+				});
+							
+				// refresh the graphical display
+				refreshGraph();
+				
+				// increment edge count since dashed edge was added
+				tableLSize++;
+				tableInfo[tableNodeId] = indexOffset + "/" + tableNSize + "/" + linkOffset + "/" + tableLSize;					
+			});
+		});
+		//Update the cancel button so it has the list of new nodes it can remove
+		var backButton = document.getElementById("backToThirdForm").onclick
+		
+		//call function to add rows to the frontend UI
+		createTable(newNodes, n);
+	});
 }
 
 /*
