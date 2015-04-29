@@ -62,6 +62,8 @@ public class DFRoutes implements SparkApplication{
             }
         });
 		
+		// handles a request to the route: /getTableIdForNode/547 for example
+		// it will return the table node ID for any given column node ID
 		get("/getTableIdForNode/:nodeID", new Route() {
             public Object handle(Request request, Response response) {
             	int limit = request.queryParams("limit") != null ? Integer.valueOf(request.queryParams("limit")) : 100;

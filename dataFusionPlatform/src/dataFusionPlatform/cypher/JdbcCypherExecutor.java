@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
+// credit for this class goes to Michael Hunger
+
 // class used for querying the neo4j database using JDBC drivers
 public class JdbcCypherExecutor implements CypherExecutor
 {

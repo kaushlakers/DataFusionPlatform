@@ -102,7 +102,6 @@ public class DFService
          		//Increment and use dsource to create edges from a dataset 
          		//node to a Column or JoinColumn node (Justin 4/5/15)
          		dsource = i++;
-         		//dtarget = i++;
          	}
          	
         	//Add the parent node if it is not already there
@@ -117,9 +116,7 @@ public class DFService
                 //not dtarget (Justin 4/5/15)
                 ptarget = i++;
                 rels.add(map("source", ptarget, "target", dsource, "id","line"));
-                
-               // rels.add(map("source", ptarget, "target", dtarget));
-               // ptarget = i++;
+
                 
             }
             
@@ -167,7 +164,7 @@ public class DFService
 
 	
 	
-	
+	// this method will run a cypher query that, given a column node id, will return the dataset, table and sibling columns of the given node
 	public Map<String, Object> getTable(int nodeId, int limit)
 	{	
 		Iterator<Map<String,Object>> result = cypher.query(
@@ -211,7 +208,7 @@ public class DFService
 	}
 	
 	
-
+	// this method will run a cypher query that will return the parent table node's ID for any given column node
 	public Map<String, Object> getTableIdForNode(int nId, int limit) {
 		
 		Iterator<Map<String,Object>> result = cypher.query(
