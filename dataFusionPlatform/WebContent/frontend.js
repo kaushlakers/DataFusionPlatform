@@ -693,6 +693,10 @@ function match(prop, propVal, n) {
 	
 }
 
+/*
+ * This function creates a table of matches on the fourth form when the user gets to this point. Each table row represents a single match
+ * 	and the user is able to create a new edge to the match or delete it from the graph.
+ */
 function createTable(newNodes,n) {
 
 	//get HTML Table to add rows in
@@ -706,12 +710,6 @@ function createTable(newNodes,n) {
 	text = document.createTextNode("Connecting Nodes");
 	td.appendChild(text);	
 	row.appendChild(td);
-	
-	//Second row element (First Column header)
-	//td = document.createElement('td');
-	//var text = document.createTextNode("Display Node");
-	//td.appendChild(text);
-	//eow.appendChild(td);
 	
 	//Third row element (Second Column header)
 	td = document.createElement('td');
@@ -727,26 +725,18 @@ function createTable(newNodes,n) {
 	
 	//Create a table row for each node
 	for (var i in newNodes) {
-		var row = edgeTable.insertRow();
-
-		row.id = "node"+newNodes[i].id;
-
 		
-		//console.log("row id : " +row.id);
+		//Variable for the newly added row
+		var row = edgeTable.insertRow();
+		
+		//Add the id to this variable from the first element in newNodes
+		row.id = "node"+newNodes[i].id;
+		
 		//Show name of the node
 		var td = document.createElement('td');
 		var text = document.createTextNode(newNodes[i].name);
 		td.appendChild(text);
 		row.appendChild(td);
-		
-		//Choice for showing node
-		//var td2 = document.createElement('td');
-		//var radioButton1 = document.createElement('input');
-		//radioButton1.type = "radio";
-		//radioButton1.name = i;
-		//radioButton1.value = "showNode";
-		//td2.appendChild(radioButton1);
-		//row.appendChild(td2);
 		
 		//Choice for creating edge 
 		var td3 = document.createElement('td');
@@ -774,28 +764,35 @@ function createTable(newNodes,n) {
     	var row = $(this).parents('tr:first').get(0);
     	console.log('Node: '+ row.id+ ' value:' + this.value); 
     	
+    	//Log to the console where we are at in the file.
     	console.log("INSIDE JQUERY *************************");
+    	
     	//Get target node based on the index in the table
     	var getIndex = row.id;
-
-    	getIndex = parseInt(getIndex.substring(4));
-    	//var nodeToModify = newNodes[getIndex];
     	
+    	//Parse the index into an integer
+    	getIndex = parseInt(getIndex.substring(4));
+    	
+    	//Find the corresponding node of the match in uniqueNodes array
     	var nodeToModify = uniqueNodes.indexOf(getIndex);
     	
     	//Changed styling of the edge when this radio button is chosen
     	if (this.value == "createEdge") {
+    		
+    		//Variable to hold the dashed edge that corresponds to this radio button
     		var dashedLink = svg.selectAll(".link").filter(function (d) { return (d.target == n) && (d.source == graphNodes[nodeToModify]);});
+    		//Variable to hold the source of this edge
     		var src = dashedLink[0][0].__data__.source.name;
+    		//Variable to hold the target of this edge
     		var tgt = dashedLink[0][0].__data__.target.name;
+    		
+    		//Variable to hold the information about this edge for the export functionality
     		var saveInfo = "Node:" + src + "_Node:" + tgt + "_" + dashedLink[0][0].__data__.matchedOn + ":" + dashedLink[0][0].__data__.propValue +  "_Date:" + timeStamp();
     		
-    		// use this csv line in order to make it possible to split the resulting string by "_"
-    		// var saveInfo = src + "_" + tgt + "_" + this.__data__.matchedOn + "_" + this.__data__.propValue +  "_" + timeStamp(); 
-    		
+    		//Add all of the edge information to the csvString global array
     		csvString.push(saveInfo);
   
-  
+    		//Add a transition and color change to the edge that corresponds to the clicked radio button
     		dashedLink.transition()
     	   	 .style("stroke-linecap", "butt")
     	     .duration(750)
@@ -808,36 +805,41 @@ function createTable(newNodes,n) {
 		//Remove the node from the graph	
     	} else if (this.value == "removeNode") 
     	{
-    	
+    		//Log information to the console for debugging.
 			console.log("GRAPHINFO BEFORE REMOVAL");
 			console.log(tableInfo);
 			console.log(graphNodes);
 			console.log(graphNodes.length);
 			console.log(graphLinks);
 			console.log(graphLinks.length);
+			
+			//Variable to hold the match that corresponds to this radio button that needs to be removed.
     		var nodeToRemove = graphNodes[nodeToModify];
     		
+    		//Log information to the console for debugging.
     		console.log(nodeToRemove);
     		
     		// update nodeToBeDeleted value to reflect the node that is to be removed
     		nodeToBeDeleted = nodeToRemove;
     		
-    		// this method relies on the fact that nodes and edges for tables are added in continuous chunks to graphNodes and graphLinks
     		
-    		// given matched node that is to be deleted along with its other table nodes
-
-    		// get id of matched node's parent table node
-    		
+    		/*
+    		 * This method relies on the fact that nodes and edges for tables are added in continuous chunks to graphNodes and graphLinks, and
+    		 * 	given matched node that is to be deleted along with its other table nodes it needs to get the id of matched node's parent 
+    		 * 	table node. This route is sent to the backend to bring back the whole dataset information for this matched node.
+    		*/
     		d3.json("/ty/getTableIdForNode/" + nodeToRemove.id, function(error, tableData)
     		{
+    				//Debugger breakpoint statement.
 	    			debugger;	
 					
 	        		// find the index of the first node belonging to that table in graphNodes
 	        		var tableId = tableData.idForTable;
 	        		
-	        		
+	        		//Variable to hold the data for this soon to be deleted node
 	        		var data = tableInfo[tableId];
 	        		
+	        		//Variable to hold the table's meta data.
 	        		var tableMetaData = data.split("/");
 	        		
 	        		// structure of tableMetaData --- indexOffset + "/" + tableNSize + "/" + linkOffset + "/" + tableLSize;
@@ -852,12 +854,9 @@ function createTable(newNodes,n) {
 	        		// repeat last two steps for edges in graphLinks
 	        		uniqueNodes.splice(nodeStart, numberOfNodes);
 	        		graphNodes.splice(nodeStart, numberOfNodes);
-	        		//nodeContainer[0].splice(nodeStart, numberOfNodes);
 	        		graphLinks.splice(linkStart, numberOfLinks);
-	        		//linkContainer[0].splice(linkStart, numberOfLinks);
 	        		
 	        		// update tableInfo to reflect any index changes if a table was removed from anywhere but the end of graphNodes
-	
 	        		Object.keys(tableInfo).forEach(function(key) 
 	        			{
 	        				var tmp1 = null;
@@ -882,38 +881,45 @@ function createTable(newNodes,n) {
 //Function for changing dashed edges to a continuous edge
 function clickLine() {
 	
+	//Debug output
 	debugger;
+	
+	//Commenting what "this" is to the console.
 	console.log(this);
 	console.log(this.__data__);
 	
+	//Get the links data into a variable
 	var linkInfo = this.__data__;
 	
+	//Variables for holding the source and target of the currently clicked link
 	var src = linkInfo.source.name;
 	var tgt = linkInfo.target.name;
 	
-	
-	
+	//Variable for all the needed information about this link that will be used when exporting.
 	var saveInfo = "Node:" + src + "_Node:" + tgt + "_" + this.__data__.matchedOn + ":" + this.__data__.propValue +  "_Date:" + timeStamp();
 	
-	// use this csv line in order to make it possible to split the resulting string by "_"
-	// var saveInfo = src + "_" + tgt + "_" + this.__data__.matchedOn + "_" + this.__data__.propValue +  "_" + timeStamp(); 
-	
+	//Logging what source and target are to the console.
 	console.log(src);
 	console.log(tgt);
 	
+	//Add all of the link information to the global csvString variable
 	csvString.push(saveInfo);
 	
+	//Log where we're at in the code
 	console.log("inside clickLine");
-   	d3.select(this).transition()
+   	
+	//Add a transition and color change to the dashed line
+	d3.select(this).transition()
    	 .style("stroke-linecap", "butt")
      .duration(750)
      .style("stroke", "lightsteelblue")
      .style("stroke-dasharray", "3,0");
    	
+	//Change the embedded data for the currently clicked on link to "line"
    	this.__data__.id = "line";
 }
 
-// function for exporting all shown graph columns
+// function for exporting all shown graph columns and this is called when user clicks on export button
 function dataExport() {
 
 	// format csv file output
@@ -972,12 +978,6 @@ function refreshGraph()
 		})
 		.attr("class", "link")
 		.on("click", clickLine);
-		  
-   // linkContainer = container.append("g")
-   // 	.selectAll(".link")
-    //    .data(graphLinks).enter()
-    //    .append("line")
-    //    .attr("class", "link");
 
     //Nodes are now a container that contains a circle graphic and its title
     //Each node creates a "g" element container and appends:
@@ -1011,7 +1011,9 @@ function refreshGraph()
     
 }
 
-
+/*
+ * Function that when called creates the timeStamp that is added to the exported CSV file.
+ */
 function timeStamp() {
 	// Create a date object with the current time
 	  var now = new Date();
@@ -1042,7 +1044,11 @@ function timeStamp() {
 	  return date.join("/") + "-" + time.join(":") + " " + suffix;
 }
 
+//function that calls the match function when the user clicks on the Find Title button
 function findTitle()   { match("title", getTitle, nodeForMatches); }
+
+//function that calls the match function when the user clicks on the Find Related Entities button
 function findRep()     { match("represents", getRepresents, nodeForMatches); }
-function findColType() { match("columntype", getColumnType, nodeForMatches); }
+
+//function that calls the match function when the user clicks on the Find Related Attributes button
 function findSemRel()  { match("semanticrelation", getSemanticRelation, nodeForMatches); }
