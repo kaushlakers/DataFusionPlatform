@@ -103,8 +103,8 @@ public class DFRoutes implements SparkApplication{
             	
             	int nID = Integer.parseInt(request.params(":nodeID"));
                 // The gson.toJson simply converts the given data to JSON format for sending it in an HTTP response.
-            	// Here we are calling the datasets method in the service object which will query neo4j for all the 
-            	// datasets in the database.
+            	// Here we are calling the getTable method which in the service object which will query neo4j for  
+            	// a given column node ID's 1. parent table node 2. grandparent dataset node 3. sibling column nodes
             	return gson.toJson(service.getTable(nID, limit));
                
             }
