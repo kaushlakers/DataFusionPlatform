@@ -1,3 +1,10 @@
+// THIS IS THE NAME OF THE WAR FILE ON THE TOMCAT SERVER
+var warName = "ty";
+
+
+
+
+
 // set variables for node and svg sizes
 var radius = 20, rTable = 30, rDataset = 40;
 var margin = {top: -5, right: -5, bottom: -5, left: -5};
@@ -86,7 +93,7 @@ var last = null;
 var current = null;
 
 // function to create radio buttons for selecting initial graph
-d3.json("/ty/datasets", function(error, data)
+d3.json("/" + warName + "/datasets", function(error, data)
 		{
 			// get the form to insert radio buttons for chosing a dataset		
 			var form1 = document.getElementById("fieldSet");
@@ -148,7 +155,7 @@ function getDataSet() {
 	//log("datasetID inside getDataSets function:" + datasetID); 
 	
 	// call the route to dynamically add the dataset to the 
-	d3.json("/ty/getDataset/" + datasetID, function(error, dataset)
+	d3.json("/" + warName + "/getDataset/" + datasetID, function(error, dataset)
 		{
 			if(error) return;
 			
@@ -510,7 +517,7 @@ function match(prop, propVal, n) {
 	// used to get the node that connects to the original dataset
 	var connectNode = {};
 
-	d3.json("/ty/matchProperty/" + prop + "/" + propVal, function(error, data) {
+	d3.json("/" + warName + "/matchProperty/" + prop + "/" + propVal, function(error, data) {
 		if(error) return;
 		
 		//create array to hold the new nodes
@@ -556,7 +563,7 @@ function match(prop, propVal, n) {
 	
 		// for each node that is matched in the query, get its respective table and update the graph
 		newNodeIDs.forEach(function (newId) {
-			d3.json("/ty/getTable/" + newId, function(error, tableData) {
+			d3.json("/" + warName + "/getTable/" + newId, function(error, tableData) {
 				newCounter += 1;
 
 				// debug output
@@ -801,7 +808,7 @@ function createTable(newNodes,n) {
     		 * 	given matched node that is to be deleted along with its other table nodes it needs to get the id of matched node's parent 
     		 * 	table node. This route is sent to the backend to bring back the whole dataset information for this matched node.
     		*/
-    		d3.json("/ty/getTableIdForNode/" + nodeToRemove.id, function(error, tableData)
+    		d3.json("/" + warName + "/getTableIdForNode/" + nodeToRemove.id, function(error, tableData)
     		{
     				//Debugger breakpoint statement.
 	    			debugger;	

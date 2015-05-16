@@ -4,7 +4,7 @@ package dataFusionPlatform.utility;
 public class Util 
 {
 	// this line defines the URL at which the Neo4j instance is running
-	public static final String DEFAULT_URL = "http://server2.ies.cse.ohio-state.edu:8081";
+	public static final String DEFAULT_URL = "http://localhost:8081";
     public static final String WEBAPP_LOCATION = "WebContent/";
 
     public static int getWebPort() 
