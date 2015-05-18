@@ -1,5 +1,5 @@
 // THIS IS THE NAME OF THE WAR FILE ON THE TOMCAT SERVER
-var warName = "ty";
+var warName = "dataFusionPlatform";
 
 
 
