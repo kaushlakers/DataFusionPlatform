@@ -29,7 +29,7 @@ public class JdbcCypherExecutor implements CypherExecutor
 	        try 
 	        {
 	        	Class.forName("org.neo4j.jdbc.Driver");
-	            conn = DriverManager.getConnection(url.replace("http://","jdbc:neo4j://"),username,password);
+	            conn = DriverManager.getConnection(url.replace("http://","jdbc:neo4j://"),"neo4j","admin");
 	        } catch (SQLException e) 
 	        {
 	            throw new RuntimeException(e);
