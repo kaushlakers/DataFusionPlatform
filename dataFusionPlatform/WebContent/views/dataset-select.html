@@ -1,0 +1,18 @@
+<form id="getDataForm" method="POST">
+	<fieldset id="fieldSet" class>
+		<legend class="title">Your Datasets</legend>
+		<label ng-repeat="dataset in formData.datasets">
+    		<input type="checkbox" checklist-model="formData.selected" checklist-value="dataset.id"> 
+    			{{dataset.datasetNode.title}}
+  		</label>
+	</fieldset>
+	<br>
+    <input type="button" id="form1Button" class="btn btn-default" ng-click="getDataset()" value="Explore"/>
+    <switch id="enabled" title="Include Intermediate Matches" 
+    name="enabled" ng-model="formData.interm" disabled="isSwitchDisabled()" class="my-switch"></switch>
+    
+    <br /><br />
+	<input type="button" id="form1Button" class="btn btn-default" ng-click="clearGraph()" title="Clear Graph" 
+	value="Clear"/>
+	
+</form> 

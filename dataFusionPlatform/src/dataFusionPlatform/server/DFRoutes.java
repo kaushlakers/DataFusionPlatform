@@ -1,15 +1,23 @@
  package dataFusionPlatform.server;
 
+import static spark.Spark.get;
+import static spark.Spark.post;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
-import dataFusionPlatform.server.DFService;
-import dataFusionPlatform.utility.*;
-import spark.servlet.SparkApplication;
+import dataFusionPlatform.entity.DFDataset;
+import dataFusionPlatform.entity.DFResponse;
+import dataFusionPlatform.utility.Util;
 import spark.Request;
 import spark.Response;
 import spark.Route;
-import static spark.Spark.get;
+import spark.servlet.SparkApplication;
 
 
 
@@ -54,13 +62,67 @@ public class DFRoutes implements SparkApplication{
             	int limit = request.queryParams("limit") != null ? Integer.valueOf(request.queryParams("limit")) : 100;
             	// we must convert the datasetID to a integer since it comes in as a string
                 int dID = Integer.parseInt(request.params(":datasetID"));
+                
+                
                 // The gson.toJson simply converts the given data to JSON format for sending it in an HTTP response.
             	// Here we are calling the getDataset method in the service object which will query neo4j for the 
             	// table and column nodes and edges of a dataset with the given ID.
-            	return gson.toJson(service.getDataset(dID, limit));
+            	DFDataset dataset = service.getDatasetNew(dID, null, limit);
+                HashMap<String, Object> responseMap = new HashMap();
+                
+                ArrayList<DFDataset> datasets =  new ArrayList<DFDataset>();
+                datasets.add(dataset);
+                DFResponse resp = new DFResponse();
+                resp.setDatasets(datasets);
+                
+                return gson.toJson(resp);
                
             }
         });
+		/*
+		get("/getDatasetMatches/:datasetID1/:datasetID2", new Route() {
+			public Object handle(Request request, Response response) {
+            	int limit = request.queryParams("limit") != null ? Integer.valueOf(request.queryParams("limit")) : 100;
+                int datasetId1 = Integer.parseInt(request.params(":datasetID1"));
+                int datasetId2 = Integer.parseInt(request.params(":datasetID2"));
+                //int intermediate = Boolean.parseBoolean(request.params(param))
+                
+                DFResponse resp = service.getDatasetMatches(datasetId1, datasetId2, "represents", false,limit);
+        		
+                return gson.toJson(resp);
+        		
+
+			}
+		});
+		*/
+		post("/getDatasetMatches", new Route() {
+			public Object handle(Request request, Response response){
+				
+				try {
+				
+					JsonParser parser = new JsonParser();
+					JsonObject requestData = (JsonObject) parser.parse(request.body());
+					//System.out.println(requestData.getAsString());
+					int datasetId1 = Integer.parseInt(requestData.get("datasetId1").getAsString());
+					int datasetId2 = Integer.parseInt(requestData.get("datasetId2").getAsString());
+					
+					boolean intermediate = Boolean.parseBoolean(requestData.get("intermediate").getAsString());
+					
+					int limit = request.queryParams("limit") != null ? Integer.valueOf(request.queryParams("limit")) : 100;
+					
+					DFResponse dfResponse = service.getDatasetMatches(datasetId1, datasetId2, "represents",
+							intermediate, limit); 
+					
+					return gson.toJson(dfResponse);
+			
+				} catch(Exception e) {
+					e.printStackTrace();
+				}
+				return null;
+			}	
+		});
+		
+		
 		
 		// handles a request to the route: /getTableIdForNode/547 for example
 		// it will return the table node ID for any given column node ID
@@ -76,6 +138,7 @@ public class DFRoutes implements SparkApplication{
 		// handles a request to the route /matchProperty/represents/mesh:Disease for example
 		// :property is the node/column property that the user wants to use to find other nodes 
 		// having a certain :propertyValue
+		/*
 		get("/matchProperty/:property/:propertyValue", new Route() {
             public Object handle(Request request, Response response) {
             	// limit defines a limit on the length of the response if it is not defined in the request
@@ -88,7 +151,27 @@ public class DFRoutes implements SparkApplication{
                 return gson.toJson(service.matchProperty(prop, propVal, limit));
                
             }
-        });
+        });*/
+		
+		post("/matchProperty", new Route() {
+			public Object handle(Request request, Response response){
+				
+				
+				JsonParser parser = new JsonParser();
+				JsonObject requestData = (JsonObject) parser.parse(request.body());
+				String propName = requestData.get("propName").getAsString();
+				System.out.println(requestData.get("datasetId"));
+				String propValue = requestData.get("propValue").getAsString();
+				
+				int datasetId = Integer.parseInt(requestData.get("datasetId").getAsString());
+				
+				int limit = request.queryParams("limit") != null ? Integer.valueOf(request.queryParams("limit")) : 100;
+				
+				DFResponse dfResponse = service.matchPropertyNew(propName, propValue, datasetId, limit); 
+				
+				return gson.toJson(dfResponse);
+			}
+		});
 		
 		//handles a request to the route /getTable/541 for example
 		// :nodeID is a parameter for any node that is a COLUMN

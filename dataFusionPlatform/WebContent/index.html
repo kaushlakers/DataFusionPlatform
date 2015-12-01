@@ -2,16 +2,19 @@
 <html>
 <head>
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+
 <script type="text/javascript" src="//code.jquery.com/jquery-1.11.0.min.js"></script>
 <script src="http://d3js.org/d3.v3.min.js" type="text/javascript"></script>
+<script type="text/javascript" src="javascript/angular.js"></script>
+<script data-main="javascript/app/main.js" src="javascript/require.js"></script>
 <script src="bootstrap/js/bootstrap.js"></script>
 <link href="bootstrap/css/bootstrap.css" rel="stylesheet">
-<link rel="stylesheet" type="text/css" href="style.css">
+<link rel="stylesheet" type="text/css" href="css/style.css">
 </head>
 
 <body>
 
-<div id="console">
+<div id="console" class="container">
 
 <!-- First Form -->
 <form id="getDataForm" method="POST">
@@ -91,7 +94,7 @@
 <!-- <div id="metainfo"></div>
 </div> -->
 
-<div id="graph">
+<div id="graph" class="container network-container">
 <button id="export" onclick="dataExport()" class="btn btn-default">Export</button>
 <image id="logo" src="logo.png">
 </div>

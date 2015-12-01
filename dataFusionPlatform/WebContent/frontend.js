@@ -100,7 +100,7 @@ d3.json("/" + warName + "/datasets", function(error, data)
 
 			// retrieve the datasets from Neo4j
 			dSets = data.datasets;
-			
+			console.log(dSets);
 			// create a radio button for each dataset to display 
 			for (var d in dSets) {
 				var name = dSets[d].datasetNode.title;
@@ -679,7 +679,7 @@ function match(prop, propVal, n) {
  */
 function createTable(newNodes,n) {
 
-	//get HTML Table to add rows in
+	//get HTML Table toc add rows in
 	var edgeTable = document.getElementById("createEdgesTable");
 	
 	//Create row to insert column headers
