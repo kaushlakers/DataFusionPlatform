@@ -151,7 +151,6 @@ function(appModule) {
 				})
 				*/
 				var data = {datasetId1: ids[0], datasetId2: ids[1], intermediate: intermediate};
-				console.log(data);
 				$http.post(UrlService.buildUrl('getDatasetMatches'), data)
 				.success(function(data) {
 					updateStoreObjects(data, true, false);
