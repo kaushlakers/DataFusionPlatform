@@ -5,6 +5,7 @@ html, body {
 	overflow-y:hidden;
 	overflow-x:hidden;
 	color: white;
+	font-family: "Helvetica Neue",Helvetica,Arial,sans-serif !important;
 }
 table, th, td {
     border: 1px solid black;
@@ -14,27 +15,30 @@ table, th, td {
 
 legend {
 	color: white;
-	font-family: font"Lucida Console", Monaco, monospace;
+	#font-family: font"Helvetica", Monaco, monospace;
 }
 
 .list {
 	color: white;
-	font-family: font"Lucida Console", Monaco, monospace;
+	#font-family: font"Lucida Console", Monaco, monospace;
 }
 
 div {
-	font-family: font"Lucida Console", Monaco, monospace;
-	height: 100%;
-    box-sizing:border-box;
+	#font-family: font"Lucida Console", Monaco, monospace;
+	box-sizing:border-box;
     -moz-box-sizing:border-box;
     -webkit-box-sizing:border-box;
 }
 
+.container {
+	height: 100%;
+}
+
 .title {
-	font-family: font"Lucida Console", Monaco, monospace;
+	#font-family: font"Lucida Console", Monaco, monospace;
 	color: black;
 	font-weight: bold;
-	text-align: center;
+	text-align: left;
 	color: white;
 }
 
@@ -72,13 +76,22 @@ div {
 	background: linear-gradient(to right, #f5f5f5 0%,#ffffff 15%,#ffffff 85%,#f5f5f5 100%);
 	*/
 	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f5f5f5', endColorstr='#f5f5f5',GradientType=1 );
+	width: 100%;
+	position: relative;
+}
+
+.network-container {
 	width: 70%;
 	float: right;
-	position: relative;
+}
+
+#graph {
+	#min-height: 600px;
 }
 
 #console {
 	/* backgrounds for all possible browsers */
+	height: 100%;
 	background: #bb0000; /* Old browsers */
 	background: -moz-linear-gradient(left,  #bb0000 0%, #8f0222 85%, #6d0019 100%); /* FF3.6+ */
 	background: -webkit-gradient(linear, left top, right top, color-stop(0%,#bb0000), color-stop(85%,#8f0222), color-stop(100%,#6d0019)); /* Chrome,Safari4+ */
@@ -98,14 +111,14 @@ div {
 	*/
 	filter: progid: DXImageTransform.Microsoft.gradient( startColorstr='#90CAF9', endColorstr='#90CAF9',GradientType=1 );
 	text-align: left;
-	padding-left: 25px;
+	padding: 0px 10px 0 10px;
 	position: relative;
 	width: 30%;
 	float: left;
 }
 
 .infocell {
-	font-family: font"Lucida Console", Monaco, monospace;
+	#font-family: font"Lucida Console", Monaco, monospace;
 	color: black;
 }
 
@@ -126,6 +139,25 @@ div {
 	padding:2px 6px;
 	height:28px
 }
+
+.create-delete-edge {
+	text-align: center;
+}
+
+.my-switch {
+	float : left;
+	margin-right: 10px !important;
+	background: #e6e6e6;
+}
+
+.my-switch small, .my-switch wide {
+}
+
+.my-switch.checked {
+	background: #A5A0A0;
+	border-color: #A5A0A0;
+}
+
 
 /*button {
 	padding: 10px;

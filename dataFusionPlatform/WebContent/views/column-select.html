@@ -1,0 +1,10 @@
+<form id="pickNode" method="POST">
+	<legend class="title">Select a Column</legend>
+	<label ng-repeat="column in formData.columns">
+   		<input type="radio" ng-model="formData.selectedPropValue" ng-value="column.properties.represents" />
+   		{{column.properties.title}}
+ 		</label><br/>
+  	<input type="button" id="form1Button" class="btn btn-default" ng-click="getDatasetMatches()" value="Find Matches"/>
+	 <input type="button" id="" class="btn btn-default" ng-click="back()" value="Back"/>
+     
+</form>

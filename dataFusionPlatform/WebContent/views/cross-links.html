@@ -1,0 +1,32 @@
+<form id="createEdges" method="POST">
+	<fieldset>
+		<legend class="title">Modify the graph!</legend>
+		<table cellpadding="15" id="createEdgesTable">
+			<tr>
+				<th>Node 1</th>
+				<th>Node 2</th>
+				<th>Create/Delete Edge</th>
+			</tr>
+			<tr ng-repeat="crossEdgeEntry in crossDatasetEdges">
+				<td>{{crossEdgeEntry.src.properties.title}}</td>
+				<td>{{crossEdgeEntry.dest.properties.title}}</td>
+				<td class="create-delete-edge"> 
+					<a ng-show="crossEdgeEntry.edge.dashes" ng-click="createDeleteEdge(crossEdgeEntry.edge)" 
+					class="btn btn-default btn-sm" title="Create a link" href="#">
+						
+	    				<i class="fa fa-plus"></i>
+	    				Create
+	    			</a>
+	    			<a ng-hide="crossEdgeEntry.edge.dashes" ng-click="createDeleteEdge(crossEdgeEntry.edge)" 
+	    			class="btn btn-default btn-sm" title="Delete a link" href="#">
+	    				<i class="fa fa-trash-o"></i>
+	    				Delete
+	    			</a>
+	    			
+    			</td>
+			</tr>
+		</table>
+		<br>	
+	 <input type="button" id="" class="btn btn-default" ng-click="back()" value="Back"/>
+	</fieldset>
+</form>
